@@ -1,7 +1,7 @@
 import { findPostsByPage } from "@/lib/actions/post";
 
 export default async function PostsPage() {
-  const posts = await findPostsByPage();
+  const posts = await findPostsByPage({});
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center -mt-16">

@@ -1,15 +1,29 @@
+import { auth } from '@/auth';
 import { createPost } from '@/lib/actions/post';
 import Form from 'next/form';
 
-export default function NewPost() {
+export default async function NewPost() {
+  const session = await auth();
+
   async function onFormAction(formData: FormData) {
     'use server';
 
     const title = formData.get('title') as string;
     const content = formData.get('content') as string;
+    const user = session?.user;
+    if (user === null) {
+      // TODO : 유저가 탐지되지 않을 시 오류처리
+      // 기본적으로 middleware 을 통해 포스트 관련 작업은 다른 유저가 건드릴 수 없도록 해야함
+      // 다만 다른 유저가 건드렸고, 유저가 탐지되지 않을 시 오류 처리를 해야함
+      return;
+    }
 
     // TODO : 유저 기능 추가를 통해서 userId 가 1 이 아닌 현재 유저의 아이디로 표시되도록
-    await createPost(title, content, {} as unknown as any);
+    await createPost({
+      title,
+      content,
+      authorId: user!.id!,
+    });
   }
 
   return (

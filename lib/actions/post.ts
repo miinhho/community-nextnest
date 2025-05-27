@@ -1,24 +1,38 @@
-import { User } from "@/generated/prisma";
 import prisma from "../prisma";
-import { PostContentDto } from "../validation/post";
+import { postContentDto } from "../validation/post";
 
-export async function createPost(title: string, content: string, author: User) {
-  PostContentDto.parse({ title, content });
+export async function createPost({
+  title,
+  content,
+  authorId,
+}: {
+  title: string;
+  content: string;
+  authorId: string;
+}) {
+  postContentDto.parse({ title, content });
 
   const post = await prisma.post.create({
     data: {
       title,
       content,
-      authorId: author.id,
-      published: true,
+      authorId,
     },
   });
 
   return post;
 }
 
-export async function updatePost(id: string, title?: string, content?: string) {
-  PostContentDto.parse({ title, content });
+export async function updatePost({
+  id,
+  title,
+  content,
+}: {
+  id: string;
+  title?: string;
+  content?: string;
+}) {
+  postContentDto.parse({ title, content });
 
   const post = await prisma.post.update({
     where: {
@@ -50,7 +64,13 @@ export async function findPostById(id: string) {
  * @param page - 기본값: 0
  * @param pageSize - 기본값: 10
  */
-export async function findPostsByPage(page: number = 0, pageSize: number = 10) {
+export async function findPostsByPage({
+  page = 0,
+  pageSize = 10,
+}: {
+  page?: number;
+  pageSize?: number;
+}) {
   const posts = await prisma.post.findMany({
     include: {
       author: true,
@@ -65,11 +85,15 @@ export async function findPostsByPage(page: number = 0, pageSize: number = 10) {
   return posts;
 }
 
-export async function findPostsByTitle(
-  title: string,
-  page: number = 0,
-  pageSize: number = 10
-) {
+export async function findPostsByTitle({
+  title,
+  page = 0,
+  pageSize = 10,
+}: {
+  title: string;
+  page: number;
+  pageSize: number;
+}) {
   const posts = await prisma.post.findMany({
     where: {
       title: {

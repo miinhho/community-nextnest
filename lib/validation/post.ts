@@ -1,6 +1,6 @@
 import { z } from "zod/v4";
 
-export const PostContentDto = z.object({
+export const postContentDto = z.object({
   title: z
     .string()
     .min(5, "5글자 이상의 제목을 지어주세요")
