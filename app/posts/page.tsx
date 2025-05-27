@@ -1,11 +1,7 @@
-import prisma from "@/lib/prisma";
+import { findPostsByPage } from "@/lib/actions/post";
 
 export default async function PostsPage() {
-  const posts = await prisma.post.findMany({
-    include: {
-      user: true,
-    },
-  });
+  const posts = await findPostsByPage();
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center -mt-16">
@@ -17,7 +13,7 @@ export default async function PostsPage() {
           <li key={post.id}>
             <span className="font-semibold">{post.title}</span>
             <span className="text-sm text-gray-600 ml-2">
-              by {post.user?.name}
+              by {post.author?.name}
             </span>
           </li>
         ))}
