@@ -1,7 +1,10 @@
 import { User } from "@/generated/prisma";
 import prisma from "../prisma";
+import { PostContentDto } from "../validation/post";
 
 export async function createPost(title: string, content: string, author: User) {
+  PostContentDto.parse({ title, content });
+
   const post = await prisma.post.create({
     data: {
       title,
@@ -15,6 +18,8 @@ export async function createPost(title: string, content: string, author: User) {
 }
 
 export async function updatePost(id: string, title?: string, content?: string) {
+  PostContentDto.parse({ title, content });
+
   const post = await prisma.post.update({
     where: {
       id: id,
