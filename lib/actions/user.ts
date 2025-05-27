@@ -31,18 +31,30 @@ export async function findUserByEmail(email: string) {
     where: {
       email: email,
     },
+    omit: {
+      password: true,
+    },
   });
 
   return user;
 }
 
-export async function findUsersByName(name: string) {
+export async function findUsersByName(
+  name: string,
+  page: number = 0,
+  pageSize: number = 10
+) {
   const user = await prisma.user.findMany({
     where: {
       name: {
         startsWith: name,
       },
     },
+    omit: {
+      password: true,
+    },
+    skip: page * pageSize,
+    take: pageSize,
   });
 
   return user;
