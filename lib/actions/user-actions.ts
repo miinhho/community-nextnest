@@ -1,24 +1,20 @@
-import { ProviderType } from "next-auth/providers";
 import prisma from "../prisma";
 
 export async function createUser({
   email,
   name,
-  provider,
   password,
   image,
 }: {
   email: string;
-  name: string;
-  provider: ProviderType;
-  password?: string;
+  password: string;
+  name?: string;
   image?: string;
 }) {
   const user = await prisma.user.create({
     data: {
       email,
       name,
-      provider,
       password,
       image,
     },
@@ -32,7 +28,6 @@ export async function updateUserById(
   dataToUpdate: {
     name?: string;
     email?: string;
-    provider?: ProviderType;
     image?: string;
   }
 ) {

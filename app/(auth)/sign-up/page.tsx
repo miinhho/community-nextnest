@@ -1,51 +1,31 @@
 import { signIn } from "@/auth";
-import { UserNotFound, UserPasswordInvalid } from "@/lib/error/auth-error-types";
-import { providerMap } from "@/lib/helper/auth-helper";
+import { providerMap, signUp } from "@/lib/helper/auth-helper";
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { ZodError } from "zod/v4";
 
-interface Props {
-  searchParams: {
-    callbackUrl?: string
-  }
-}
+const SIGNUP_ERROR_URL = "/error";
 
-const SIGNIN_ERROR_URL = "/error";
-
-export default async function LoginPage({
-  searchParams
-}: Props) {
+export default async function LoginPage() {
   const handleCredentials = async (formData: FormData) => {
-    'use server';
-
     try {
-      await signIn('credentials', formData);
+      await signUp(formData);
     } catch (error) {
       if (error instanceof ZodError) {
         // TODO : Modal 로 유저에게 처리하기
         console.log(error.message);
       }
-      if (error instanceof UserNotFound) {
-        // TODO : 이메일로 유저를 찾을 수 없을 때 처리
-      }
-      if (error instanceof UserPasswordInvalid) {
-        // TODO : 비밀번호가 같지 않을 때 처리
-      }
-      throw error;
     }
-  };
+  }
 
   const handleProviders = async (provider: typeof providerMap[0]) => {
     'use server';
 
     try {
-      await signIn(provider.id, {
-        redirectTo: searchParams?.callbackUrl ?? "",
-      });
+      await signIn(provider.id);
     } catch (error) {
       if (error instanceof AuthError) {
-        return redirect(`${SIGNIN_ERROR_URL}?error=${error.type}`)
+        return redirect(`${SIGNUP_ERROR_URL}?error=${error.type}`)
       }
       throw error;
     }
@@ -62,7 +42,7 @@ export default async function LoginPage({
           Password
           <input name="password" id="password" />
         </label>
-        <input type="submit" value="로그인" />
+        <input type="submit" value="회원가입" />
       </form>
       {Object.values(providerMap).map((provider) => (
         <form

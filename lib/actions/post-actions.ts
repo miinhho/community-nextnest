@@ -1,5 +1,5 @@
 import prisma from "../prisma";
-import { postContentDto } from "../validation/post";
+import { postContentDto } from "../validation/post-validate";
 
 export async function createPost({
   title,

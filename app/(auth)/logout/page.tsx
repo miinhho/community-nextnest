@@ -1,8 +1,7 @@
 import { signOut } from "@/auth";
 
 export default function LogoutPage() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleLogout = async (_formData: FormData) => {
+  const handleLogout = async () => {
     'use server';
     await signOut();
   };

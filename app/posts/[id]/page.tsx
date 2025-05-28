@@ -1,4 +1,4 @@
-import { findPostById } from "@/lib/actions/post";
+import { findPostById } from "@/lib/actions/post-actions";
 import { notFound } from "next/navigation";
 
 export default async function Post({ params }: { params: Promise<{ id: string }> }) {
