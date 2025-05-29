@@ -119,6 +119,34 @@ export async function findUserByEmail(email: string) {
 }
 
 /**
+ * 비밀번호를 포함해서 반환하니 로그인 로직에서 호출하거나, 조심해서 사용해야 합니다.
+ * @returns
+ * - 유저: ID, 이름, 이메일 인증 날짜, 프로필 사진, OAuth 계정, 글, 생성 날짜, 수정 날짜, 댓글, 비밀번호
+ */
+export async function findUserWithPasswordByEmail(email: string) {
+  const user = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+
+    select: {
+      id: true,
+      name: true,
+      emailVerified: true,
+      image: true,
+      accounts: true,
+      posts: true,
+      createdAt: true,
+      updatedAt: true,
+      comment: true,
+      password: true,
+    },
+  });
+
+  return user;
+}
+
+/**
  * @param page - 기본값: 0
  * @param pageSize - 기본값: 10
  * @returns

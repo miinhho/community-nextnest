@@ -1,7 +1,10 @@
 import { providers } from "@/auth";
 import { Provider } from "next-auth/providers";
 import Credentials from "next-auth/providers/credentials";
-import { createUser, findUserByEmail } from "../actions/user.actions";
+import {
+  createUser,
+  findUserWithPasswordByEmail,
+} from "../actions/user.actions";
 import { UserNotFound, UserPasswordInvalid } from "../error/auth-error-types";
 import { userLoginDto } from "../validation/user.validate";
 import { comparePassword } from "./hash.helper";
@@ -21,7 +24,7 @@ export const credentialsProvider: Provider = Credentials({
     try {
       const { email, password } = await userLoginDto.parseAsync(credentials);
 
-      const user = await findUserByEmail(email);
+      const user = await findUserWithPasswordByEmail(email);
       if (user === null) {
         throw new UserNotFound();
       }
@@ -31,7 +34,10 @@ export const credentialsProvider: Provider = Credentials({
         throw new UserPasswordInvalid();
       }
 
-      return user;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password: _, ...safeUser } = user;
+
+      return safeUser;
     } catch {
       return null;
     }
