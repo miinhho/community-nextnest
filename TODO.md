@@ -20,10 +20,12 @@
 
 4. PostgreSQL 로 데이터베이스 수정 ✅
 
-5. 글 에디터 구현
+5. 글 에디터 구현 (아마도 시간이 오래 걸릴 듯 싶다...)
   - Lexical 프레임워크 사용
   - 에디터에서 나오는 글 데이터를 데이터베이스에 저장하기
   - (Post 관련 추가적인 Action 구현이 이루어질 것으로 예상) 
+  - [Lexical Playground](https://github.com/facebook/lexical/tree/main/packages/lexical-playground) 의 예제 코드를 참고하기
+  - 목표 기능: 굵은 글씨, 이텔릭체, 글 정렬, 폰트 선택, 이미지 첨부, 유튜브 링크
 
 6. 글 컴포넌트 구현
  
@@ -32,7 +34,7 @@
   - Thread / Twitter 형식의 프로필 페이지로 지금까지 작성한 글이 띄워지는 프로필
 
 8. 댓글 기능 추가
-  - Comment Schema 추가
+  - Comment Schema 추가 ✅
   - Comment Action 구현
   - Post 와 Comment 관계 설정
 
@@ -53,6 +55,6 @@
   - WebSocket 을 통한 채팅 추가
   - ChatRoom Schema 추가
   - ChatRoom Action 구현
-  - 채팅 메세지 페이징 구현
+  - 채팅 메세지 페이징(최근 20~30개 정도의 메세지만 fetch 후 추가 스크롤 시 추가 fetch) 구현
 
 + React Native 로 모바일 앱까지 구현이 가능하다면 해도 좋다고 생각함 (추후 다른 포트폴리오를 개발하며 사이드로 할 듯)

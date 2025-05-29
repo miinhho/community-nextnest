@@ -3,7 +3,7 @@ import NextAuth from "next-auth";
 import { encode } from "next-auth/jwt";
 import { Provider } from "next-auth/providers";
 import { v4 as uuid } from "uuid";
-import { credentialsProvider } from "./lib/helper/auth-helper";
+import { credentialsProvider } from "./lib/helper/auth.helper";
 import prisma from "./lib/prisma";
 
 export const providers: Provider[] = [credentialsProvider];

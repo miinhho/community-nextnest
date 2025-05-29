@@ -1,6 +1,11 @@
 import prisma from "../prisma";
-import { postContentDto } from "../validation/post-validate";
+import { postContentDto } from "../validation/post.validate";
 
+/**
+ * @returns
+ * - 글: ID, 제목
+ * - 작성자: ID, 이름
+ */
 export async function createPost({
   title,
   content,
@@ -18,11 +23,26 @@ export async function createPost({
       content,
       authorId,
     },
+
+    select: {
+      id: true,
+      title: true,
+      author: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
   });
 
   return post;
 }
 
+/**
+ * @returns
+ * - 작성자: ID, 이름
+ */
 export async function updatePost({
   id,
   title,
@@ -36,24 +56,51 @@ export async function updatePost({
 
   const post = await prisma.post.update({
     where: {
-      id: id,
+      id,
     },
+
     data: {
-      title: title,
-      content: content,
+      title,
+      content,
+    },
+
+    select: {
+      author: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
   });
 
   return post;
 }
 
+/**
+ * @returns
+ * - 글: 이름, 내용, 생성 날짜, 수정 날짜
+ * - 작성자: ID, 이름, 프로필 사진
+ */
 export async function findPostById(id: string) {
   const post = await prisma.post.findUnique({
     where: {
-      id: id,
+      id,
     },
-    include: {
-      author: true,
+
+    select: {
+      title: true,
+      content: true,
+      createdAt: true,
+      updatedAt: true,
+
+      authorId: true,
+      author: {
+        select: {
+          name: true,
+          image: true,
+        },
+      },
     },
   });
 
@@ -63,6 +110,9 @@ export async function findPostById(id: string) {
 /**
  * @param page - 기본값: 0
  * @param pageSize - 기본값: 10
+ * @returns
+ * - 글: ID, 제목
+ * - 작성자: ID, 이름, 프로필 사진
  */
 export async function findPostsByPage({
   page = 0,
@@ -72,11 +122,21 @@ export async function findPostsByPage({
   pageSize?: number;
 }) {
   const posts = await prisma.post.findMany({
-    include: {
-      author: true,
+    select: {
+      id: true,
+      title: true,
+
+      authorId: true,
+      author: {
+        select: {
+          name: true,
+          image: true,
+        },
+      },
     },
     skip: page * pageSize,
     take: pageSize,
+
     orderBy: {
       createdAt: "desc",
     },
@@ -85,6 +145,13 @@ export async function findPostsByPage({
   return posts;
 }
 
+/**
+ * @param page - 기본값: 0
+ * @param pageSize - 기본값: 10
+ * @returns
+ * - 글: ID, 제목
+ * - 작성자: ID, 이름, 프로필 사진
+ */
 export async function findPostsByTitle({
   title,
   page = 0,
@@ -100,11 +167,22 @@ export async function findPostsByTitle({
         startsWith: title,
       },
     },
-    include: {
-      author: true,
+
+    select: {
+      id: true,
+      title: true,
+
+      authorId: true,
+      author: {
+        select: {
+          name: true,
+          image: true,
+        },
+      },
     },
     skip: page * pageSize,
     take: pageSize,
+
     orderBy: {
       createdAt: "desc",
     },
@@ -113,10 +191,25 @@ export async function findPostsByTitle({
   return posts;
 }
 
+/**
+ * @returns
+ * - 글: 제목
+ * - 작성자: ID, 이름
+ */
 export async function deletePostById(id: string) {
   const post = await prisma.post.delete({
     where: {
       id: id,
+    },
+
+    select: {
+      title: true,
+      author: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
   });
 

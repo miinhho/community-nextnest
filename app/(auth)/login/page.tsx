@@ -1,6 +1,6 @@
 import { signIn } from "@/auth";
 import { UserNotFound, UserPasswordInvalid } from "@/lib/error/auth-error-types";
-import { providerMap } from "@/lib/helper/auth-helper";
+import { providerMap } from "@/lib/helper/auth.helper";
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { ZodError } from "zod/v4";

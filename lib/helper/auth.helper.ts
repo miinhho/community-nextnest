@@ -1,10 +1,10 @@
 import { providers } from "@/auth";
 import { Provider } from "next-auth/providers";
 import Credentials from "next-auth/providers/credentials";
-import { createUser, findUserByEmail } from "../actions/user-actions";
+import { createUser, findUserByEmail } from "../actions/user.actions";
 import { UserNotFound, UserPasswordInvalid } from "../error/auth-error-types";
-import { userLoginDto } from "../validation/user-validate";
-import { comparePassword } from "./hash-helper";
+import { userLoginDto } from "../validation/user.validate";
+import { comparePassword } from "./hash.helper";
 
 export const credentialsProvider: Provider = Credentials({
   credentials: {

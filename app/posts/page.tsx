@@ -1,4 +1,4 @@
-import { findPostsByPage } from "@/lib/actions/post-actions";
+import { findPostsByPage } from "@/lib/actions/post.actions";
 
 export default async function PostsPage() {
   const posts = await findPostsByPage({});
