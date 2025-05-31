@@ -1,31 +1,19 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import NextAuth from "next-auth";
-import { encode } from "next-auth/jwt";
-import { Provider } from "next-auth/providers";
+import { NextAuthConfig } from "next-auth";
+import { encode, JWTOptions } from "next-auth/jwt";
 import { v4 as uuid } from "uuid";
-import { credentialsProvider } from "./lib/helper/auth.helper";
-import prisma from "./lib/prisma";
 
-export const providers: Provider[] = [credentialsProvider];
-const adapter = PrismaAdapter(prisma);
+export const jwtCallback = {
+  jwt({ token, account }) {
+    if (account?.provider === "credentials") {
+      token.credentials = true;
+    }
+    return token;
+  },
+} satisfies NextAuthConfig["callbacks"];
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter,
-  providers,
-  pages: {
-    signIn: "/login",
-    signOut: "/logout",
-    error: "/error",
-  },
-  callbacks: {
-    jwt({ token, account }) {
-      if (account?.provider === "credentials") {
-        token.credentials = true;
-      }
-      return token;
-    },
-  },
-  jwt: {
+export const jwtOptions = (adapter: ReturnType<typeof PrismaAdapter>) => {
+  return {
     encode: async function (params) {
       if (params.token?.credentials) {
         const sessionToken = uuid();
@@ -49,5 +37,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       return encode(params);
     },
-  },
-});
+  } satisfies Partial<JWTOptions>;
+};
