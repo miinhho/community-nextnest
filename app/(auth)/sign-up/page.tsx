@@ -1,5 +1,6 @@
 import { signIn } from "@/lib/auth";
-import { providerMap, signUp } from "@/lib/helper/auth.helper";
+import { signUp } from "@/lib/auth/credential-provider";
+import { providerMap } from "@/lib/helper/auth.helper";
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { ZodError } from "zod/v4";

@@ -1,6 +1,9 @@
 import { Provider } from "next-auth/providers";
 import Credentials from "next-auth/providers/credentials";
-import { findUserWithPasswordByEmail } from "../actions/user.actions";
+import {
+  createUser,
+  findUserWithPasswordByEmail,
+} from "../actions/user.actions";
 import { UserNotFound, UserPasswordInvalid } from "../error/auth.error";
 import { comparePassword } from "../helper/hash.helper";
 import { userLoginDto } from "../validation/user.validate";
@@ -39,3 +42,14 @@ export const credentialsProvider: Provider = Credentials({
     }
   },
 });
+
+export const signUp = async (formData: FormData) => {
+  const email = formData.get("email");
+  const password = formData.get("password");
+  const validatedData = userLoginDto.parse({ email, password });
+
+  await createUser({
+    email: validatedData.email,
+    password: validatedData.password,
+  });
+};
