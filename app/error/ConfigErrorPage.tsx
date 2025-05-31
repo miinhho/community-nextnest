@@ -1,4 +1,4 @@
-import { CustomAuthError } from "@/lib/error/auth-error-types";
+import { CustomAuthError } from "@/lib/error/auth.error";
 
 export default function ConfigErrorPage() {
   return (

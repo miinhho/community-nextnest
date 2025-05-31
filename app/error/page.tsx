@@ -1,11 +1,12 @@
-import { CustomAuthError } from "@/lib/error/auth-error-types";
+import { CustomAuthError } from "@/lib/error/auth.error";
+import { NextSearchParam, SearchParamHelper } from "@/lib/helper/param.helper";
 import AccessDeniedPage from "./AccessDeniedPage";
 import ConfigErrorPage from "./ConfigErrorPage";
 import DefaultErrorPage from "./DefaultErrorPage";
 import VerificationPage from "./VerificationPage";
 
 interface Props {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  searchParams: NextSearchParam;
 }
 
 const errorPageMap = {
@@ -16,10 +17,7 @@ const errorPageMap = {
 };
 
 export default async function ErrorPage({ searchParams }: Props) {
-  const params = await searchParams;
-  const error = Array.isArray(params['error'])
-    ? params['error'][0]
-    : params['error'] ?? "";
+  const error = await SearchParamHelper.getString(searchParams, "error");
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center">

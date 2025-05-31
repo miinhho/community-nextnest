@@ -1,7 +1,7 @@
 import { Provider } from "next-auth/providers";
 import Credentials from "next-auth/providers/credentials";
 import { findUserWithPasswordByEmail } from "../actions/user.actions";
-import { UserNotFound, UserPasswordInvalid } from "../error/auth-error-types";
+import { UserNotFound, UserPasswordInvalid } from "../error/auth.error";
 import { comparePassword } from "../helper/hash.helper";
 import { userLoginDto } from "../validation/user.validate";
 
