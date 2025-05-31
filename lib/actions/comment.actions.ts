@@ -38,7 +38,7 @@ export async function createComment({
  * @param dataToUpdate - 변경할 내용, 글 ID, 작성자 ID
  * @returns
  * - 작성자: 이름
- * - 글: ID, 제목
+ * - 글: ID
  */
 export async function updateCommentById(
   id: string,
@@ -60,7 +60,6 @@ export async function updateCommentById(
     select: {
       post: {
         select: {
-          title: true,
           author: {
             select: {
               name: true,
@@ -105,7 +104,7 @@ export async function findCommentById(id: string) {
  * @param pageSize - 기본값: 10
  * @returns
  * - 댓글: 내용, 수정 날짜, 생성 날짜
- * - 글: ID, 제목
+ * - 글: ID
  */
 export async function findCommentsByUser({
   authorId,
@@ -122,7 +121,6 @@ export async function findCommentsByUser({
       post: {
         select: {
           id: true,
-          title: true,
         },
       },
       createdAt: true,
@@ -191,7 +189,7 @@ export async function findCommentsByPost({
 
 /**
  * @returns
- * - 글: ID, 제목
+ * - 글: ID
  */
 export async function deleteCommentById(id: string) {
   const comment = await prisma.comment.delete({
@@ -203,7 +201,6 @@ export async function deleteCommentById(id: string) {
       post: {
         select: {
           id: true,
-          title: true,
         },
       },
     },

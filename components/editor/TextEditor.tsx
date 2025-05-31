@@ -34,6 +34,8 @@ const editorConfig: LexicalConfig = {
 
 const placeholder = "내용을 입력하세요...";
 
+
+// TODO : $generateHtmlFromNodes, $generateNodesFromDom 을 통해 Html 데이터 저장, 수정용으로 불러오기 구현
 export const TextEditor = () => {
   return (
     <LexicalComposer initialConfig={editorConfig}>
