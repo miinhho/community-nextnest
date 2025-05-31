@@ -3,7 +3,3 @@
 .toolbar-item {
   @apply border-0 flex p-2 rounded-xl cursor-pointer align-middle disabled:cursor-not-allowed disabled:opacity-20;
 }
-
-.example {
-  background-color: rgba(223, 232, 250, 0.3);
-}

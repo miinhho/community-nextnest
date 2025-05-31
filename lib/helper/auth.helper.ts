@@ -1,4 +1,4 @@
-import { providers } from "@/auth";
+import { providers } from "@/lib/auth";
 import { createUser } from "../actions/user.actions";
 import { userLoginDto } from "../validation/user.validate";
 

@@ -3,14 +3,17 @@
 import { cn } from "@/lib/utils";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { mergeRegister } from "@lexical/utils";
-import { $getSelection, $isRangeSelection, CAN_REDO_COMMAND, CAN_UNDO_COMMAND, COMMAND_PRIORITY_LOW, FORMAT_ELEMENT_COMMAND, FORMAT_TEXT_COMMAND, REDO_COMMAND, SELECTION_CHANGE_COMMAND, UNDO_COMMAND } from "lexical";
+import { $getSelection, $isRangeSelection, CAN_REDO_COMMAND, CAN_UNDO_COMMAND, COMMAND_PRIORITY_LOW, FORMAT_ELEMENT_COMMAND, FORMAT_TEXT_COMMAND, REDO_COMMAND, UNDO_COMMAND } from "lexical";
 import { AlignCenter, AlignJustify, AlignLeft, AlignRight, Bold, Redo, Strikethrough, Underline, Undo } from 'lucide-react';
 import { useCallback, useEffect, useState } from "react";
+import { INSERT_YOUTUBE_COMMAND } from "../YouTubePlugin";
 import "./ToolbarPlugin.css";
 
 const Divider = () => {
   return <div className="w-0.5 bg-neutral-300 mr-1" />;
 };
+
+const YOUTUBE_REGEX = /(?:https:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|.+\?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
 
 export const ToolbarPlugin = () => {
   const [editor] = useLexicalComposerContext();
@@ -38,14 +41,6 @@ export const ToolbarPlugin = () => {
           $updateToolbar();
         });
       }),
-      editor.registerCommand(
-        SELECTION_CHANGE_COMMAND,
-        () => {
-          $updateToolbar();
-          return false;
-        },
-        COMMAND_PRIORITY_LOW,
-      ),
       editor.registerCommand(
         CAN_UNDO_COMMAND,
         (payload) => {
@@ -160,6 +155,19 @@ export const ToolbarPlugin = () => {
         aria-label="양쪽 정렬"
       >
         <AlignJustify />
+      </button>
+      <button
+        // TODO : Modal 로 대체하여 표시하기
+        onClick={() => {
+          const url = prompt("Youtube url");
+          const match = url?.match(YOUTUBE_REGEX);
+          if (match && match[1]) {
+            const videoId = match[1];
+            editor.dispatchCommand(INSERT_YOUTUBE_COMMAND, videoId);
+          }
+        }}
+      >
+        Youtube
       </button>
     </div>
   );

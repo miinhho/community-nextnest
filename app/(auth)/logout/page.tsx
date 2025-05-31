@@ -1,4 +1,4 @@
-import { signOut } from "@/auth";
+import { signOut } from "@/lib/auth";
 
 export default function LogoutPage() {
   const handleLogout = async () => {

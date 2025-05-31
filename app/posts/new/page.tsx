@@ -1,5 +1,5 @@
-import { auth } from '@/auth';
 import { createPost } from '@/lib/actions/post.actions';
+import { auth } from '@/lib/auth';
 import Form from 'next/form';
 
 export default async function NewPost() {

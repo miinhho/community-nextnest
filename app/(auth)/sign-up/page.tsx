@@ -1,4 +1,4 @@
-import { signIn } from "@/auth";
+import { signIn } from "@/lib/auth";
 import { providerMap, signUp } from "@/lib/helper/auth.helper";
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
@@ -8,6 +8,8 @@ const SIGNUP_ERROR_URL = "/error";
 
 export default async function LoginPage() {
   const handleCredentials = async (formData: FormData) => {
+    'use server';
+
     try {
       await signUp(formData);
     } catch (error) {

@@ -1,21 +1,22 @@
-import { signIn } from "@/auth";
+import { signIn } from "@/lib/auth";
 import { UserNotFound, UserPasswordInvalid } from "@/lib/error/auth-error-types";
 import { providerMap } from "@/lib/helper/auth.helper";
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { ZodError } from "zod/v4";
 
-interface Props {
-  searchParams: {
-    callbackUrl?: string
-  }
-}
-
 const SIGNIN_ERROR_URL = "/error";
 
 export default async function LoginPage({
   searchParams
-}: Props) {
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const params = await searchParams;
+  const callbackUrl = Array.isArray(params['callbackUrl'])
+    ? params['callbackUrl'][0]
+    : params['callbackUrl'] ?? "";
+
   const handleCredentials = async (formData: FormData) => {
     'use server';
 
@@ -41,7 +42,7 @@ export default async function LoginPage({
 
     try {
       await signIn(provider.id, {
-        redirectTo: searchParams?.callbackUrl ?? "",
+        redirectTo: callbackUrl,
       });
     } catch (error) {
       if (error instanceof AuthError) {

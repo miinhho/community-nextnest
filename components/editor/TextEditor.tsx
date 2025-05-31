@@ -1,6 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
+import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -11,7 +12,10 @@ import { ParagraphNode, TextNode } from "lexical";
 import { ComponentProps } from "react";
 import { constructImportMap, exportMap } from "./editor-parser";
 import { editorTheme } from "./editor-theme";
+import { YouTubeNode } from './nodes/YoutubeNode';
+import { LexicalAutoLinkPlugin as AutoLinkPlugin } from './plugins/AutoLinkPlugin';
 import { ToolbarPlugin } from "./plugins/ToolbarPlugin";
+import YouTubePlugin from './plugins/YouTubePlugin';
 
 type LexicalConfig = ComponentProps<typeof LexicalComposer>['initialConfig'];
 
@@ -21,12 +25,14 @@ const editorConfig: LexicalConfig = {
     import: constructImportMap(),
   },
   namespace: "TextEditor",
-  nodes: [ParagraphNode, TextNode],
+  nodes: [ParagraphNode, TextNode, YouTubeNode, AutoLinkNode, LinkNode],
   onError(error) {
     throw error;
   },
   theme: editorTheme,
 };
+
+const placeholder = "내용을 입력하세요...";
 
 export const TextEditor = () => {
   return (
@@ -45,14 +51,21 @@ export const TextEditor = () => {
                 className={cn(
                   "relative min-h-36 pt-3.5 pb-2.5 resize-none",
                   "text-base tab-size-1 text-neutral-700",
-                  "outline-0 caret-neutral-500"
+                  "outline-0"
                 )}
+                aria-placeholder={placeholder}
+                placeholder={
+                  <div className="absolute top-9 left-6 text-neutral-500 pointer-events-none">
+                    {placeholder}
+                  </div>}
               />
             }
             ErrorBoundary={LexicalErrorBoundary}
           />
-          <HistoryPlugin />
           <AutoFocusPlugin />
+          <HistoryPlugin />
+          <YouTubePlugin />
+          <AutoLinkPlugin />
         </div>
       </div>
     </LexicalComposer>

@@ -5,9 +5,7 @@ import DefaultErrorPage from "./DefaultErrorPage";
 import VerificationPage from "./VerificationPage";
 
 interface Props {
-  searchParams: {
-    error: CustomAuthError;
-  }
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 const errorPageMap = {
@@ -17,8 +15,11 @@ const errorPageMap = {
   [CustomAuthError.Default]: <DefaultErrorPage />,
 };
 
-export default function ErrorPage({ searchParams }: Props) {
-  const error = searchParams.error;
+export default async function ErrorPage({ searchParams }: Props) {
+  const params = await searchParams;
+  const error = Array.isArray(params['error'])
+    ? params['error'][0]
+    : params['error'] ?? "";
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center">
@@ -30,7 +31,7 @@ export default function ErrorPage({ searchParams }: Props) {
           오류가 발생하였습니다
         </h5>
         <div className="font-normal text-gray-700 dark:text-gray-400">
-          {errorPageMap[error] || "알 수 없는 오류 - 관리자에게 연락해주시길 바랍니다"}
+          {errorPageMap[error as CustomAuthError] || "알 수 없는 오류 - 관리자에게 연락해주시길 바랍니다"}
         </div>
       </a>
     </div>
