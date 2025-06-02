@@ -1,20 +1,19 @@
 import { cn } from "@/lib/utils";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import status from "http-status";
-import { exportLexicalHtml } from "../../utils/lexical-html";
 
-export function HtmlSavePlugin() {
+export function JsonSavePlugin() {
   const [editor] = useLexicalComposerContext();
 
   // TODO : 확인 Modal 추가하기
   const handlePost = async () => {
-    const html = exportLexicalHtml(editor);
-    alert(html);
+    const lexicalJson = JSON.stringify(editor.toJSON);
+    console.log(lexicalJson);
 
     const res = await fetch("/api/post", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ html }),
+      body: lexicalJson,
     });
 
     // TODO : status 분기별 처리

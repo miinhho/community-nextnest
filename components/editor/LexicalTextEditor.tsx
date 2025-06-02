@@ -9,22 +9,22 @@ import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { editorConfig } from './editor-config';
 import { LexicalAutoLinkPlugin as AutoLinkPlugin } from './plugins/AutoLinkPlugin';
-import { HtmlImportPlugin } from './plugins/HtmlImportPlugin';
-import { HtmlSavePlugin } from './plugins/HtmlSavePlugin';
+import { JsonImportPlugin } from './plugins/JsonImportPlugin';
+import { JsonSavePlugin } from './plugins/JsonSavePlugin';
 import { ToolbarPlugin } from "./plugins/ToolbarPlugin";
 import { YouTubePlugin } from './plugins/YouTubePlugin';
 
 const placeholder = "내용을 입력하세요...";
 
 interface Props {
-  initialHtml?: string;
+  json?: string;
 }
 
 /**
- * @param initialHtml - 에디터에 불러올 Html 데이터
+ * @param json - 에디터에 불러올 json 데이터
  */
-export const TextEditor = ({
-  initialHtml
+export const LexicalTextEditor = ({
+  json
 }: Props) => {
   return (
     <LexicalComposer initialConfig={editorConfig}>
@@ -57,8 +57,8 @@ export const TextEditor = ({
           <HistoryPlugin />
           <YouTubePlugin />
           <AutoLinkPlugin />
-          <HtmlImportPlugin htmlString={initialHtml} />
-          <HtmlSavePlugin />
+          <JsonImportPlugin json={json} />
+          <JsonSavePlugin />
         </div>
       </div>
     </LexicalComposer>

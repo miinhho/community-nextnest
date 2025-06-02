@@ -14,10 +14,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { html } = await req.json();
+    const { lexicalJson } = await req.json();
 
     await createPost({
-      content: html,
+      content: lexicalJson,
       authorId: session.user.id!,
     });
 

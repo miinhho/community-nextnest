@@ -10,7 +10,6 @@ import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { ParagraphNode, TextNode } from "lexical";
 import { ComponentProps } from "react";
-import { constructImportMap, exportMap } from "./editor-parser";
 import { YouTubeNode } from "./nodes/YoutubeNode";
 
 export type LexicalConfig = ComponentProps<
@@ -44,10 +43,6 @@ export const editorTheme = {
 };
 
 export const editorConfig: LexicalConfig = {
-  html: {
-    export: exportMap,
-    import: constructImportMap(),
-  },
   namespace: "TextEditor",
   nodes,
   onError(error) {
