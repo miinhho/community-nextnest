@@ -8,7 +8,6 @@ export default async function NewPost() {
   async function onFormAction(formData: FormData) {
     'use server';
 
-    const title = formData.get('title') as string;
     const content = formData.get('content') as string;
     const user = session?.user;
     if (user === null) {
@@ -20,7 +19,6 @@ export default async function NewPost() {
 
     // TODO : 유저 기능 추가를 통해서 userId 가 1 이 아닌 현재 유저의 아이디로 표시되도록
     await createPost({
-      title,
       content,
       authorId: user!.id!,
     });

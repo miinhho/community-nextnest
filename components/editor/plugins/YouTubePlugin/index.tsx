@@ -27,7 +27,7 @@ export const YOUTUBE_REGEX =
 /**
  * 유튜브 링크를 payload 로 받아와 임베드된 동영상을 띄우는 플러그인
  */
-export default function YouTubePlugin(): JSX.Element | null {
+export function YouTubePlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {

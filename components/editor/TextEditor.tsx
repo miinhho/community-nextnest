@@ -10,8 +10,9 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { editorConfig } from './editor-config';
 import { LexicalAutoLinkPlugin as AutoLinkPlugin } from './plugins/AutoLinkPlugin';
 import { HtmlImportPlugin } from './plugins/HtmlImportPlugin';
+import { HtmlSavePlugin } from './plugins/HtmlSavePlugin';
 import { ToolbarPlugin } from "./plugins/ToolbarPlugin";
-import YouTubePlugin from './plugins/YouTubePlugin';
+import { YouTubePlugin } from './plugins/YouTubePlugin';
 
 const placeholder = "내용을 입력하세요...";
 
@@ -57,6 +58,7 @@ export const TextEditor = ({
           <YouTubePlugin />
           <AutoLinkPlugin />
           <HtmlImportPlugin htmlString={initialHtml} />
+          <HtmlSavePlugin />
         </div>
       </div>
     </LexicalComposer>

@@ -16,7 +16,7 @@ const Divider = () => {
 /**
  * 에디터의 툴을 구현한 플러그인
  */
-export const ToolbarPlugin = () => {
+export function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
