@@ -21,6 +21,12 @@ export const INSERT_YOUTUBE_COMMAND: LexicalCommand<string> = createCommand(
   'INSERT_YOUTUBE_COMMAND',
 );
 
+export const YOUTUBE_REGEX =
+  /(?:https:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|.+\?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+
+/**
+ * 유튜브 링크를 payload 로 받아와 임베드된 동영상을 띄우는 플러그인
+ */
 export default function YouTubePlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
 
@@ -32,8 +38,12 @@ export default function YouTubePlugin(): JSX.Element | null {
     return editor.registerCommand<string>(
       INSERT_YOUTUBE_COMMAND,
       (payload) => {
-        const youTubeNode = $createYouTubeNode(payload);
-        $insertNodeToNearestRoot(youTubeNode);
+        const match = payload.match(YOUTUBE_REGEX);
+        if (match && match[1]) {
+          const videoId = match[1];
+          const youTubeNode = $createYouTubeNode(videoId);
+          $insertNodeToNearestRoot(youTubeNode);
+        }
 
         return true;
       },

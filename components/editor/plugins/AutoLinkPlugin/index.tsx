@@ -30,6 +30,9 @@ const URL_MATCHERS = [
   }),
 ];
 
+/**
+ * 사용자가 링크를 입력하면 자동으로 링크 컴포넌트로 바꿔주는 플러그인
+ */
 export function LexicalAutoLinkPlugin(): JSX.Element {
   return <AutoLinkPlugin matchers={URL_MATCHERS} />;
 }

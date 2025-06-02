@@ -39,13 +39,11 @@ function YouTubeComponent({
       format={format}
       nodeKey={nodeKey}>
       <iframe
-        width="560"
-        height="315"
         src={`https://www.youtube-nocookie.com/embed/${videoID}`}
-        frameBorder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen={true}
         title="YouTube video"
+        className="relative min-w-lg min-h-72 mr-2 ml-2 justify-self-center"
       />
     </BlockWithAlignableContents>
   );
@@ -69,6 +67,10 @@ function $convertYoutubeElement(
   return null;
 }
 
+
+/**
+ * 유튜브 영상 데이터를 받아와 임베드된 iframe 으로 바꿔주는 노드 
+ */
 export class YouTubeNode extends DecoratorBlockNode {
   __id: string;
 
@@ -101,6 +103,8 @@ export class YouTubeNode extends DecoratorBlockNode {
   exportDOM(): DOMExportOutput {
     const element = document.createElement('iframe');
     element.setAttribute('data-lexical-youtube', this.__id);
+
+    // 기본 DOM element 의 속성
     element.setAttribute('width', '560');
     element.setAttribute('height', '315');
     element.setAttribute(

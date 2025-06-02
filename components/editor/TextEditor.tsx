@@ -1,42 +1,30 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
-import { ParagraphNode, TextNode } from "lexical";
-import { ComponentProps } from "react";
-import { constructImportMap, exportMap } from "./editor-parser";
-import { editorTheme } from "./editor-theme";
-import { YouTubeNode } from './nodes/YoutubeNode';
+import { editorConfig } from './editor-config';
 import { LexicalAutoLinkPlugin as AutoLinkPlugin } from './plugins/AutoLinkPlugin';
+import { HtmlImportPlugin } from './plugins/HtmlImportPlugin';
 import { ToolbarPlugin } from "./plugins/ToolbarPlugin";
 import YouTubePlugin from './plugins/YouTubePlugin';
 
-type LexicalConfig = ComponentProps<typeof LexicalComposer>['initialConfig'];
-
-const editorConfig: LexicalConfig = {
-  html: {
-    export: exportMap,
-    import: constructImportMap(),
-  },
-  namespace: "TextEditor",
-  nodes: [ParagraphNode, TextNode, YouTubeNode, AutoLinkNode, LinkNode],
-  onError(error) {
-    throw error;
-  },
-  theme: editorTheme,
-};
-
 const placeholder = "내용을 입력하세요...";
 
+interface Props {
+  initialHtml?: string;
+}
 
-// TODO : $generateHtmlFromNodes, $generateNodesFromDom 을 통해 Html 데이터 저장, 수정용으로 불러오기 구현
-export const TextEditor = () => {
+/**
+ * @param initialHtml - 에디터에 불러올 Html 데이터
+ */
+export const TextEditor = ({
+  initialHtml
+}: Props) => {
   return (
     <LexicalComposer initialConfig={editorConfig}>
       <div className={cn(
@@ -68,6 +56,7 @@ export const TextEditor = () => {
           <HistoryPlugin />
           <YouTubePlugin />
           <AutoLinkPlugin />
+          <HtmlImportPlugin htmlString={initialHtml} />
         </div>
       </div>
     </LexicalComposer>

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { mergeRegister } from "@lexical/utils";
 import { $getSelection, $isRangeSelection, CAN_REDO_COMMAND, CAN_UNDO_COMMAND, COMMAND_PRIORITY_LOW, FORMAT_ELEMENT_COMMAND, FORMAT_TEXT_COMMAND, REDO_COMMAND, UNDO_COMMAND } from "lexical";
-import { AlignCenter, AlignJustify, AlignLeft, AlignRight, Bold, Redo, Strikethrough, Underline, Undo } from 'lucide-react';
+import { AlignCenter, AlignJustify, AlignLeft, AlignRight, Bold, Redo, Strikethrough, Underline, Undo, Video } from 'lucide-react';
 import { useCallback, useEffect, useState } from "react";
 import { INSERT_YOUTUBE_COMMAND } from "../YouTubePlugin";
 import "./ToolbarPlugin.css";
@@ -13,8 +13,9 @@ const Divider = () => {
   return <div className="w-0.5 bg-neutral-300 mr-1" />;
 };
 
-const YOUTUBE_REGEX = /(?:https:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|.+\?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-
+/**
+ * 에디터의 툴을 구현한 플러그인
+ */
 export const ToolbarPlugin = () => {
   const [editor] = useLexicalComposerContext();
   const [canUndo, setCanUndo] = useState(false);
@@ -67,8 +68,9 @@ export const ToolbarPlugin = () => {
         onClick={() => {
           editor.dispatchCommand(UNDO_COMMAND, undefined);
         }}
-        aria-label="이전으로"
         className="toolbar-item mr-0.5"
+        aria-label="이전으로"
+        title="이전으로"
       >
         <Undo />
       </button>
@@ -77,8 +79,9 @@ export const ToolbarPlugin = () => {
         onClick={() => {
           editor.dispatchCommand(REDO_COMMAND, undefined);
         }}
-        aria-label="이후로"
         className="toolbar-item"
+        aria-label="이후로"
+        title="이후로"
       >
         <Redo />
       </button>
@@ -89,6 +92,7 @@ export const ToolbarPlugin = () => {
         }}
         className={cn("toolbar-item mr-0.5", `${isBold ? "bg-neutral-300" : ""}`)}
         aria-label="굵게"
+        title="굵게"
       >
         <Bold />
       </button>
@@ -98,6 +102,7 @@ export const ToolbarPlugin = () => {
         }}
         className={cn("toolbar-item mr-0.5", `${isItalic ? "bg-neutral-300" : ""}`)}
         aria-label="기울이기"
+        title="기울이기"
       >
         <Bold />
       </button>
@@ -107,6 +112,7 @@ export const ToolbarPlugin = () => {
         }}
         className={cn("toolbar-item mr-0.5", `${isUnderline ? "bg-neutral-300" : ""}`)}
         aria-label="밑줄"
+        title="밑줄"
       >
         <Underline />
       </button>
@@ -116,6 +122,7 @@ export const ToolbarPlugin = () => {
         }}
         className={cn("toolbar-item mr-0.5", `${isStrikethrough ? "bg-neutral-300" : ""}`)}
         aria-label="취소선"
+        title="취소선"
       >
         <Strikethrough />
       </button>
@@ -126,6 +133,7 @@ export const ToolbarPlugin = () => {
         }}
         className="toolbar-item mr-0.5"
         aria-label="왼쪽 정렬"
+        title="왼쪽 정렬"
       >
         <AlignLeft />
       </button>
@@ -135,6 +143,7 @@ export const ToolbarPlugin = () => {
         }}
         className="toolbar-item mr-0.5"
         aria-label="중앙 정렬"
+        title="중앙 정렬"
       >
         <AlignCenter />
       </button>
@@ -144,6 +153,7 @@ export const ToolbarPlugin = () => {
         }}
         className="toolbar-item mr-0.5"
         aria-label="오른쪽 정렬"
+        title="오른쪽 정렬"
       >
         <AlignRight />
       </button>
@@ -153,21 +163,22 @@ export const ToolbarPlugin = () => {
         }}
         className="toolbar-item mr-0.5"
         aria-label="양쪽 정렬"
+        title="양쪽 정렬"
       >
         <AlignJustify />
       </button>
+      <Divider />
       <button
         // TODO : Modal 로 대체하여 표시하기
         onClick={() => {
           const url = prompt("Youtube url");
-          const match = url?.match(YOUTUBE_REGEX);
-          if (match && match[1]) {
-            const videoId = match[1];
-            editor.dispatchCommand(INSERT_YOUTUBE_COMMAND, videoId);
-          }
+          editor.dispatchCommand(INSERT_YOUTUBE_COMMAND, url || "");
         }}
+        className="toolbar-item mr-0.5"
+        aria-label="유튜브 비디오 첨부"
+        title="유튜브 비디오 첨부"
       >
-        Youtube
+        <Video />
       </button>
     </div>
   );
