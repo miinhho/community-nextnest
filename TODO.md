@@ -17,6 +17,7 @@
   - Kakao
 
 3. Post, User Action 구현 ✅
+  - 좋아요 기능 추가 ✅
 
 4. PostgreSQL 로 데이터베이스 수정 ✅
 
@@ -45,6 +46,7 @@
   - Comment Schema 추가 ✅
   - Comment Action 구현 ✅
   - Post 와 Comment 관계 설정 ✅
+  - 좋아요 기능 추가 ✅
 
 9. 댓글 에디터 구현
   - Lexical 프레임워크 사용
@@ -54,9 +56,9 @@
 11. 알림 기능 추가
   - 자기가 작성한 글에 댓글이 달리거나, 댓글에 답글이 달릴 시 알림이 뜨는 기능 추가
 
-12. 유저 간 친구 기능 추가
-  - User Schema 추가
-  - Friend Action 구현
+12. 유저 간 팔로우 기능 추가
+  - Follow Schema 추가 ✅
+  - Follow Action 구현 ✅
 
 13. 유저 간 채팅 기능 추가
   - WebSocket 을 통한 채팅 추가

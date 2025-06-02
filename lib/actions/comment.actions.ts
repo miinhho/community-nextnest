@@ -1,11 +1,7 @@
+import { ActionType } from "@/types/action";
+import { PrismaError } from "prisma-error-enum";
 import prisma from "../prisma";
 
-/**
- * @returns
- * - 댓글: ID, 내용, 생성 날짜
- * - 댓글 작성자: ID
- * - 글: ID
- */
 export async function createComment({
   postId,
   content,
@@ -14,81 +10,108 @@ export async function createComment({
   postId: string;
   content: string;
   authorId: string;
-}) {
-  const comment = await prisma.comment.create({
-    data: {
-      content,
-      authorId,
-      postId,
-    },
-
-    select: {
-      id: true,
-      content: true,
-      postId: true,
-      authorId: true,
-      createdAt: true,
-    },
-  });
-
-  return comment;
+}): Promise<ActionType> {
+  try {
+    await prisma.comment.create({
+      data: {
+        content,
+        authorId,
+        postId,
+      },
+    });
+    return { success: true };
+  } catch (err) {
+    return { success: false };
+  }
 }
 
 /**
- * @param dataToUpdate - 변경할 내용, 글 ID, 작성자 ID
- * @returns
- * - 작성자: 이름
- * - 글: ID
+ * @param dataToUpdate - 댓글 내용, 글 ID, 댓글 작성자 ID
  */
-export async function updateCommentById(
+export async function updateCommentContent(
   id: string,
   dataToUpdate: {
     content?: string;
     postId?: string;
     authorId?: string;
   }
-) {
-  const comment = await prisma.comment.update({
-    where: {
-      id,
-    },
+): Promise<ActionType> {
+  try {
+    await prisma.comment.update({
+      where: { id },
+      data: {
+        ...dataToUpdate,
+      },
+    });
+    return { success: true };
+  } catch (err) {
+    return { success: false };
+  }
+}
 
-    data: {
-      ...dataToUpdate,
-    },
-
-    select: {
-      post: {
-        select: {
-          author: {
-            select: {
-              name: true,
+/**
+ * 댓글의 좋아요를 +1 시키며, 중복된 요청이 들어오면 -1 시킨다.
+ */
+export async function toggleCommentLikes({
+  userId,
+  commentId,
+}: {
+  userId: string;
+  commentId: string;
+}): Promise<ActionType> {
+  try {
+    await prisma.$transaction([
+      prisma.commentLikes.create({
+        data: {
+          userId,
+          commentId,
+        },
+      }),
+      prisma.comment.update({
+        where: { id: commentId },
+        data: {
+          likesCount: { increment: 1 },
+        },
+      }),
+    ]);
+    return { success: true };
+  } catch (err: any) {
+    // 좋아요 중복 시 좋아요 취소되도록 설정
+    if ((err.code = PrismaError.UniqueConstraintViolation)) {
+      await prisma.$transaction([
+        prisma.commentLikes.delete({
+          where: {
+            userId_commentId: {
+              userId,
+              commentId,
             },
           },
-        },
-      },
-      postId: true,
-    },
-  });
-
-  return comment;
+        }),
+        prisma.comment.update({
+          where: { id: commentId },
+          data: {
+            likesCount: { decrement: 1 },
+          },
+        }),
+      ]);
+    }
+    return { success: false };
+  }
 }
 
 /**
  * @returns
- * - 댓글: ID, 내용, 생성 날짜, 수정 날짜
+ * - 댓글: ID, 내용, 생성 날짜, 수정 날짜, 좋아요 숫자
  * - 댓글 작성자: ID
  * - 글: ID
  */
 export async function findCommentById(id: string) {
   const comment = await prisma.comment.findUnique({
-    where: {
-      id,
-    },
-
+    where: { id },
     select: {
       id: true,
       content: true,
+      likesCount: true,
       postId: true,
       authorId: true,
       createdAt: true,
@@ -104,7 +127,7 @@ export async function findCommentById(id: string) {
  * @param pageSize - 기본값: 10
  * @returns
  * - 댓글: 내용, 수정 날짜, 생성 날짜
- * - 글: ID
+ * - 글: ID, 내용
  */
 export async function findCommentsByUser({
   authorId,
@@ -117,10 +140,13 @@ export async function findCommentsByUser({
 }) {
   const comments = await prisma.comment.findMany({
     select: {
+      id: true,
       content: true,
+      likesCount: true,
+      postId: true,
       post: {
         select: {
-          id: true,
+          content: true,
         },
       },
       createdAt: true,
@@ -128,11 +154,7 @@ export async function findCommentsByUser({
     },
     skip: page * pageSize,
     take: pageSize,
-
-    where: {
-      authorId,
-    },
-
+    where: { authorId },
     orderBy: {
       createdAt: "desc",
     },
@@ -145,7 +167,7 @@ export async function findCommentsByUser({
  * @param page - 기본값: 0
  * @param pageSize - 기본값: 10
  * @returns
- * - 댓글: ID, 내용,
+ * - 댓글: ID, 내용, 좋아요 숫자
  * - 댓글 작성자: ID, 이름, 프로필 사진
  */
 export async function findCommentsByPost({
@@ -161,6 +183,7 @@ export async function findCommentsByPost({
     select: {
       id: true,
       content: true,
+      likesCount: true,
       author: {
         select: {
           id: true,
@@ -171,14 +194,9 @@ export async function findCommentsByPost({
       createdAt: true,
       updatedAt: true,
     },
-
-    where: {
-      postId,
-    },
-
+    where: { postId },
     skip: page * pageSize,
     take: pageSize,
-
     orderBy: {
       createdAt: "desc",
     },
@@ -187,24 +205,13 @@ export async function findCommentsByPost({
   return comments;
 }
 
-/**
- * @returns
- * - 글: ID
- */
-export async function deleteCommentById(id: string) {
-  const comment = await prisma.comment.delete({
-    where: {
-      id,
-    },
-
-    select: {
-      post: {
-        select: {
-          id: true,
-        },
-      },
-    },
-  });
-
-  return comment;
+export async function deleteCommentById(id: string): Promise<ActionType> {
+  try {
+    await prisma.comment.delete({
+      where: { id },
+    });
+    return { success: true };
+  } catch (err) {
+    return { success: false };
+  }
 }

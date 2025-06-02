@@ -1,9 +1,8 @@
+import { ActionType } from "@/types/action";
+import { ZodError } from "zod/v4";
 import prisma from "../prisma";
+import { userLoginDto } from "../validation/user.validate";
 
-/**
- * @returns
- * - 유저: 이름, 프로필 사진, 이메일
- */
 export async function createUser({
   email,
   name,
@@ -14,29 +13,32 @@ export async function createUser({
   password: string;
   name?: string;
   image?: string;
-}) {
-  const user = await prisma.user.create({
-    data: {
-      email,
-      name,
-      password,
-      image,
-    },
+}): Promise<ActionType> {
+  try {
+    userLoginDto.parse({ email, password });
 
-    select: {
-      name: true,
-      image: true,
-      email: true,
-    },
-  });
-
-  return user;
+    await prisma.user.create({
+      data: {
+        email,
+        name,
+        password,
+        image,
+      },
+    });
+    return { success: true };
+  } catch (err) {
+    if (err instanceof ZodError) {
+      return {
+        success: false,
+        error: err.message,
+      };
+    }
+    return { success: false };
+  }
 }
 
 /**
  * @param dataToUpdate - 변경할 이름, 이메일, 프로필 사진
- * @returns
- * - 유저: 이름, 이메일, 프로필 사진
  */
 export async function updateUserById(
   id: string,
@@ -45,24 +47,18 @@ export async function updateUserById(
     email?: string;
     image?: string;
   }
-) {
-  const user = await prisma.user.update({
-    where: {
-      id,
-    },
-
-    data: {
-      ...dataToUpdate,
-    },
-
-    select: {
-      name: true,
-      email: true,
-      image: true,
-    },
-  });
-
-  return user;
+): Promise<ActionType> {
+  try {
+    await prisma.user.update({
+      where: { id },
+      data: {
+        ...dataToUpdate,
+      },
+    });
+    return { success: true };
+  } catch (err) {
+    return { success: false };
+  }
 }
 
 /**
@@ -71,10 +67,7 @@ export async function updateUserById(
  */
 export async function findUserById(id: string) {
   const user = await prisma.user.findUnique({
-    where: {
-      id,
-    },
-
+    where: { id },
     select: {
       id: true,
       name: true,
@@ -98,10 +91,7 @@ export async function findUserById(id: string) {
  */
 export async function findUserByEmail(email: string) {
   const user = await prisma.user.findUnique({
-    where: {
-      email,
-    },
-
+    where: { email },
     select: {
       id: true,
       name: true,
@@ -125,10 +115,7 @@ export async function findUserByEmail(email: string) {
  */
 export async function findUserWithPasswordByEmail(email: string) {
   const user = await prisma.user.findUnique({
-    where: {
-      email,
-    },
-
+    where: { email },
     select: {
       id: true,
       name: true,
@@ -167,7 +154,6 @@ export async function findUsersByName({
         startsWith: name,
       },
     },
-
     select: {
       id: true,
       name: true,
@@ -185,19 +171,13 @@ export async function findUsersByName({
  * @returns
  * - 유저: ID, 이름, 이메일, 프로필 사진
  */
-export async function deleteUserById(id: string) {
-  const user = await prisma.user.delete({
-    where: {
-      id,
-    },
-
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      image: true,
-    },
-  });
-
-  return user;
+export async function deleteUserById(id: string): Promise<ActionType> {
+  try {
+    await prisma.user.delete({
+      where: { id },
+    });
+    return { success: true };
+  } catch (err) {
+    return { success: false };
+  }
 }
