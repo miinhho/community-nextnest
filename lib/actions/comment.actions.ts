@@ -1,4 +1,5 @@
-import { ActionType } from "@/types/action";
+import { AsyncActionType } from "@/types/action";
+import { LikeStatus } from "@/types/action.status";
 import { PrismaError } from "prisma-error-enum";
 import prisma from "../prisma";
 
@@ -10,7 +11,7 @@ export async function createComment({
   postId: string;
   content: string;
   authorId: string;
-}): Promise<ActionType> {
+}): AsyncActionType {
   try {
     await prisma.comment.create({
       data: {
@@ -35,7 +36,7 @@ export async function updateCommentContent(
     postId?: string;
     authorId?: string;
   }
-): Promise<ActionType> {
+): AsyncActionType {
   try {
     await prisma.comment.update({
       where: { id },
@@ -52,13 +53,30 @@ export async function updateCommentContent(
 /**
  * 댓글의 좋아요를 +1 시키며, 중복된 요청이 들어오면 -1 시킨다.
  */
-export async function toggleCommentLikes({
-  userId,
-  commentId,
-}: {
-  userId: string;
-  commentId: string;
-}): Promise<ActionType> {
+export async function toggleCommentLikes(
+  userId: string,
+  commentId: string
+): AsyncActionType<LikeStatus> {
+  try {
+    const result = await increaseCommentLikes(userId, commentId);
+    return result;
+  } catch (err: any) {
+    // 좋아요 중복 시 좋아요 취소되도록 설정
+    if ((err.code = PrismaError.UniqueConstraintViolation)) {
+      const result = await minusCommentLikes(userId, commentId);
+      return result;
+    }
+    return {
+      success: false,
+      status: LikeStatus.UNKNOWN_FAIL,
+    };
+  }
+}
+
+async function increaseCommentLikes(
+  userId: string,
+  commentId: string
+): AsyncActionType<LikeStatus> {
   try {
     await prisma.$transaction([
       prisma.commentLikes.create({
@@ -74,28 +92,51 @@ export async function toggleCommentLikes({
         },
       }),
     ]);
-    return { success: true };
+    return {
+      success: true,
+      status: LikeStatus.ADD_SUCCESS,
+    };
   } catch (err: any) {
-    // 좋아요 중복 시 좋아요 취소되도록 설정
-    if ((err.code = PrismaError.UniqueConstraintViolation)) {
-      await prisma.$transaction([
-        prisma.commentLikes.delete({
-          where: {
-            userId_commentId: {
-              userId,
-              commentId,
-            },
-          },
-        }),
-        prisma.comment.update({
-          where: { id: commentId },
-          data: {
-            likesCount: { decrement: 1 },
-          },
-        }),
-      ]);
+    if (err.code === PrismaError.UniqueConstraintViolation) {
+      throw err;
     }
-    return { success: false };
+    return {
+      success: false,
+      status: LikeStatus.ADD_FAIL,
+    };
+  }
+}
+
+async function minusCommentLikes(
+  userId: string,
+  commentId: string
+): AsyncActionType<LikeStatus> {
+  try {
+    await prisma.$transaction([
+      prisma.commentLikes.delete({
+        where: {
+          userId_commentId: {
+            userId,
+            commentId,
+          },
+        },
+      }),
+      prisma.comment.update({
+        where: { id: commentId },
+        data: {
+          likesCount: { decrement: 1 },
+        },
+      }),
+    ]);
+    return {
+      success: true,
+      status: LikeStatus.MINUS_SUCCESS,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      status: LikeStatus.MINUS_FAIL,
+    };
   }
 }
 
@@ -205,7 +246,7 @@ export async function findCommentsByPost({
   return comments;
 }
 
-export async function deleteCommentById(id: string): Promise<ActionType> {
+export async function deleteCommentById(id: string): AsyncActionType {
   try {
     await prisma.comment.delete({
       where: { id },

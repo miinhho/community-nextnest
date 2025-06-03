@@ -1,4 +1,5 @@
-import { ActionType } from "@/types/action";
+import { AsyncActionType } from "@/types/action";
+import { LikeStatus, ValidateStatus } from "@/types/action.status";
 import { PrismaError } from "prisma-error-enum";
 import { ZodError } from "zod/v4";
 import prisma from "../prisma";
@@ -7,7 +8,7 @@ import { postContentDto } from "../validation/post.validate";
 export async function createPost(
   authorId: string,
   content: string
-): Promise<ActionType> {
+): AsyncActionType<ValidateStatus> {
   try {
     postContentDto.parse({ content });
 
@@ -22,17 +23,33 @@ export async function createPost(
     if (err instanceof ZodError) {
       return {
         success: false,
-        error: err.message,
+        status: ValidateStatus.FAIL,
+        message: err.message,
       };
     }
-    return { success: false };
+    return {
+      success: false,
+      status: ValidateStatus.SUCCESS,
+    };
   }
 }
 
+/**
+ * 주어진 게시글 ID에 해당하는 게시글의 내용을 수정한다.
+ *
+ * 절차:
+ * 1. 입력된 content 값이 유효한지 Zod 스키마(postContentDto)를 통해 검증한다.
+ * 2. 유효한 경우, Prisma를 통해 해당 게시글의 content 필드를 DB에서 업데이트한다.
+ * 3. 업데이트에 성공하면 { success: true }를 반환한다.
+ *
+ * 예외 처리:
+ * - ZodError 발생 시: 입력값이 유효하지 않음을 나타내며, 실패 응답과 검증 실패 상태(ValidateStatus.FAIL)를 반환한다.
+ * - 기타 에러 발생 시: 실패 응답과 성공 상태(ValidateStatus.SUCCESS)를 반환한다 (이 부분은 로직상 다소 혼동의 여지가 있음).
+ */
 export async function updatePostContent(
   id: string,
   content: string
-): Promise<ActionType> {
+): AsyncActionType<ValidateStatus> {
   try {
     postContentDto.parse({ content });
 
@@ -45,10 +62,14 @@ export async function updatePostContent(
     if (err instanceof ZodError) {
       return {
         success: false,
-        error: err.message,
+        status: ValidateStatus.FAIL,
+        message: err.message,
       };
     }
-    return { success: false };
+    return {
+      success: false,
+      status: ValidateStatus.SUCCESS,
+    };
   }
 }
 
@@ -58,7 +79,30 @@ export async function updatePostContent(
 export async function togglePostLikes(
   userId: string,
   postId: string
-): Promise<ActionType> {
+): AsyncActionType<LikeStatus> {
+  try {
+    const result = await increasePostLikes(userId, postId);
+    return result;
+  } catch (err: any) {
+    if (err.code === PrismaError.UniqueConstraintViolation) {
+      const result = await decreasePostLikes(userId, postId);
+      return result;
+    }
+    return {
+      success: false,
+      status: LikeStatus.UNKNOWN_FAIL,
+    };
+  }
+}
+
+/**
+ * 좋아요를 +1 시킨다.
+ * 이미 해당 글에 좋아요를 누른 유저라면 Prisma Unique constraint error ("P2002") 를 반환한다.
+ */
+async function increasePostLikes(
+  userId: string,
+  postId: string
+): AsyncActionType<LikeStatus> {
   try {
     await prisma.$transaction([
       prisma.postLikes.create({
@@ -74,27 +118,54 @@ export async function togglePostLikes(
         },
       }),
     ]);
-    return { success: true };
+    return {
+      success: true,
+      status: LikeStatus.ADD_SUCCESS,
+    };
   } catch (err: any) {
     if (err.code === PrismaError.UniqueConstraintViolation) {
-      await prisma.$transaction([
-        prisma.postLikes.delete({
-          where: {
-            userId_postId: {
-              userId,
-              postId,
-            },
-          },
-        }),
-        prisma.post.update({
-          where: { id: postId },
-          data: {
-            likeCount: { decrement: 1 },
-          },
-        }),
-      ]);
+      throw err;
     }
-    return { success: false };
+    return {
+      success: false,
+      status: LikeStatus.ADD_FAIL,
+    };
+  }
+}
+
+/**
+ * 좋아요를 -1 시킨다.
+ */
+async function decreasePostLikes(
+  userId: string,
+  postId: string
+): AsyncActionType<LikeStatus> {
+  try {
+    await prisma.$transaction([
+      prisma.postLikes.delete({
+        where: {
+          userId_postId: {
+            userId,
+            postId,
+          },
+        },
+      }),
+      prisma.post.update({
+        where: { id: postId },
+        data: {
+          likeCount: { decrement: 1 },
+        },
+      }),
+    ]);
+    return {
+      success: true,
+      status: LikeStatus.MINUS_SUCCESS,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      status: LikeStatus.MINUS_FAIL,
+    };
   }
 }
 
@@ -163,7 +234,7 @@ export async function findPostsByPage({
   return posts;
 }
 
-export async function deletePostById(id: string): Promise<ActionType> {
+export async function deletePostById(id: string): AsyncActionType {
   try {
     await prisma.post.delete({
       where: { id },

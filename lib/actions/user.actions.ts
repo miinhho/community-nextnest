@@ -1,4 +1,5 @@
-import { ActionType } from "@/types/action";
+import { AsyncActionType } from "@/types/action";
+import { ValidateStatus } from "@/types/action.status";
 import { ZodError } from "zod/v4";
 import prisma from "../prisma";
 import { userLoginDto } from "../validation/user.validate";
@@ -13,7 +14,7 @@ export async function createUser({
   password: string;
   name?: string;
   image?: string;
-}): Promise<ActionType> {
+}): AsyncActionType<ValidateStatus> {
   try {
     userLoginDto.parse({ email, password });
 
@@ -30,10 +31,14 @@ export async function createUser({
     if (err instanceof ZodError) {
       return {
         success: false,
-        error: err.message,
+        status: ValidateStatus.FAIL,
+        message: err.message,
       };
     }
-    return { success: false };
+    return {
+      success: false,
+      status: ValidateStatus.SUCCESS,
+    };
   }
 }
 
@@ -47,7 +52,7 @@ export async function updateUserById(
     email?: string;
     image?: string;
   }
-): Promise<ActionType> {
+): AsyncActionType {
   try {
     await prisma.user.update({
       where: { id },
@@ -171,7 +176,7 @@ export async function findUsersByName({
  * @returns
  * - 유저: ID, 이름, 이메일, 프로필 사진
  */
-export async function deleteUserById(id: string): Promise<ActionType> {
+export async function deleteUserById(id: string): AsyncActionType {
   try {
     await prisma.user.delete({
       where: { id },
