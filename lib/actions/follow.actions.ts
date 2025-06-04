@@ -1,7 +1,7 @@
-import { AsyncActionType } from "@/types/action";
-import { FollowStatus } from "@/types/action.status";
-import { PrismaError } from "prisma-error-enum";
-import prisma from "../prisma";
+import { AsyncActionType } from '@/types/action';
+import { FollowStatus } from '@/types/action.status';
+import { PrismaError } from 'prisma-error-enum';
+import prisma from '../prisma';
 
 /**
  * 팔로우가 중복되면 언팔로우가 이루어진다
@@ -11,8 +11,8 @@ import prisma from "../prisma";
  */
 export async function followUser(
   userId: string,
-  targetId: string
-): AsyncActionType<FollowStatus> {
+  targetId: string,
+): AsyncActionType<void, FollowStatus> {
   try {
     await prisma.follow.create({
       data: {
@@ -45,8 +45,8 @@ export async function followUser(
  */
 export async function unfollowUser(
   userId: string,
-  targetId: string
-): AsyncActionType<FollowStatus> {
+  targetId: string,
+): AsyncActionType<void, FollowStatus> {
   try {
     await prisma.follow.delete({
       where: {

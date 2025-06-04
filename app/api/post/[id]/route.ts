@@ -1,7 +1,7 @@
 import { deletePostById, findPostById, updatePostContent } from '@/lib/actions/post.actions';
 import { postAuthGuard } from '@/lib/helper/route.helper';
+import { HttpStatus } from '@/lib/http-status';
 import { ValidateStatus } from '@/types/action.status';
-import status from 'http-status';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
@@ -14,7 +14,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         success: false,
         message: '글을 불러올 수 없습니다.',
       },
-      { status: status.INTERNAL_SERVER_ERROR },
+      { status: HttpStatus.INTERNAL_SERVER_ERROR },
     );
   }
 
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         updatedAt: data.updatedAt,
       },
     },
-    { status: status.OK },
+    { status: HttpStatus.OK },
   );
 }
 
@@ -55,7 +55,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
           {
             message: '알 수 없는 오류로 글을 수정할 수 없습니다.',
           },
-          { status: status.INTERNAL_SERVER_ERROR },
+          { status: HttpStatus.INTERNAL_SERVER_ERROR },
         );
       }
       case ValidateStatus.FAIL: {
@@ -63,7 +63,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
           {
             message: updateResult.message,
           },
-          { status: status.BAD_REQUEST },
+          { status: HttpStatus.BAD_REQUEST },
         );
       }
     }
@@ -73,7 +73,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     {
       message: '성공적으로 글을 수정하였습니다.',
     },
-    { status: status.OK },
+    { status: HttpStatus.OK },
   );
 }
 
@@ -90,7 +90,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       {
         message: '알 수 없는 오류로 글을 지울 수 없습니다.',
       },
-      { status: status.INTERNAL_SERVER_ERROR },
+      { status: HttpStatus.INTERNAL_SERVER_ERROR },
     );
   }
 
@@ -98,6 +98,6 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     {
       message: '성공적으로 글을 삭제했습니다.',
     },
-    { status: status.OK },
+    { status: HttpStatus.OK },
   );
 }

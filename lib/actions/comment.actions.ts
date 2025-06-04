@@ -1,7 +1,7 @@
-import { AsyncActionType } from "@/types/action";
-import { LikeStatus } from "@/types/action.status";
-import { PrismaError } from "prisma-error-enum";
-import prisma from "../prisma";
+import { AsyncActionType } from '@/types/action';
+import { LikeStatus } from '@/types/action.status';
+import { PrismaError } from 'prisma-error-enum';
+import prisma from '../prisma';
 
 export async function createComment({
   postId,
@@ -35,7 +35,7 @@ export async function updateCommentContent(
     content?: string;
     postId?: string;
     authorId?: string;
-  }
+  },
 ): AsyncActionType {
   try {
     await prisma.comment.update({
@@ -55,8 +55,8 @@ export async function updateCommentContent(
  */
 export async function toggleCommentLikes(
   userId: string,
-  commentId: string
-): AsyncActionType<LikeStatus> {
+  commentId: string,
+): AsyncActionType<void, LikeStatus> {
   try {
     const result = await increaseCommentLikes(userId, commentId);
     return result;
@@ -75,8 +75,8 @@ export async function toggleCommentLikes(
 
 async function increaseCommentLikes(
   userId: string,
-  commentId: string
-): AsyncActionType<LikeStatus> {
+  commentId: string,
+): AsyncActionType<void, LikeStatus> {
   try {
     await prisma.$transaction([
       prisma.commentLikes.create({
@@ -109,8 +109,8 @@ async function increaseCommentLikes(
 
 async function minusCommentLikes(
   userId: string,
-  commentId: string
-): AsyncActionType<LikeStatus> {
+  commentId: string,
+): AsyncActionType<void, LikeStatus> {
   try {
     await prisma.$transaction([
       prisma.commentLikes.delete({
@@ -197,7 +197,7 @@ export async function findCommentsByUser({
     take: pageSize,
     where: { authorId },
     orderBy: {
-      createdAt: "desc",
+      createdAt: 'desc',
     },
   });
 
@@ -239,7 +239,7 @@ export async function findCommentsByPost({
     skip: page * pageSize,
     take: pageSize,
     orderBy: {
-      createdAt: "desc",
+      createdAt: 'desc',
     },
   });
 

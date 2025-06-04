@@ -1,8 +1,8 @@
-import { AsyncActionType } from "@/types/action";
-import { ValidateStatus } from "@/types/action.status";
-import { ZodError } from "zod/v4";
-import prisma from "../prisma";
-import { userLoginDto } from "../validation/user.validate";
+import { AsyncActionType } from '@/types/action';
+import { ValidateStatus } from '@/types/action.status';
+import { ZodError } from 'zod/v4';
+import prisma from '../prisma';
+import { userLoginDto } from '../validation/user.validate';
 
 export async function createUser({
   email,
@@ -14,7 +14,7 @@ export async function createUser({
   password: string;
   name?: string;
   image?: string;
-}): AsyncActionType<ValidateStatus> {
+}): AsyncActionType<void, ValidateStatus> {
   try {
     userLoginDto.parse({ email, password });
 
@@ -51,7 +51,7 @@ export async function updateUserById(
     name?: string;
     email?: string;
     image?: string;
-  }
+  },
 ): AsyncActionType {
   try {
     await prisma.user.update({

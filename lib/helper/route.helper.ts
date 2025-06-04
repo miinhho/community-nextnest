@@ -1,8 +1,8 @@
 import { Role } from '@prisma/client';
-import status from 'http-status';
 import { NextResponse } from 'next/server';
 import { findPostById } from '../actions/post.actions';
 import { auth } from '../auth';
+import { HttpStatus } from '../http-status';
 
 /**
  * 인증되지 않았거나 / 글을 찾을 수 없거나 / 해당 글에 대한 권한이 없다면
@@ -16,7 +16,7 @@ export async function postAuthGuard(postId: string) {
       {
         message: '인증되지 않은 사용자는 접근이 불가능합니다.',
       },
-      { status: status.UNAUTHORIZED },
+      { status: HttpStatus.UNAUTHORIZED },
     );
   }
 
@@ -26,7 +26,7 @@ export async function postAuthGuard(postId: string) {
       {
         message: '글을 찾을 수 없습니다.',
       },
-      { status: status.NOT_FOUND },
+      { status: HttpStatus.NOT_FOUND },
     );
   }
 
@@ -36,7 +36,7 @@ export async function postAuthGuard(postId: string) {
       {
         message: '권한이 없습니다.',
       },
-      { status: status.FORBIDDEN },
+      { status: HttpStatus.FORBIDDEN },
     );
   }
 

@@ -1,7 +1,7 @@
 import { createPost } from '@/lib/actions/post.actions';
 import { auth } from '@/lib/auth';
+import { HttpStatus } from '@/lib/http-status';
 import { ValidateStatus } from '@/types/action.status';
-import status from 'http-status';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
       {
         message: '인증되지 않은 사용자는 접근이 불가능합니다.',
       },
-      { status: status.UNAUTHORIZED },
+      { status: HttpStatus.UNAUTHORIZED },
     );
   }
 
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
           {
             message: actionResult.message,
           },
-          { status: status.BAD_REQUEST },
+          { status: HttpStatus.BAD_REQUEST },
         );
       }
       case ValidateStatus.SUCCESS: {
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
           {
             message: '알 수 없는 오류로 글을 올릴 수 없습니다.',
           },
-          { status: status.INTERNAL_SERVER_ERROR },
+          { status: HttpStatus.INTERNAL_SERVER_ERROR },
         );
       }
     }
@@ -47,6 +47,6 @@ export async function POST(req: NextRequest) {
     {
       postId,
     },
-    { status: status.CREATED },
+    { status: HttpStatus.CREATED },
   );
 }
