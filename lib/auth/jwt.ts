@@ -1,16 +1,19 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { NextAuthConfig } from "next-auth";
-import { encode, JWTOptions } from "next-auth/jwt";
-import { v4 as uuid } from "uuid";
+import { PrismaAdapter } from '@auth/prisma-adapter';
+import { NextAuthConfig } from 'next-auth';
+import { encode, JWTOptions } from 'next-auth/jwt';
+import { v4 as uuid } from 'uuid';
 
 export const jwtCallback = {
-  jwt({ token, account }) {
-    if (account?.provider === "credentials") {
+  jwt({ token, user, account }) {
+    if (user) {
+      token.role = user.role;
+    }
+    if (account?.provider === 'credentials') {
       token.credentials = true;
     }
     return token;
   },
-} satisfies NextAuthConfig["callbacks"];
+} satisfies NextAuthConfig['callbacks'];
 
 export const jwtOptions = (adapter: ReturnType<typeof PrismaAdapter>) => {
   return {
@@ -19,7 +22,7 @@ export const jwtOptions = (adapter: ReturnType<typeof PrismaAdapter>) => {
         const sessionToken = uuid();
 
         if (!params.token.sub) {
-          throw new Error("No user ID found in token");
+          throw new Error('No user ID found in token');
         }
 
         const createdSession = await adapter?.createSession?.({
@@ -29,7 +32,7 @@ export const jwtOptions = (adapter: ReturnType<typeof PrismaAdapter>) => {
         });
 
         if (!createdSession) {
-          throw new Error("Failed to create session");
+          throw new Error('Failed to create session');
         }
 
         return sessionToken;

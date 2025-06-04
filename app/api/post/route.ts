@@ -1,37 +1,52 @@
-import { createPost } from "@/lib/actions/post.actions";
-import { auth } from "@/lib/auth";
-import status from "http-status";
-import { NextRequest, NextResponse } from "next/server";
-import { ZodError } from "zod";
+import { createPost } from '@/lib/actions/post.actions';
+import { auth } from '@/lib/auth';
+import { ValidateStatus } from '@/types/action.status';
+import status from 'http-status';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   const session = await auth();
 
   if (!session?.user) {
-    return new NextResponse("Unauthorized", {
-      status: status.UNAUTHORIZED,
-    });
+    return NextResponse.json(
+      {
+        message: '인증되지 않은 사용자는 접근이 불가능합니다.',
+      },
+      { status: status.UNAUTHORIZED },
+    );
   }
 
-  try {
-    const { lexicalJson } = await req.json();
+  const { lexicalJson } = await req.json();
+  const userId = session.user.id!;
+  const actionResult = await createPost(userId, lexicalJson);
 
-    await createPost({
-      content: lexicalJson,
-      authorId: session.user.id!,
-    });
-
-    return new NextResponse("Created", {
-      status: status.CREATED,
-    });
-  } catch (err) {
-    if (err instanceof ZodError) {
-      return new NextResponse("Validation error", {
-        status: status.BAD_REQUEST,
-      });
+  if (!actionResult.success) {
+    switch (actionResult.status) {
+      case ValidateStatus.FAIL: {
+        return NextResponse.json(
+          {
+            message: actionResult.message,
+          },
+          { status: status.BAD_REQUEST },
+        );
+      }
+      case ValidateStatus.SUCCESS: {
+        return NextResponse.json(
+          {
+            message: '알 수 없는 오류로 글을 올릴 수 없습니다.',
+          },
+          { status: status.INTERNAL_SERVER_ERROR },
+        );
+      }
     }
-    return new NextResponse("Server error", {
-      status: status.INTERNAL_SERVER_ERROR,
-    });
   }
+
+  const postId = actionResult.data?.id;
+
+  return NextResponse.json(
+    {
+      postId,
+    },
+    { status: status.CREATED },
+  );
 }

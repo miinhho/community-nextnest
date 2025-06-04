@@ -17,7 +17,7 @@ const errorPageMap = {
 };
 
 export default async function ErrorPage({ searchParams }: Props) {
-  const error = await SearchParamHelper.getString(searchParams, "error");
+  const error = await SearchParamHelper.getString(searchParams, "status");
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center">

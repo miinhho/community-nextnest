@@ -19,6 +19,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   Authenticator Authenticator[]
+  role          Role            @default(USER)
 
   posts        Post[]
   comment      Comment[]
@@ -48,7 +49,7 @@ model Follow {
 model Post {
   id        String      @id @default(cuid())
   content   String
-  author    User        @relation(fields: [authorId], references: [id])
+  author    User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  String
   comment   Comment[]
   likeCount Int         @default(0)
@@ -65,7 +66,7 @@ model Comment {
   content    String
   post       Post           @relation(fields: [postId], references: [id])
   postId     String
-  author     User           @relation(fields: [authorId], references: [id])
+  author     User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId   String
   likesCount Int            @default(0)
   likes      CommentLikes[]
@@ -79,9 +80,9 @@ model Comment {
 
 model PostLikes {
   id     String @id @default(cuid())
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
-  post   Post   @relation(fields: [postId], references: [id])
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId String
 
   createdAt DateTime @default(now())
@@ -93,9 +94,9 @@ model PostLikes {
 
 model CommentLikes {
   id        String  @id @default(cuid())
-  user      User    @relation(fields: [userId], references: [id])
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
-  comment   Comment @relation(fields: [commentId], references: [id])
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
   commentId String
 
   @@unique([userId, commentId], name: "userId_commentId")
@@ -121,6 +122,11 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([provider, providerAccountId])
+}
+
+enum Role {
+  ADMIN
+  USER
 }
 
 model Session {

@@ -6,8 +6,9 @@
  * @param message - 세부 메세지
  * @template T - 결과 상태의 타입 (기본값: string)
  */
-export interface ActionType<T = string> {
+export interface ActionType<D = any, T = string> {
   success: boolean;
+  data?: Partial<D>;
   status?: T;
   message?: string;
 }
@@ -17,4 +18,4 @@ export interface ActionType<T = string> {
  *
  * @template T - 결과 상태의 타입 (기본값: string)
  */
-export type AsyncActionType<T = string> = Promise<ActionType<T>>;
+export type AsyncActionType<D = any, T = string> = Promise<ActionType<D, T>>;

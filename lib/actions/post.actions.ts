@@ -1,24 +1,32 @@
-import { AsyncActionType } from "@/types/action";
-import { LikeStatus, ValidateStatus } from "@/types/action.status";
-import { PrismaError } from "prisma-error-enum";
-import { ZodError } from "zod/v4";
-import prisma from "../prisma";
-import { postContentDto } from "../validation/post.validate";
+import { AsyncActionType } from '@/types/action';
+import { LikeStatus, ValidateStatus } from '@/types/action.status';
+import { Post } from '@prisma/client';
+import { PrismaError } from 'prisma-error-enum';
+import { ZodError } from 'zod/v4';
+import prisma from '../prisma';
+import { postContentDto } from '../validation/post.validate';
 
 export async function createPost(
   authorId: string,
-  content: string
-): AsyncActionType<ValidateStatus> {
+  content: string,
+): AsyncActionType<Post, ValidateStatus> {
   try {
     postContentDto.parse({ content });
 
-    await prisma.post.create({
+    const post = await prisma.post.create({
       data: {
         content,
         authorId,
       },
+      select: {
+        id: true,
+      },
     });
-    return { success: true };
+
+    return {
+      success: true,
+      data: post,
+    };
   } catch (err) {
     if (err instanceof ZodError) {
       return {
@@ -48,8 +56,8 @@ export async function createPost(
  */
 export async function updatePostContent(
   id: string,
-  content: string
-): AsyncActionType<ValidateStatus> {
+  content: string,
+): AsyncActionType<void, ValidateStatus> {
   try {
     postContentDto.parse({ content });
 
@@ -78,8 +86,8 @@ export async function updatePostContent(
  */
 export async function togglePostLikes(
   userId: string,
-  postId: string
-): AsyncActionType<LikeStatus> {
+  postId: string,
+): AsyncActionType<void, LikeStatus> {
   try {
     const result = await increasePostLikes(userId, postId);
     return result;
@@ -101,8 +109,8 @@ export async function togglePostLikes(
  */
 async function increasePostLikes(
   userId: string,
-  postId: string
-): AsyncActionType<LikeStatus> {
+  postId: string,
+): AsyncActionType<void, LikeStatus> {
   try {
     await prisma.$transaction([
       prisma.postLikes.create({
@@ -138,8 +146,8 @@ async function increasePostLikes(
  */
 async function decreasePostLikes(
   userId: string,
-  postId: string
-): AsyncActionType<LikeStatus> {
+  postId: string,
+): AsyncActionType<void, LikeStatus> {
   try {
     await prisma.$transaction([
       prisma.postLikes.delete({
@@ -174,25 +182,32 @@ async function decreasePostLikes(
  * - 글: ID, 내용, 생성 날짜, 수정 날짜, 좋아요 숫자
  * - 작성자: ID, 이름, 프로필 사진
  */
-export async function findPostById(id: string) {
-  const post = await prisma.post.findUnique({
-    where: { id },
-    select: {
-      content: true,
-      createdAt: true,
-      updatedAt: true,
-      authorId: true,
-      likeCount: true,
-      author: {
-        select: {
-          name: true,
-          image: true,
+export async function findPostById(id: string): AsyncActionType {
+  try {
+    const post = await prisma.post.findUnique({
+      where: { id },
+      select: {
+        content: true,
+        createdAt: true,
+        updatedAt: true,
+        authorId: true,
+        likeCount: true,
+        author: {
+          select: {
+            name: true,
+            image: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  return post;
+    return {
+      success: true,
+      data: post!,
+    };
+  } catch (err) {
+    return { success: false };
+  }
 }
 
 /**
@@ -208,30 +223,37 @@ export async function findPostsByPage({
 }: {
   page?: number;
   pageSize?: number;
-}) {
-  const posts = await prisma.post.findMany({
-    select: {
-      id: true,
-      content: true,
-      createdAt: true,
-      updatedAt: true,
-      authorId: true,
-      likeCount: true,
-      author: {
-        select: {
-          name: true,
-          image: true,
+}): AsyncActionType {
+  try {
+    const posts = await prisma.post.findMany({
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        updatedAt: true,
+        authorId: true,
+        likeCount: true,
+        author: {
+          select: {
+            name: true,
+            image: true,
+          },
         },
       },
-    },
-    skip: page * pageSize,
-    take: pageSize,
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+      skip: page * pageSize,
+      take: pageSize,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
 
-  return posts;
+    return {
+      success: true,
+      data: posts,
+    };
+  } catch (err) {
+    return { success: false };
+  }
 }
 
 export async function deletePostById(id: string): AsyncActionType {

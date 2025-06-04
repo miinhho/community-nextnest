@@ -5,8 +5,6 @@ import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { ZodError } from "zod/v4";
 
-const SIGNUP_ERROR_URL = "/error";
-
 export default async function LoginPage() {
   const handleCredentials = async (formData: FormData) => {
     'use server';
@@ -28,7 +26,7 @@ export default async function LoginPage() {
       await signIn(provider.id);
     } catch (error) {
       if (error instanceof AuthError) {
-        return redirect(`${SIGNUP_ERROR_URL}?error=${error.type}`)
+        return redirect(`/error?status=${error.type}`)
       }
       throw error;
     }
