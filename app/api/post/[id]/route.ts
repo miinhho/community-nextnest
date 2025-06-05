@@ -1,10 +1,10 @@
 import { deletePostById, findPostById, updatePostContent } from '@/lib/actions/post.actions';
-import { postAuthGuard } from '@/lib/helper/route.helper';
+import { NextIdParams, postAuthGuard } from '@/lib/helper/route.helper';
 import { HttpStatus } from '@/lib/http-status';
 import { ValidateStatus } from '@/types/action.status';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: NextIdParams) {
   const postId = params.id;
   const findResult = await findPostById(postId);
 
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   );
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: NextIdParams) {
   const postId = params.id;
   const result = await postAuthGuard(postId);
   if (result) {
@@ -77,7 +77,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   );
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: NextIdParams) {
   const postId = params.id;
   const result = await postAuthGuard(postId);
   if (result) {

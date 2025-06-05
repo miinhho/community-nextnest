@@ -4,6 +4,12 @@ import { findPostById } from '../actions/post.actions';
 import { auth } from '../auth';
 import { HttpStatus } from '../http-status';
 
+export interface NextIdParams {
+  params: {
+    id: string;
+  };
+}
+
 /**
  * 인증되지 않았거나 / 글을 찾을 수 없거나 / 해당 글에 대한 권한이 없다면
  * `NextResponse` 가 반환된다

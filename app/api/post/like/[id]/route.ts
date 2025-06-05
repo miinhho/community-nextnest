@@ -1,10 +1,11 @@
 import { togglePostLikes } from '@/lib/actions/post.actions';
 import { auth } from '@/lib/auth';
+import { NextIdParams } from '@/lib/helper/route.helper';
 import { HttpStatus } from '@/lib/http-status';
 import { LikeStatus } from '@/types/action.status';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: NextIdParams) {
   const session = await auth();
 
   if (!session?.user) {
