@@ -22,11 +22,12 @@ model User {
   role          Role            @default(USER)
 
   posts        Post[]
-  comment      Comment[]
+  comments     Comment[]
   postLikes    PostLikes[]
   commentLikes CommentLikes[]
-  following    Follow[]       @relation("FollowingRelation")
-  followers    Follow[]       @relation("FollowerRelation")
+
+  following Follow[] @relation("FollowingRelation")
+  followers Follow[] @relation("FollowerRelation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -34,73 +35,94 @@ model User {
 
 model Follow {
   id          String @id @default(cuid())
-  follower    User   @relation("FollowerRelation", fields: [followerId], references: [id])
   followerId  String
-  following   User   @relation("FollowingRelation", fields: [followingId], references: [id])
   followingId String
 
   createdAt DateTime @default(now())
 
+  follower  User @relation("FollowerRelation", fields: [followerId], references: [id])
+  following User @relation("FollowingRelation", fields: [followingId], references: [id])
+
   @@unique([followerId, followingId])
   @@index([followerId])
   @@index([followingId])
+  @@map("follows")
 }
 
 model Post {
-  id        String      @id @default(cuid())
-  content   String
-  author    User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId  String
-  comment   Comment[]
-  likeCount Int         @default(0)
-  likes     PostLikes[]
+  id           String      @id @default(cuid())
+  content      String
+  authorId     String
+  commentCount Int         @default(0)
+  likeCount    Int         @default(0)
+  likes        PostLikes[]
+  comments     Comment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
   @@index([authorId])
+  @@index([createdAt])
+  @@index([commentCount, createdAt])
+  @@map("posts")
 }
 
 model Comment {
-  id         String         @id @default(cuid())
-  content    String
-  post       Post           @relation(fields: [postId], references: [id])
-  postId     String
-  author     User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId   String
+  id       String @id @default(cuid())
+  content  String
+  postId   String
+  authorId String
+
+  parentId   String?
   likesCount Int            @default(0)
   likes      CommentLikes[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  post    Post      @relation(fields: [postId], references: [id])
+  author  User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies Comment[] @relation("CommentReplies")
+
+  @@index([postId, createdAt])
+  @@index([postId, parentId, createdAt])
   @@index([authorId])
-  @@index([postId])
+  @@index([parentId])
+  @@map("comments")
 }
 
 model PostLikes {
   id     String @id @default(cuid())
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
-  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
   @@unique([userId, postId], name: "userId_postId")
   @@index([userId])
+  @@index([postId])
+  @@map("post_likes")
 }
 
 model CommentLikes {
-  id        String  @id @default(cuid())
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String @id @default(cuid())
   userId    String
-  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
   commentId String
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
 
   @@unique([userId, commentId], name: "userId_commentId")
   @@index([userId])
+  @@index([commentId])
+  @@map("comment_likes")
 }
 
 model Account {
@@ -133,10 +155,11 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {

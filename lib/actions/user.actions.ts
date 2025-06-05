@@ -70,47 +70,91 @@ export async function updateUserById(
  * @returns
  * - 유저: ID, 이름, 이메일, 이메일 인증 날짜, 프로필 사진, OAuth 계정, 글, 생성 날짜, 수정 날짜, 댓글
  */
-export async function findUserById(id: string) {
-  const user = await prisma.user.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      emailVerified: true,
-      image: true,
-      accounts: true,
-      posts: true,
-      createdAt: true,
-      updatedAt: true,
-      comment: true,
-    },
-  });
+export async function findUserById(id: string): AsyncActionType {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        name: true,
+        email: true,
+        emailVerified: true,
+        image: true,
+        posts: {
+          select: {
+            id: true,
+            content: true,
+            likeCount: true,
+            commentCount: true,
+          },
+        },
+        createdAt: true,
+        updatedAt: true,
+        comments: {
+          select: {
+            id: true,
+            content: true,
+            postId: true,
+            likesCount: true,
+          },
+        },
+      },
+    });
 
-  return user;
+    return {
+      success: true,
+      data: user!,
+    };
+  } catch {
+    return { success: false };
+  }
+}
+
+export async function findUserAccountsById(id: string): AsyncActionType {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        accounts: true,
+      },
+    });
+
+    return {
+      success: true,
+      data: user!,
+    };
+  } catch {
+    return { success: false };
+  }
 }
 
 /**
  * @returns
  * - 유저: ID, 이름, 이메일 인증 날짜, 프로필 사진, OAuth 계정, 글, 생성 날짜, 수정 날짜, 댓글
  */
-export async function findUserByEmail(email: string) {
-  const user = await prisma.user.findUnique({
-    where: { email },
-    select: {
-      id: true,
-      name: true,
-      emailVerified: true,
-      image: true,
-      accounts: true,
-      posts: true,
-      createdAt: true,
-      updatedAt: true,
-      comment: true,
-    },
-  });
+export async function findUserByEmail(email: string): AsyncActionType {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        name: true,
+        emailVerified: true,
+        image: true,
+        accounts: true,
+        posts: true,
+        createdAt: true,
+        updatedAt: true,
+        comments: true,
+      },
+    });
 
-  return user;
+    return {
+      success: true,
+      data: user!,
+    };
+  } catch {
+    return { success: false };
+  }
 }
 
 /**
@@ -118,24 +162,30 @@ export async function findUserByEmail(email: string) {
  * @returns
  * - 유저: ID, 이름, 이메일 인증 날짜, 프로필 사진, OAuth 계정, 글, 생성 날짜, 수정 날짜, 댓글, 비밀번호
  */
-export async function findUserWithPasswordByEmail(email: string) {
-  const user = await prisma.user.findUnique({
-    where: { email },
-    select: {
-      id: true,
-      name: true,
-      emailVerified: true,
-      image: true,
-      accounts: true,
-      posts: true,
-      createdAt: true,
-      updatedAt: true,
-      comment: true,
-      password: true,
-    },
-  });
+export async function findUserWithPasswordByEmail(email: string): AsyncActionType {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        name: true,
+        emailVerified: true,
+        image: true,
+        accounts: true,
+        posts: true,
+        createdAt: true,
+        updatedAt: true,
+        password: true,
+      },
+    });
 
-  return user;
+    return {
+      success: true,
+      data: user!,
+    };
+  } catch {
+    return { success: false };
+  }
 }
 
 /**
@@ -152,24 +202,31 @@ export async function findUsersByName({
   name: string;
   page?: number;
   pageSize?: number;
-}) {
-  const user = await prisma.user.findMany({
-    where: {
-      name: {
-        startsWith: name,
+}): AsyncActionType {
+  try {
+    const user = await prisma.user.findMany({
+      where: {
+        name: {
+          startsWith: name,
+        },
       },
-    },
-    select: {
-      id: true,
-      name: true,
-      image: true,
-      email: true,
-    },
-    skip: page * pageSize,
-    take: pageSize,
-  });
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        email: true,
+      },
+      skip: page * pageSize,
+      take: pageSize,
+    });
 
-  return user;
+    return {
+      success: true,
+      data: user,
+    };
+  } catch {
+    return { success: false };
+  }
 }
 
 /**

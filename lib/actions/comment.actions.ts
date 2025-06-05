@@ -5,25 +5,64 @@ import prisma from '../prisma';
 
 export async function createComment({
   postId,
-  content,
   authorId,
+  content,
 }: {
   postId: string;
-  content: string;
   authorId: string;
+  content: string;
 }): AsyncActionType {
   try {
-    await prisma.comment.create({
-      data: {
-        content,
-        authorId,
-        postId,
-      },
-    });
+    await prisma.$transaction([
+      prisma.comment.create({
+        data: {
+          content,
+          authorId,
+          postId,
+        },
+      }),
+      prisma.post.update({
+        where: { id: postId },
+        data: {
+          commentCount: { increment: 1 },
+        },
+      }),
+    ]);
     return { success: true };
   } catch (err) {
     return { success: false };
   }
+}
+
+export async function createCommentReply({
+  postId,
+  commentId,
+  authorId,
+  content,
+}: {
+  postId: string;
+  commentId: string;
+  authorId: string;
+  content: string;
+}) {
+  try {
+    await prisma.$transaction([
+      prisma.comment.create({
+        data: {
+          content,
+          postId,
+          authorId,
+          parentId: commentId,
+        },
+      }),
+      prisma.post.update({
+        where: { id: postId },
+        data: {
+          commentCount: { increment: 1 },
+        },
+      }),
+    ]);
+  } catch {}
 }
 
 /**
@@ -146,21 +185,57 @@ async function minusCommentLikes(
  * - 댓글 작성자: ID
  * - 글: ID
  */
-export async function findCommentById(id: string) {
-  const comment = await prisma.comment.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      content: true,
-      likesCount: true,
-      postId: true,
-      authorId: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
+export async function findCommentById(id: string): AsyncActionType {
+  try {
+    const comment = await prisma.comment.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        content: true,
+        parent: {
+          select: {
+            id: true,
+            likesCount: true,
+            content: true,
+            author: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+        },
+        replies: {
+          select: {
+            id: true,
+            likesCount: true,
+            content: true,
+            author: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+        likesCount: true,
+        postId: true,
+        authorId: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
-  return comment;
+    return {
+      success: true,
+      data: comment!,
+    };
+  } catch {
+    return { success: false };
+  }
 }
 
 /**
@@ -176,32 +251,40 @@ export async function findCommentsByUser({
   pageSize = 10,
 }: {
   authorId: string;
-  page?: number;
-  pageSize?: number;
-}) {
-  const comments = await prisma.comment.findMany({
-    select: {
-      id: true,
-      content: true,
-      likesCount: true,
-      postId: true,
-      post: {
-        select: {
-          content: true,
+  page: number;
+  pageSize: number;
+}): AsyncActionType {
+  try {
+    const comments = await prisma.comment.findMany({
+      where: { authorId },
+      select: {
+        id: true,
+        content: true,
+        likesCount: true,
+        postId: true,
+        post: {
+          select: {
+            id: true,
+            content: true,
+          },
         },
+        createdAt: true,
+        updatedAt: true,
       },
-      createdAt: true,
-      updatedAt: true,
-    },
-    skip: page * pageSize,
-    take: pageSize,
-    where: { authorId },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+      skip: page * pageSize,
+      take: pageSize,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
 
-  return comments;
+    return {
+      success: true,
+      data: comments,
+    };
+  } catch {
+    return { success: false };
+  }
 }
 
 /**
@@ -217,40 +300,95 @@ export async function findCommentsByPost({
   pageSize = 10,
 }: {
   postId: string;
-  page?: number;
-  pageSize?: number;
-}) {
-  const comments = await prisma.comment.findMany({
-    select: {
-      id: true,
-      content: true,
-      likesCount: true,
-      author: {
-        select: {
-          id: true,
-          name: true,
-          image: true,
+  page: number;
+  pageSize: number;
+}): AsyncActionType {
+  try {
+    const comments = await prisma.comment.findMany({
+      where: { postId, parentId: null },
+      select: {
+        id: true,
+        content: true,
+        likesCount: true,
+        author: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
         },
+        createdAt: true,
+        updatedAt: true,
       },
-      createdAt: true,
-      updatedAt: true,
-    },
-    where: { postId },
-    skip: page * pageSize,
-    take: pageSize,
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+      skip: page * pageSize,
+      take: pageSize,
+      orderBy: { createdAt: 'desc' },
+    });
 
-  return comments;
+    return {
+      success: true,
+      data: comments,
+    };
+  } catch {
+    return { success: false };
+  }
 }
 
-export async function deleteCommentById(id: string): AsyncActionType {
+export async function findRepliesFromComment({
+  commentId,
+  page = 0,
+  pageSize = 10,
+}: {
+  commentId: string;
+  page: number;
+  pageSize: number;
+}): AsyncActionType {
   try {
-    await prisma.comment.delete({
-      where: { id },
+    const replies = await prisma.comment.findMany({
+      where: { id: commentId },
+      select: {
+        replies: {
+          select: {
+            id: true,
+            content: true,
+            likesCount: true,
+            author: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+      skip: page * pageSize,
+      take: pageSize,
     });
+
+    return {
+      success: true,
+      data: replies,
+    };
+  } catch {
+    return { success: false };
+  }
+}
+
+export async function deleteCommentById(commentId: string, postId: string): AsyncActionType {
+  try {
+    await prisma.$transaction([
+      prisma.comment.delete({
+        where: { id: commentId },
+      }),
+      prisma.post.update({
+        where: { id: postId },
+        data: {
+          commentCount: { decrement: 1 },
+        },
+      }),
+    ]);
     return { success: true };
   } catch (err) {
     return { success: false };

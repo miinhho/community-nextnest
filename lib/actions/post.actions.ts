@@ -192,6 +192,7 @@ export async function findPostById(id: string): AsyncActionType {
         updatedAt: true,
         authorId: true,
         likeCount: true,
+        commentCount: true,
         author: {
           select: {
             name: true,
@@ -233,6 +234,7 @@ export async function findPostsByPage({
         updatedAt: true,
         authorId: true,
         likeCount: true,
+        commentCount: true,
         author: {
           select: {
             name: true,
