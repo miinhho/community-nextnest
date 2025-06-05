@@ -15,7 +15,7 @@ interface Props {
 export const Post = async ({ postId }: Props) => {
   const { author, post } = await fetchPostData(postId);
 
-  // TODO : Like Fetch
+  // TODO : Like Fetch 를 fetch helper 로 만들기 (많이 쓰일 것 같음)
   const handleLike = async () => {
     const likeData = await fetch(
       `${process.env.URL}/api/post/${postId}:${process.env.PORT}`,
@@ -29,11 +29,13 @@ export const Post = async ({ postId }: Props) => {
   };
 
   // TODO : 댓글 달 수 있는 에디터 띄우기
+  // shadcn/ui 의 Alert Dialog
   const handleComment = () => {
 
   };
 
   // TODO : alert 대신 Modal 처리
+  // shadcn/ui 의 Sonner
   const handleShare = async () => {
     const postUrl = `${process.env.URL}/post/${postId}`;
     await navigator.clipboard.writeText(postUrl);

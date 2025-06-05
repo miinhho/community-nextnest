@@ -11,6 +11,9 @@
 - 로그아웃 구현 ✅
 - 회원가입 구현 ✅
 
+- 커스텀 로그인 페이지를 Client Component 로 바꾸어 error handle 보완하기
+- login / sign up api handler 만들기
+
 - OAuth 추가 (나중으로 계획)
   - Google
   - Naver

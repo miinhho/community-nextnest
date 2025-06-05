@@ -22,7 +22,7 @@ export default async function LoginPage({
       await signIn('credentials', formData);
     } catch (error) {
       if (error instanceof ZodError) {
-        // TODO : Modal 로 유저에게 처리하기
+        // TODO : Alert 로 유저에게 처리하기
         console.log(error.message);
       }
       if (error instanceof UserNotFound) {
