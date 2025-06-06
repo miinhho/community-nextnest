@@ -71,4 +71,6 @@
   - ChatRoom Action 구현
   - 채팅 메세지 페이징(최근 20~30개 정도의 메세지만 fetch 후 추가 스크롤 시 추가 fetch) 구현
 
++ Nest.js 로 백엔드 로직을 옮기고 Prisma ORM 기반 Server Action 을 옮기는 것도 좋을 것 같음.
++ 공통된 로직이 많아지니 Nest.js 로 백엔드 로직을 옮기고 PassPort.js 로 Auth 관리를 하는 게 좋다고 생각.
 + React Native 로 모바일 앱까지 구현이 가능하다면 해도 좋다고 생각함 (추후 다른 포트폴리오를 개발하며 사이드로 할 듯)
