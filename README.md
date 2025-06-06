@@ -1,12 +1,12 @@
-## Next.js + Community
+## Next.js + Nest.js + Community
 
 
 ### Tech Stack
 
-1. **Framework**: Next.js  
+1. **Framework**: Next.js, Nest.js  
 2. **Database**: PostgreSQL  
 3. **ORM**: Prisma  
-4. **Auth**: Auth.js  
+4. **Auth**: PassPort.js  
 5. **Components**: Shadcn/ui  
 6. **Styling**: TailwindCSS  
 7. **Validation**: Zod  
@@ -37,7 +37,3 @@
 
 
 <br>
-
-### THIRD PARTY LICENSE
-package.json 간접적으로 사용된 오픈소스들의 라이선스 정보가 포함되어 있으며 실제 이 프로젝트를 통해 수익을 얻지도 않으며, 서비스를 열지도 않지만,
-법적으로는 엄연히 계약 조건으로 들어가기 때문에 첨부하였습니다.
