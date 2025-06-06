@@ -31,7 +31,17 @@ export class CommentService {
     }
   }
 
-  async createCommentReply(postId: string, commentId: string, authorId: string, content: string) {
+  async createCommentReply({
+    authorId,
+    postId,
+    commentId,
+    content
+  }: {
+      authorId: string,
+      postId: string,
+      commentId: string,
+    content: string,
+  }) {
     try {
       await this.prisma.$transaction([
         this.prisma.comment.create({

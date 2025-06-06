@@ -6,7 +6,17 @@ import { Injectable } from '@nestjs/common';
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createUser(email: string, password: string, name?: string, image?: string) {
+  async createUser({
+    email,
+    password,
+    name,
+    image,
+  }: {
+    email: string;
+    password: string;
+    name?: string;
+    image?: string;
+  }) {
     try {
       const user = await this.prisma.user.create({
         data: {
