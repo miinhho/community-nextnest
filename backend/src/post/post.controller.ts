@@ -15,19 +15,19 @@ export class PostController {
   }
 
   @Get(':id')
-  findPostById(@Param('id') id: string) {
-    return this.postService.findPostById(id);
+  findPostById(@Param('id') postId: string) {
+    return this.postService.findPostById(postId);
   }
 
   @Put(':id')
-  updatePostContent(@Param('id') id: string, @Body() postContentDto: PostContentDto) {
+  updatePostContent(@Param('id') postId: string, @Body() postContentDto: PostContentDto) {
     const { content } = postContentDto;
-    return this.postService.updatePost(id, content);
+    return this.postService.updatePost(postId, content);
   }
 
   @Delete(':id')
-  async removePost(@Param('id') id: string) {
-    await this.postService.deletePostById(id);
+  async removePost(@Param('id') postId: string) {
+    await this.postService.deletePostById(postId);
   }
 
   @Post('/like/:id')

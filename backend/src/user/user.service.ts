@@ -1,6 +1,6 @@
 import { PrismaService } from '@/lib/database/prisma.service';
 import { commentSelections, postSelections, userSelections } from '@/lib/database/select';
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 @Injectable()
 export class UserService {
@@ -25,7 +25,7 @@ export class UserService {
       });
       return user;
     } catch {
-      return null;
+      throw new InternalServerErrorException('Failed to create user');
     }
   }
 

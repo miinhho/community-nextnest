@@ -1,9 +1,12 @@
 import { AuthController } from '@/auth/auth.controller';
 import { JwtAuthGuard } from '@/auth/guard/jwt.guard';
 import { CommentController } from '@/comment/comment.controller';
+import app from '@/config/app.config';
+import jwt from '@/config/jwt.config';
 import { FollowController } from '@/follow/follow.controller';
 import { UserController } from '@/user/user.controller';
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { AuthModule } from './auth/auth.module';
@@ -14,7 +17,18 @@ import { PostModule } from './post/post.module';
 import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [PostModule, UserModule, CommentModule, FollowModule, AuthModule],
+  imports: [
+    ConfigModule.forRoot({
+      load: [jwt, app],
+      isGlobal: true,
+      cache: true,
+    }),
+    PostModule,
+    UserModule,
+    CommentModule,
+    FollowModule,
+    AuthModule,
+  ],
   controllers: [
     PostController,
     UserController,

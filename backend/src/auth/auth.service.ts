@@ -1,62 +1,83 @@
 import { UserRegisterDto } from '@/auth/dto/register.dto';
-import { JwtPayload } from '@/auth/jwt/token.types';
+import { RefreshTokenService } from '@/auth/token/refresh-token.service';
+import { TokenService } from '@/auth/token/token.service';
+import jwt from '@/config/jwt.config';
 import { UserData } from '@/types/user.data';
 import { UserService } from '@/user/user.service';
 import {
   BadRequestException,
+  Inject,
   Injectable,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { ConfigType } from '@nestjs/config';
 import { compareSync, genSalt, hash } from 'bcrypt';
 
-const SALT_ROUND = 10;
+const SALT_ROUND = 12;
 
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(jwt.KEY)
+    private jwtConfig: ConfigType<typeof jwt>,
     private userService: UserService,
-    private jwtService: JwtService,
+    private tokenService: TokenService,
+    private refreshTokenService: RefreshTokenService,
   ) {}
 
   async validateUser(email: string, password: string) {
-    const user = await this.userService.findUserByEmail(email, true);
-    if (!user) {
-      throw new BadRequestException('Invalid credentials');
-    }
-    const isMatch = this.comparePassword(password, user.password);
-    if (!isMatch) {
-      throw new BadRequestException('Invalid credentials');
-    }
+    try {
+      const user = await this.userService.findUserByEmail(email, true);
+      if (!user) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
 
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-    } as UserData;
+      const isPasswordValid = this.comparePassword(password, user.password);
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+
+      return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      };
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Authentication failed');
+    }
   }
 
   async login(user: UserData) {
-    const payload: JwtPayload = {
-      sub: user.id,
-      email: user.email,
-    };
+    const accessToken = this.tokenService.generateAccessToken(user.id);
+    const refreshToken = this.tokenService.generateRefreshToken(user.id);
+
+    await this.refreshTokenService.createRefreshToken(
+      user.id,
+      refreshToken,
+      this.jwtConfig.refreshExpiration,
+    );
 
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      accessToken,
+      refreshToken,
       user: {
         id: user.id,
         email: user.email,
         name: user.name,
-      } as UserData,
+      },
     };
   }
 
   async register(userDto: UserRegisterDto) {
-    const isExist = await this.userService.findUserByEmail(userDto.email);
-    if (isExist) {
+    const existingUser = await this.userService.findUserByEmail(userDto.email);
+    if (existingUser) {
       throw new BadRequestException('Email already exists');
     }
+
     const hashedPassword = await this.hashPassword(userDto.password);
     const user = await this.userService.createUser({
       email: userDto.email,
@@ -64,15 +85,56 @@ export class AuthService {
       name: userDto.name,
     });
 
-    if (!user) {
-      throw new InternalServerErrorException('Cannot create user');
-    }
-
     return this.login({
       id: user.id,
       email: user.email,
       name: user.name,
     });
+  }
+
+  async refreshTokens(refreshToken: string) {
+    try {
+      const payload = this.tokenService.verifyRefreshToken(refreshToken);
+      const userId = payload.sub;
+
+      const storedToken =
+        await this.refreshTokenService.findRefreshTokenByToken(refreshToken);
+
+      if (new Date(storedToken.expiresAt) < new Date()) {
+        await this.refreshTokenService.revokeRefreshToken(storedToken.id);
+        throw new UnauthorizedException('Refresh token expired');
+      }
+
+      const newAccessToken = this.tokenService.generateAccessToken(userId);
+      const newRefreshToken = this.tokenService.generateRefreshToken(userId);
+
+      await this.refreshTokenService.revokeRefreshToken(storedToken.id);
+
+      await this.refreshTokenService.createRefreshToken(
+        userId,
+        newRefreshToken,
+        this.jwtConfig.refreshExpiration,
+      );
+
+      return {
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+      };
+    } catch {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
+
+  async logout(refreshToken: string) {
+    try {
+      const token = await this.refreshTokenService.findRefreshTokenByToken(refreshToken);
+      if (token) {
+        await this.refreshTokenService.revokeRefreshToken(token.id);
+      }
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   async hashPassword(plain: string) {

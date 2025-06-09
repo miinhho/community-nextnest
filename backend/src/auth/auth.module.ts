@@ -1,7 +1,9 @@
 import { JwtStrategy } from '@/auth/strategy/jwt.strategy';
 import { LocalStrategy } from '@/auth/strategy/local.strategy';
+import { PrismaService } from '@/lib/database/prisma.service';
 import { UserModule } from '@/user/user.module';
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
@@ -11,15 +13,15 @@ import { AuthService } from './auth.service';
   imports: [
     UserModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    // TODO : Config 설정을 통해 JWT_SECRET, JWT_EXPIRE 설정
     JwtModule.registerAsync({
+      inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        secret: '',
-        signOptions: { expiresIn: '' },
+        secret: config.get<string>('jwt.accessSecret'),
+        signOptions: { expiresIn: config.get<number>('jwt.accessExpiration') },
       }),
     }),
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy, PrismaService],
   controllers: [AuthController],
   exports: [AuthService],
 })

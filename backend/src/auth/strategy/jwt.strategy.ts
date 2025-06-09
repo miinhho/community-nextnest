@@ -1,14 +1,16 @@
-import { JwtPayload } from '@/auth/jwt/token.types';
+import { JwtPayload } from '@/auth/token/token.types';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
+@Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
-    // TODO : Config 설정을 통해 JWT_SECRET, JWT_EXPIRE 설정
+  constructor(config: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: '',
+      secretOrKey: config.get<string>('jwt.accessSecret')!,
     });
   }
 

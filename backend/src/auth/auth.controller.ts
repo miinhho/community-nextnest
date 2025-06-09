@@ -1,27 +1,85 @@
 import { AuthService } from '@/auth/auth.service';
+import { UserRegisterDto } from '@/auth/dto/register.dto';
+import { JwtAuthGuard } from '@/auth/guard/jwt.guard';
 import { LocalAuthGuard } from '@/auth/guard/local.guard';
 import { Public } from '@/auth/public.decorator';
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import app from '@/config/app.config';
+import jwt from '@/config/jwt.config';
+import {
+  Body,
+  Controller,
+  Inject,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
+import { Request, Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    @Inject(jwt.KEY)
+    private jwtConfig: ConfigType<typeof jwt>,
+    @Inject(app.KEY)
+    private appConfig: ConfigType<typeof app>,
+  ) {}
+
+  @Public()
+  @Post('register')
+  register(@Body() userRegisterDto: UserRegisterDto) {
+    return this.authService.register(userRegisterDto);
+  }
 
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  login(@Request() req) {
-    return this.authService.login(req.user);
+  async login(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const result = await this.authService.login(req.user!);
+
+    res.cookie('refreshToken', result.refreshToken, {
+      httpOnly: true,
+      secure: this.appConfig.isProduction,
+      sameSite: 'strict',
+      maxAge: this.jwtConfig.refreshExpiration,
+      path: '/',
+    });
+
+    const { refreshToken: _, ...responseData } = result;
+    return responseData;
   }
 
-  @Public()
-  @Post('signup')
-  register(@Body() req) {
-    return this.authService.register(req);
+  @Post('refresh')
+  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token is required');
+    }
+
+    const tokens = await this.authService.refreshTokens(refreshToken);
+    res.cookie('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      secure: this.appConfig.isProduction,
+      sameSite: 'strict',
+      maxAge: this.jwtConfig.refreshExpiration,
+      path: '/',
+    });
+
+    return { accessToken: tokens.accessToken };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
-  logout(@Request() req) {
-    return req.logout();
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const refreshToken = req.cookies.refreshToken;
+    if (refreshToken) {
+      await this.authService.logout(refreshToken);
+    }
+
+    res.clearCookie('refreshToken');
+    return { success: true };
   }
 }
