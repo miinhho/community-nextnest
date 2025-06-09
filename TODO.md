@@ -1,6 +1,7 @@
 Backend:
   - [x] PassPort.js 로 Auth 구현
   - [x] JWT 구현
+  - [ ] Comment, Follow, User Controller 구현
 
 Frontend:
   1. Zustand 를 통해 유저 Auth 정보를 저장 및 사용
