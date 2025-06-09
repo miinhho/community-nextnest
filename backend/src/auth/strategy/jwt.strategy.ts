@@ -1,3 +1,4 @@
+import { JwtPayload } from '@/auth/jwt/token.types';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
@@ -11,7 +12,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  validate(payload: { sub: string; email: string }) {
+  validate(payload: JwtPayload) {
     return {
       id: payload.sub,
       email: payload.email,

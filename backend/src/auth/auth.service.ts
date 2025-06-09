@@ -1,4 +1,6 @@
-import { UserLoginDto } from '@/auth/dto/user-login.dto';
+import { UserRegisterDto } from '@/auth/dto/register.dto';
+import { JwtPayload } from '@/auth/jwt/token.types';
+import { UserData } from '@/types/user.data';
 import { UserService } from '@/user/user.service';
 import {
   BadRequestException,
@@ -6,7 +8,6 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
 import { compareSync, genSalt, hash } from 'bcrypt';
 
 const SALT_ROUND = 10;
@@ -21,51 +22,57 @@ export class AuthService {
   async validateUser(email: string, password: string) {
     const user = await this.userService.findUserByEmail(email, true);
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new BadRequestException('Invalid credentials');
     }
-
     const isMatch = this.comparePassword(password, user.password);
     if (!isMatch) {
-      throw new BadRequestException('Password does not match');
+      throw new BadRequestException('Invalid credentials');
     }
 
     return {
       id: user.id,
       name: user.name,
       email: user.email,
-    };
+    } as UserData;
   }
 
-  async login(user: User) {
-    const validatedUser = await this.validateUser(user.email, user.password);
-
-    const payload = {
-      sub: validatedUser.id,
-      email: validatedUser.email,
+  async login(user: UserData) {
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
     };
 
     return {
       access_token: await this.jwtService.signAsync(payload),
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      } as UserData,
     };
   }
 
-  async register(userDto: UserLoginDto) {
+  async register(userDto: UserRegisterDto) {
     const isExist = await this.userService.findUserByEmail(userDto.email);
     if (isExist) {
       throw new BadRequestException('Email already exists');
     }
-
     const hashedPassword = await this.hashPassword(userDto.password);
     const user = await this.userService.createUser({
       email: userDto.email,
       password: hashedPassword,
+      name: userDto.name,
     });
 
     if (!user) {
       throw new InternalServerErrorException('Cannot create user');
     }
 
-    return this.login(user);
+    return this.login({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    });
   }
 
   async hashPassword(plain: string) {

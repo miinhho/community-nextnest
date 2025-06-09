@@ -16,7 +16,6 @@ export class AuthController {
 
   @Public()
   @Post('signup')
-  @UseGuards(LocalAuthGuard)
   register(@Body() req) {
     return this.authService.register(req);
   }

@@ -13,7 +13,7 @@ export class UserService {
   }: {
     email: string;
     password: string;
-    name?: string;
+    name: string;
   }) {
     try {
       const user = await this.prisma.user.create({
