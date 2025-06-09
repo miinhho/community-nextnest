@@ -10,12 +10,10 @@ export class UserService {
     email,
     password,
     name,
-    image,
   }: {
     email: string;
     password: string;
     name?: string;
-    image?: string;
   }) {
     try {
       const user = await this.prisma.user.create({
@@ -23,10 +21,6 @@ export class UserService {
           email,
           name,
           password,
-          image,
-        },
-        select: {
-          id: true,
         },
       });
       return user;
