@@ -1,7 +1,8 @@
+import { PageQuery } from '@/common/decorator/page-query.decorator';
+import { User } from '@/common/decorator/user.decorator';
 import { LikeStatus } from '@/common/status/like-status';
 import { ResultStatus } from '@/common/status/result-status';
 import { UserData } from '@/common/user.data';
-import { User } from '@/user/user.decorator';
 import {
   Body,
   Controller,
@@ -11,10 +12,8 @@ import {
   InternalServerErrorException,
   NotFoundException,
   Param,
-  ParseIntPipe,
   Post,
   Put,
-  Query,
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
@@ -57,11 +56,7 @@ export class PostController {
   }
 
   @Get()
-  async findPostsByPage(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('size', ParseIntPipe) size: number,
-    @Res() res: Response,
-  ) {
+  async findPostsByPage(@PageQuery() { page, size }: PageQuery, @Res() res: Response) {
     const posts = await this.postService.findPostsByPage(page, size);
     if (!posts || posts.length === 0) {
       throw new NotFoundException('게시글을 찾을 수 없습니다.');

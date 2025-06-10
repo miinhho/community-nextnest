@@ -1,10 +1,10 @@
 import { CommentCreateDto, CommentUpdateDto } from '@/comment/dto/comment.dto';
 import { ReplyContentDto } from '@/comment/dto/reply.dto';
 import { PageQuery } from '@/common/decorator/page-query.decorator';
+import { User } from '@/common/decorator/user.decorator';
 import { LikeStatus } from '@/common/status/like-status';
 import { ResultStatus } from '@/common/status/result-status';
 import { UserData } from '@/common/user.data';
-import { User } from '@/user/user.decorator';
 import {
   Body,
   Controller,

@@ -40,9 +40,8 @@ export class AuthService {
 
       return {
         id: user.id,
-        name: user.name,
-        email: user.email,
-      };
+        role: user.role,
+      } as UserData;
     } catch (error) {
       if (error instanceof UnauthorizedException) {
         throw error;
@@ -52,7 +51,7 @@ export class AuthService {
   }
 
   async login(user: UserData) {
-    const accessToken = this.tokenService.generateAccessToken(user.id);
+    const accessToken = await this.tokenService.generateAccessToken(user.id);
     const refreshToken = this.tokenService.generateRefreshToken(user.id);
 
     await this.refreshTokenService.createRefreshToken(
@@ -66,8 +65,8 @@ export class AuthService {
       refreshToken,
       user: {
         id: user.id,
-        email: user.email,
-      },
+        role: user.role,
+      } as UserData,
     };
   }
 
@@ -90,7 +89,7 @@ export class AuthService {
 
     return this.login({
       id: user.id,
-      email: user.email,
+      role: user.role,
     });
   }
 

@@ -1,4 +1,6 @@
+import { JwtPayload } from '@/auth/token/token.types';
 import jwt from '@/config/jwt.config';
+import { UserService } from '@/user/user.service';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -9,11 +11,16 @@ export class TokenService {
     private jwtService: JwtService,
     @Inject(jwt.KEY)
     private jwtConfig: ConfigType<typeof jwt>,
+    private userService: UserService,
   ) {}
 
-  generateAccessToken(userId: string): string {
+  async generateAccessToken(userId: string) {
+    const user = await this.userService.findUserById(userId);
     return this.jwtService.sign(
-      { sub: userId },
+      {
+        sub: userId,
+        role: user?.role,
+      } as JwtPayload,
       {
         secret: this.jwtConfig.accessSecret,
         expiresIn: this.jwtConfig.accessExpiration,

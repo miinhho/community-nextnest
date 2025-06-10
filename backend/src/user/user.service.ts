@@ -58,6 +58,7 @@ export class UserService {
           email: true,
           emailVerified: true,
           image: true,
+          role: true,
           posts: {
             select: {
               ...postSelections,

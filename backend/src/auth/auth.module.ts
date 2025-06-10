@@ -1,7 +1,9 @@
 import { JwtStrategy } from '@/auth/strategy/jwt.strategy';
 import { LocalStrategy } from '@/auth/strategy/local.strategy';
+import { RefreshTokenService } from '@/auth/token/refresh-token.service';
+import { TokenService } from '@/auth/token/token.service';
 import { PrismaService } from '@/common/database/prisma.service';
-import { UserModule } from '@/user/user.module';
+import { UserService } from '@/user/user.service';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -11,7 +13,6 @@ import { AuthService } from './auth.service';
 
 @Module({
   imports: [
-    UserModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       inject: [ConfigService],
@@ -21,7 +22,15 @@ import { AuthService } from './auth.service';
       }),
     }),
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy, PrismaService],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    PrismaService,
+    UserService,
+    TokenService,
+    RefreshTokenService,
+  ],
   controllers: [AuthController],
   exports: [AuthService],
 })

@@ -16,7 +16,7 @@ export class RefreshTokenService {
       });
       return refreshToken;
     } catch {
-      throw new InternalServerErrorException('Failed to create refresh token');
+      throw new InternalServerErrorException('토큰 생성에 실패했습니다');
     }
   }
 
@@ -26,7 +26,7 @@ export class RefreshTokenService {
         where: { id: tokenId },
       });
     } catch {
-      throw new InternalServerErrorException('Failed to revoke refresh token');
+      throw new InternalServerErrorException('토큰 삭제에 실패했습니다');
     }
   }
 
@@ -36,9 +36,7 @@ export class RefreshTokenService {
         where: { userId },
       });
     } catch {
-      throw new InternalServerErrorException(
-        'Failed to revoke all refresh tokens for user',
-      );
+      throw new InternalServerErrorException('사용자의 모든 토큰 삭제에 실패했습니다');
     }
   }
 
@@ -49,7 +47,7 @@ export class RefreshTokenService {
       });
       return refreshToken!;
     } catch {
-      throw new InternalServerErrorException('Failed to find refresh token');
+      throw new InternalServerErrorException('토큰을 찾는 데 실패했습니다');
     }
   }
 
@@ -60,7 +58,7 @@ export class RefreshTokenService {
       });
       return refreshToken!;
     } catch {
-      throw new InternalServerErrorException('Failed to find refresh token');
+      throw new InternalServerErrorException('토큰을 찾는 데 실패했습니다');
     }
   }
 }

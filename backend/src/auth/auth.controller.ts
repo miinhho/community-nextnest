@@ -1,8 +1,9 @@
 import { AuthService } from '@/auth/auth.service';
 import { UserRegisterDto } from '@/auth/dto/register.dto';
-import { JwtAuthGuard } from '@/auth/guard/jwt.guard';
 import { LocalAuthGuard } from '@/auth/guard/local.guard';
-import { Public } from '@/auth/public.decorator';
+import { Public } from '@/common/decorator/public.decorator';
+import { User } from '@/common/decorator/user.decorator';
+import { UserData } from '@/common/user.data';
 import app from '@/config/app.config';
 import jwt from '@/config/jwt.config';
 import {
@@ -18,7 +19,7 @@ import {
 import { ConfigType } from '@nestjs/config';
 import { Request, Response } from 'express';
 
-@Controller('auth')
+@Controller('api/auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
@@ -37,8 +38,8 @@ export class AuthController {
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const result = await this.authService.login(req.user!);
+  async login(@User() user: UserData, @Res({ passthrough: true }) res: Response) {
+    const result = await this.authService.login(user);
 
     res.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,
@@ -71,7 +72,6 @@ export class AuthController {
     return { accessToken: tokens.accessToken };
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('logout')
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const refreshToken = req.cookies.refreshToken;

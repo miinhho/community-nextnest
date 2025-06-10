@@ -3,8 +3,9 @@ Backend:
   - [x] JWT 구현
   - [x] Comment Controller
   - [x] Post Controller
-  - [ ] User Controller
-  - [ ] Follow Controller
+  - [x] User Controller
+  - [x] Follow Controller
+  - [ ] Logger 추가
   - [ ] Swagger Docs
 
 
