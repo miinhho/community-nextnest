@@ -16,4 +16,7 @@ async function bootstrap() {
   await app.listen(config.get('PORT') ?? 3000);
 }
 
-void bootstrap();
+void bootstrap().catch((error) => {
+  console.error('Error during application bootstrap:', error);
+  process.exit(1);
+});

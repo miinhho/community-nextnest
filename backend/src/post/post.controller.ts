@@ -1,4 +1,3 @@
-import { PageQueryDto } from '@/common/page.query';
 import { LikeStatus } from '@/common/status/like-status';
 import { ResultStatus } from '@/common/status/result-status';
 import { UserData } from '@/common/user.data';
@@ -12,6 +11,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -57,8 +57,11 @@ export class PostController {
   }
 
   @Get()
-  async findPostsByPage(@Query() query: PageQueryDto, @Res() res: Response) {
-    const { page, size } = query;
+  async findPostsByPage(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('size', ParseIntPipe) size: number,
+    @Res() res: Response,
+  ) {
     const posts = await this.postService.findPostsByPage(page, size);
     if (!posts || posts.length === 0) {
       throw new NotFoundException('게시글을 찾을 수 없습니다.');

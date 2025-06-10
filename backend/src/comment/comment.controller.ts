@@ -1,6 +1,6 @@
 import { CommentCreateDto, CommentUpdateDto } from '@/comment/dto/comment.dto';
 import { ReplyContentDto } from '@/comment/dto/reply.dto';
-import { PageQueryDto } from '@/common/page.query';
+import { PageQuery } from '@/common/decorator/page-query.decorator';
 import { LikeStatus } from '@/common/status/like-status';
 import { ResultStatus } from '@/common/status/result-status';
 import { UserData } from '@/common/user.data';
@@ -16,7 +16,6 @@ import {
   Param,
   Post,
   Put,
-  Query,
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
@@ -115,10 +114,9 @@ export class CommentController {
   @Get('/user/:userId')
   async getCommentsByUserId(
     @Param('userId') userId: string,
-    @Query() pageQueryDto: PageQueryDto,
+    @PageQuery() { page, size }: PageQuery,
     @Res() res: Response,
   ) {
-    const { page, size } = pageQueryDto;
     const comments = await this.commentService.findCommentsByUserId(userId, page, size);
     if (!comments || comments.length === 0) {
       throw new NotFoundException('해당 사용자의 댓글을 찾을 수 없습니다.');
@@ -137,10 +135,9 @@ export class CommentController {
   @Get('/post/:postId')
   async getCommentsByPostId(
     @Param('postId') postId: string,
-    @Query() pageQueryDto: PageQueryDto,
+    @PageQuery() { page, size }: PageQuery,
     @Res() res: Response,
   ) {
-    const { page, size } = pageQueryDto;
     const comments = await this.commentService.findCommentsByPostId(postId, page, size);
     if (!comments || comments.length === 0) {
       throw new NotFoundException('해당 게시글의 댓글을 찾을 수 없습니다.');
