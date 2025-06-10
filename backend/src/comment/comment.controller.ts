@@ -20,7 +20,6 @@ export class CommentController {
     const commentId = await this.commentService.createComment(postId, user.id, content);
     return {
       success: true,
-      message: '댓글이 성공적으로 작성되었습니다.',
       data: { commentId, postId, authorId: user.id, content },
     };
   }
@@ -39,7 +38,6 @@ export class CommentController {
 
     return {
       success: true,
-      message: '댓글 답글이 성공적으로 작성되었습니다.',
       data: { replyId, postId, authorId: user.id, content },
     };
   }
@@ -65,38 +63,6 @@ export class CommentController {
     };
   }
 
-  @Get('/user/:id')
-  async getCommentsByUserId(
-    @IdParam() id: string,
-    @PageQuery() { page, size }: PageQuery,
-  ) {
-    const comments = await this.commentService.findCommentsByUserId(id, page, size);
-    return {
-      success: true,
-      data: {
-        comments,
-        page,
-        size,
-      },
-    };
-  }
-
-  @Get('/post/:id')
-  async getCommentsByPostId(
-    @IdParam() id: string,
-    @PageQuery() { page, size }: PageQuery,
-  ) {
-    const comments = await this.commentService.findCommentsByPostId(id, page, size);
-    return {
-      success: true,
-      data: {
-        comments,
-        page,
-        size,
-      },
-    };
-  }
-
   @Get('reply/:id')
   async getCommentReplies(@IdParam() id: string, @PageQuery() { page, size }: PageQuery) {
     const replies = await this.commentService.findRepliesByCommentId(id, page, size);
@@ -115,7 +81,6 @@ export class CommentController {
     );
     return {
       success: true,
-      message: '댓글이 성공적으로 삭제되었습니다.',
       data: deletedComment,
     };
   }
@@ -132,11 +97,19 @@ export class CommentController {
         return {
           success: true,
           message: '댓글 좋아요가 추가되었습니다.',
+          data: {
+            status: LikeStatus.PLUS,
+            commentId,
+          },
         };
       case LikeStatus.MINUS:
         return {
           success: true,
           message: '댓글 좋아요가 취소되었습니다.',
+          data: {
+            status: LikeStatus.MINUS,
+            commentId,
+          },
         };
     }
   }

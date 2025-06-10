@@ -115,22 +115,43 @@ export class UserService {
     }
   }
 
-  async findUsersByName(name: string, page: number = 0, size: number = 10) {
+  async findUsersByName(name: string, page: number = 1, size: number = 10) {
     try {
-      const user = await this.prisma.user.findMany({
-        where: {
-          name: {
-            startsWith: name,
+      const [totalCount, user] = await this.prisma.$transaction([
+        this.prisma.user.count({
+          where: {
+            name: {
+              startsWith: name,
+            },
           },
-        },
-        select: {
-          ...userSelections,
-        },
-        skip: page * size,
-        take: size,
-      });
-      return user;
+        }),
+        this.prisma.user.findMany({
+          where: {
+            name: {
+              startsWith: name,
+            },
+          },
+          select: {
+            ...userSelections,
+          },
+          skip: (page - 1) * size,
+          take: size,
+        }),
+      ]);
+
+      if (totalCount === 0) {
+        throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
+      }
+
+      return {
+        users: user,
+        totalCount,
+        totalPage: Math.ceil(totalCount / size),
+      };
     } catch (err) {
+      if (err instanceof NotFoundException) {
+        throw err;
+      }
       throw new InternalServerErrorException('사용자 조회에 실패했습니다.');
     }
   }

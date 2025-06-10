@@ -1,3 +1,4 @@
+import { CommentService } from '@/comment/comment.service';
 import { IdParam } from '@/common/decorator/id.decorator';
 import { PageQuery } from '@/common/decorator/page-query.decorator';
 import { User } from '@/common/decorator/user.decorator';
@@ -9,14 +10,16 @@ import { PostService } from './post.service';
 
 @Controller('api/post')
 export class PostController {
-  constructor(private readonly postService: PostService) {}
+  constructor(
+    private postService: PostService,
+    private commentService: CommentService,
+  ) {}
 
   @Post()
   async createPost(@Body() { content }: PostContentDto, @User() user: UserData) {
     const postId = await this.postService.createPost(user.id, content);
     return {
       success: true,
-      message: '게시글이 성공적으로 작성되었습니다.',
       data: { postId, authorId: user.id, content },
     };
   }
@@ -26,18 +29,48 @@ export class PostController {
     const post = await this.postService.findPostById(postId);
     return {
       success: true,
-      message: '게시글을 성공적으로 조회했습니다.',
       data: post,
     };
   }
 
   @Get()
   async findPosts(@PageQuery() { page, size }: PageQuery) {
-    const posts = await this.postService.findPostsByPage(page, size);
+    const { posts, totalCount, totalPage } = await this.postService.findPostsByPage(
+      page,
+      size,
+    );
     return {
       success: true,
-      message: '게시글 목록을 성공적으로 조회했습니다.',
-      data: posts,
+      data: {
+        posts,
+        meta: {
+          totalCount,
+          totalPage,
+          page,
+          size,
+        },
+      },
+    };
+  }
+
+  @Get('/post/:id')
+  async getCommentsByPostId(
+    @IdParam() id: string,
+    @PageQuery() { page, size }: PageQuery,
+  ) {
+    const { totalCount, totalPage, comments } =
+      await this.commentService.findCommentsByPostId(id, page, size);
+    return {
+      success: true,
+      data: {
+        comments,
+        meta: {
+          totalCount,
+          totalPage,
+          page,
+          size,
+        },
+      },
     };
   }
 
@@ -50,7 +83,6 @@ export class PostController {
     await this.postService.updatePost(postId, content, user.id, isAdmin(user));
     return {
       success: true,
-      message: '게시글이 성공적으로 수정되었습니다.',
       data: {
         postId,
         content,
@@ -68,7 +100,6 @@ export class PostController {
     );
     return {
       success: true,
-      message: '게시글이 성공적으로 삭제되었습니다.',
       data: deletedPost,
     };
   }
@@ -82,13 +113,19 @@ export class PostController {
         return {
           success: true,
           message: '게시글 좋아요가 취소되었습니다.',
-          data: LikeStatus.MINUS,
+          data: {
+            status: LikeStatus.MINUS,
+            postId,
+          },
         };
       case LikeStatus.PLUS:
         return {
           success: true,
           message: '게시글 좋아요가 추가되었습니다.',
-          data: LikeStatus.PLUS,
+          data: {
+            status: LikeStatus.PLUS,
+            postId,
+          },
         };
     }
   }

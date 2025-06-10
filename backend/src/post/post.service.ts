@@ -87,28 +87,35 @@ export class PostService {
     }
   }
 
-  async findPostsByPage(page: number = 0, size: number = 10) {
+  async findPostsByPage(page: number = 1, size: number = 10) {
     try {
-      const posts = await this.prisma.post.findMany({
-        select: {
-          ...postSelections,
-          createdAt: true,
-          updatedAt: true,
-          authorId: true,
-          commentCount: true,
-          author: {
-            select: {
-              ...userSelections,
+      const [totalCount, posts] = await this.prisma.$transaction([
+        this.prisma.post.count(),
+        this.prisma.post.findMany({
+          select: {
+            ...postSelections,
+            createdAt: true,
+            updatedAt: true,
+            authorId: true,
+            commentCount: true,
+            author: {
+              select: {
+                ...userSelections,
+              },
             },
           },
-        },
-        skip: page * size,
-        take: size,
-        orderBy: {
-          createdAt: 'desc',
-        },
-      });
-      return posts;
+          skip: (page - 1) * size,
+          take: size,
+          orderBy: {
+            createdAt: 'desc',
+          },
+        }),
+      ]);
+      return {
+        totalCount,
+        totalPage: Math.ceil(totalCount / size),
+        posts,
+      };
     } catch (err) {
       throw new InternalServerErrorException('게시글 목록 조회에 실패했습니다.');
     }

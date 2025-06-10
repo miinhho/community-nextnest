@@ -152,53 +152,71 @@ export class CommentService {
     }
   }
 
-  async findCommentsByUserId(userId: string, page: number = 0, size: number = 10) {
+  async findCommentsByUserId(userId: string, page: number = 1, size: number = 10) {
     try {
-      const comments = await this.prisma.comment.findMany({
-        where: { authorId: userId },
-        select: {
-          ...commentSelections,
-          postId: true,
-          post: {
-            select: {
-              id: true,
-              content: true,
+      const [totalCount, comments] = await this.prisma.$transaction([
+        this.prisma.comment.count({
+          where: { authorId: userId },
+        }),
+        this.prisma.comment.findMany({
+          where: { authorId: userId },
+          select: {
+            ...commentSelections,
+            postId: true,
+            post: {
+              select: {
+                id: true,
+                content: true,
+              },
             },
+            createdAt: true,
+            updatedAt: true,
           },
-          createdAt: true,
-          updatedAt: true,
-        },
-        skip: page * size,
-        take: size,
-        orderBy: {
-          createdAt: 'desc',
-        },
-      });
-      return comments;
+          skip: (page - 1) * size,
+          take: size,
+          orderBy: {
+            createdAt: 'desc',
+          },
+        }),
+      ]);
+      return {
+        totalCount,
+        totalPage: Math.ceil(totalCount / size),
+        comments,
+      };
     } catch (err) {
-      throw new InternalServerErrorException('사용자 댓글 조회에 실패했습니다.');
+      throw new InternalServerErrorException('댓글 조회에 실패했습니다.');
     }
   }
 
-  async findCommentsByPostId(postId: string, page: number = 0, size: number = 10) {
+  async findCommentsByPostId(postId: string, page: number = 1, size: number = 10) {
     try {
-      const comments = await this.prisma.comment.findMany({
-        where: { postId, parentId: null },
-        select: {
-          ...commentSelections,
-          author: {
-            select: {
-              ...userSelections,
+      const [totalCount, comments] = await this.prisma.$transaction([
+        this.prisma.comment.count({
+          where: { postId, parentId: null },
+        }),
+        this.prisma.comment.findMany({
+          where: { postId, parentId: null },
+          select: {
+            ...commentSelections,
+            author: {
+              select: {
+                ...userSelections,
+              },
             },
+            createdAt: true,
+            updatedAt: true,
           },
-          createdAt: true,
-          updatedAt: true,
-        },
-        skip: page * size,
-        take: size,
-        orderBy: { createdAt: 'desc' },
-      });
-      return comments;
+          skip: (page - 1) * size,
+          take: size,
+          orderBy: { createdAt: 'desc' },
+        }),
+      ]);
+      return {
+        totalCount,
+        totalPage: Math.ceil(totalCount / size),
+        comments,
+      };
     } catch (err) {
       throw new InternalServerErrorException('댓글 조회에 실패했습니다.');
     }
