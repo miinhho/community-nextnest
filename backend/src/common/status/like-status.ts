@@ -1,4 +1,4 @@
 export enum LikeStatus {
-  PLUS,
-  MINUS,
+  PLUS = 'PLUS',
+  MINUS = 'MINUS',
 }

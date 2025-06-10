@@ -1,17 +1,9 @@
+import { IdParam } from '@/common/decorator/id.decorator';
 import { PageQuery } from '@/common/decorator/page-query.decorator';
 import { User } from '@/common/decorator/user.decorator';
 import { LikeStatus } from '@/common/status/like-status';
 import { isAdmin, UserData } from '@/common/user';
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  ParseUUIDPipe,
-  Post,
-  Put,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
 import { PostContentDto } from './dto/post.dto';
 import { PostService } from './post.service';
 
@@ -30,7 +22,7 @@ export class PostController {
   }
 
   @Get(':id')
-  async findPostById(@Param('id', ParseUUIDPipe) postId: string) {
+  async findPostById(@IdParam() postId: string) {
     const post = await this.postService.findPostById(postId);
     return {
       success: true,
@@ -51,7 +43,7 @@ export class PostController {
 
   @Put(':id')
   async updatePost(
-    @Param('id', ParseUUIDPipe) postId: string,
+    @IdParam() postId: string,
     @Body() { content }: PostContentDto,
     @User() user: UserData,
   ) {
@@ -68,7 +60,7 @@ export class PostController {
   }
 
   @Delete(':id')
-  async deletePost(@Param('id', ParseUUIDPipe) postId: string, @User() user: UserData) {
+  async deletePost(@IdParam() postId: string, @User() user: UserData) {
     const deletedPost = await this.postService.deletePostById(
       postId,
       user.id,
@@ -82,7 +74,7 @@ export class PostController {
   }
 
   @Post('/like/:id')
-  async toggleLike(@Param('id', ParseUUIDPipe) postId: string, @User() user: UserData) {
+  async toggleLike(@IdParam() postId: string, @User() user: UserData) {
     const status = await this.postService.addPostLikes(user.id, postId);
 
     switch (status) {
@@ -90,11 +82,13 @@ export class PostController {
         return {
           success: true,
           message: '게시글 좋아요가 취소되었습니다.',
+          data: LikeStatus.MINUS,
         };
       case LikeStatus.PLUS:
         return {
           success: true,
           message: '게시글 좋아요가 추가되었습니다.',
+          data: LikeStatus.PLUS,
         };
     }
   }
