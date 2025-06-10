@@ -1,9 +1,12 @@
+import { User } from '@/common/decorator/user.decorator';
 import { ResultStatus } from '@/common/status/result-status';
+import { isAdmin, UserData } from '@/common/user';
 import { UpdateUserDto } from '@/user/dto/user.dto';
 import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   InternalServerErrorException,
   NotFoundException,
@@ -22,8 +25,13 @@ export class UserController {
   async updateUser(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
+    @User() user: UserData,
     @Res() res: Response,
   ) {
+    if (!isAdmin(user) && user.id !== id) {
+      throw new ForbiddenException('자신의 계정만 수정할 수 있습니다.');
+    }
+
     const status = await this.userService.updateUserById(id, updateUserDto);
 
     switch (status) {
@@ -50,7 +58,15 @@ export class UserController {
   }
 
   @Delete(':id')
-  async deleteUser(@Param('id') id: string, @Res() res: Response) {
+  async deleteUser(
+    @Param('id') id: string,
+    @User() user: UserData,
+    @Res() res: Response,
+  ) {
+    if (!isAdmin(user) && user.id !== id) {
+      throw new ForbiddenException('자신의 계정만 삭제할 수 있습니다.');
+    }
+
     const status = await this.userService.deleteUserById(id);
 
     switch (status) {

@@ -1,4 +1,4 @@
-import { UserData } from '@/common/user.data';
+import { UserData } from '@/common/user';
 
 declare module 'express' {
   interface Request {

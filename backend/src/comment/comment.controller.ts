@@ -4,7 +4,7 @@ import { PageQuery } from '@/common/decorator/page-query.decorator';
 import { User } from '@/common/decorator/user.decorator';
 import { LikeStatus } from '@/common/status/like-status';
 import { ResultStatus } from '@/common/status/result-status';
-import { UserData } from '@/common/user.data';
+import { isAdmin, UserData } from '@/common/user';
 import {
   Body,
   Controller,
@@ -81,6 +81,7 @@ export class CommentController {
       commentId,
       content,
       user.id,
+      isAdmin(user),
     );
 
     switch (status) {
@@ -175,6 +176,7 @@ export class CommentController {
     const status: ResultStatus = await this.commentService.deleteCommentById(
       commentId,
       user.id,
+      isAdmin(user),
     );
 
     switch (status) {

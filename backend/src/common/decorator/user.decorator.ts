@@ -1,4 +1,4 @@
-import { UserData } from '@/common/user.data';
+import { UserData } from '@/common/user';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export const User = createParamDecorator((_data: unknown, ctx: ExecutionContext) => {

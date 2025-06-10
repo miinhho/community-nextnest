@@ -3,7 +3,7 @@ import { UserRegisterDto } from '@/auth/dto/register.dto';
 import { LocalAuthGuard } from '@/auth/guard/local.guard';
 import { Public } from '@/common/decorator/public.decorator';
 import { User } from '@/common/decorator/user.decorator';
-import { UserData } from '@/common/user.data';
+import { UserData } from '@/common/user';
 import app from '@/config/app.config';
 import jwt from '@/config/jwt.config';
 import {

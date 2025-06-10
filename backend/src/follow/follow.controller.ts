@@ -1,6 +1,6 @@
 import { User } from '@/common/decorator/user.decorator';
 import { FollowStatus } from '@/common/status/follow-status';
-import { UserData } from '@/common/user.data';
+import { UserData } from '@/common/user';
 import {
   Controller,
   InternalServerErrorException,

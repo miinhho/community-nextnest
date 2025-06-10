@@ -27,7 +27,12 @@ export class PostService {
     }
   }
 
-  async updatePost(id: string, content: string, userId: string) {
+  async updatePost(
+    id: string,
+    content: string,
+    userId: string,
+    isAdmin: boolean = false,
+  ) {
     try {
       const post = await this.prisma.post.findUnique({
         where: { id },
@@ -36,7 +41,7 @@ export class PostService {
       if (!post) {
         return ResultStatus.NOT_FOUND;
       }
-      if (post.authorId !== userId) {
+      if (!isAdmin && post.authorId !== userId) {
         return ResultStatus.ACCESS_DENIED;
       }
 
@@ -102,7 +107,7 @@ export class PostService {
     }
   }
 
-  async deletePostById(postId: string, userId: string) {
+  async deletePostById(postId: string, userId: string, isAdmin: boolean = false) {
     try {
       const post = await this.prisma.post.findUnique({
         where: { id: postId },
@@ -111,7 +116,7 @@ export class PostService {
       if (!post) {
         return ResultStatus.NOT_FOUND;
       }
-      if (post.authorId !== userId) {
+      if (!isAdmin && post.authorId !== userId) {
         return ResultStatus.ACCESS_DENIED;
       }
 

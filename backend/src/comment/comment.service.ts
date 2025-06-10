@@ -71,13 +71,18 @@ export class CommentService {
     }
   }
 
-  async updateComment(commentId: string, content: string, userId: string) {
+  async updateComment(
+    commentId: string,
+    content: string,
+    userId: string,
+    isAdmin: boolean = false,
+  ) {
     try {
       const comment = await this.findCommentById(commentId);
       if (!comment) {
         return ResultStatus.NOT_FOUND;
       }
-      if (comment.authorId !== userId) {
+      if (!isAdmin && comment.authorId !== userId) {
         return ResultStatus.ACCESS_DENIED;
       }
 
@@ -208,7 +213,7 @@ export class CommentService {
     }
   }
 
-  async deleteCommentById(commentId: string, userId: string) {
+  async deleteCommentById(commentId: string, userId: string, isAdmin: boolean = false) {
     try {
       const comment = await this.prisma.comment.findUnique({
         where: { id: commentId },
@@ -217,7 +222,7 @@ export class CommentService {
       if (!comment) {
         return ResultStatus.NOT_FOUND;
       }
-      if (comment.authorId !== userId) {
+      if (!isAdmin && comment.authorId !== userId) {
         return ResultStatus.ACCESS_DENIED;
       }
 

@@ -1,7 +1,7 @@
 import { UserRegisterDto } from '@/auth/dto/register.dto';
 import { RefreshTokenService } from '@/auth/token/refresh-token.service';
 import { TokenService } from '@/auth/token/token.service';
-import { UserData } from '@/common/user.data';
+import { UserData } from '@/common/user';
 import jwt from '@/config/jwt.config';
 import { UserService } from '@/user/user.service';
 import {

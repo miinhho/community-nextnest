@@ -2,7 +2,7 @@ import { PageQuery } from '@/common/decorator/page-query.decorator';
 import { User } from '@/common/decorator/user.decorator';
 import { LikeStatus } from '@/common/status/like-status';
 import { ResultStatus } from '@/common/status/result-status';
-import { UserData } from '@/common/user.data';
+import { isAdmin, UserData } from '@/common/user';
 import {
   Body,
   Controller,
@@ -80,6 +80,7 @@ export class PostController {
       postId,
       content,
       user.id,
+      isAdmin(user),
     );
 
     switch (status) {
@@ -104,7 +105,11 @@ export class PostController {
     @User() user: UserData,
     @Res() res: Response,
   ) {
-    const status: ResultStatus = await this.postService.deletePostById(postId, user.id);
+    const status: ResultStatus = await this.postService.deletePostById(
+      postId,
+      user.id,
+      isAdmin(user),
+    );
 
     switch (status) {
       case ResultStatus.NOT_FOUND:
