@@ -1,8 +1,12 @@
 import { PrismaService } from '@/common/database/prisma.service';
 import { postSelections, userSelections } from '@/common/database/select';
 import { LikeStatus } from '@/common/status/like-status';
-import { ResultStatus } from '@/common/status/result-status';
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';
 
 @Injectable()
@@ -23,7 +27,7 @@ export class PostService {
 
       return post;
     } catch {
-      return null;
+      throw new InternalServerErrorException('게시글 작성에 실패했습니다.');
     }
   }
 
@@ -34,24 +38,21 @@ export class PostService {
     isAdmin: boolean = false,
   ) {
     try {
-      const post = await this.prisma.post.findUnique({
-        where: { id },
-        select: { authorId: true },
-      });
-      if (!post) {
-        return ResultStatus.NOT_FOUND;
-      }
+      const post = await this.findPostById(id);
       if (!isAdmin && post.authorId !== userId) {
-        return ResultStatus.ACCESS_DENIED;
+        throw new ForbiddenException('게시글 수정 권한이 없습니다.');
       }
 
       await this.prisma.post.update({
         where: { id },
         data: { content },
+        select: {},
       });
-      return ResultStatus.SUCCESS;
-    } catch {
-      return ResultStatus.ERROR;
+    } catch (err) {
+      if (err instanceof NotFoundException || err instanceof ForbiddenException) {
+        throw err;
+      }
+      throw new InternalServerErrorException('게시글 수정에 실패했습니다.');
     }
   }
 
@@ -74,9 +75,15 @@ export class PostService {
           },
         },
       });
+      if (!post) {
+        throw new NotFoundException('게시글을 찾을 수 없습니다.');
+      }
       return post;
-    } catch {
-      return null;
+    } catch (err) {
+      if (err instanceof NotFoundException) {
+        throw err;
+      }
+      throw new InternalServerErrorException('게시글 조회에 실패했습니다.');
     }
   }
 
@@ -102,38 +109,36 @@ export class PostService {
         },
       });
       return posts;
-    } catch {
-      return null;
+    } catch (err) {
+      throw new InternalServerErrorException('게시글 목록 조회에 실패했습니다.');
     }
   }
 
   async deletePostById(postId: string, userId: string, isAdmin: boolean = false) {
     try {
-      const post = await this.prisma.post.findUnique({
-        where: { id: postId },
-        select: { authorId: true },
-      });
-      if (!post) {
-        return ResultStatus.NOT_FOUND;
-      }
+      const post = await this.findPostById(postId);
       if (!isAdmin && post.authorId !== userId) {
-        return ResultStatus.ACCESS_DENIED;
+        throw new ForbiddenException('게시글 삭제 권한이 없습니다.');
       }
 
-      await this.prisma.post.delete({
+      const deletedPost = await this.prisma.post.delete({
         where: { id: postId },
+        select: {
+          id: true,
+          content: true,
+          authorId: true,
+        },
       });
-      return ResultStatus.SUCCESS;
-    } catch {
-      return ResultStatus.ERROR;
+      return deletedPost;
+    } catch (err) {
+      if (err instanceof NotFoundException || err instanceof ForbiddenException) {
+        throw err;
+      }
+      throw new InternalServerErrorException('게시글 삭제 중 오류가 발생했습니다.');
     }
   }
 
-  async addPostLikes(
-    userId: string,
-    postId: string,
-    toggle: boolean = true,
-  ): Promise<LikeStatus> {
+  async addPostLikes(userId: string, postId: string, toggle: boolean = true) {
     try {
       await this.prisma.$transaction([
         this.prisma.postLikes.create({
@@ -149,18 +154,18 @@ export class PostService {
           },
         }),
       ]);
-      return LikeStatus.PLUS_SUCCESS;
+      return LikeStatus.PLUS;
     } catch (err) {
       if (err.code === PrismaError.UniqueConstraintViolation) {
         if (toggle) {
           return this.minusPostLikes(userId, postId);
         }
       }
-      return LikeStatus.PLUS_FAIL;
+      throw new InternalServerErrorException('게시글 좋아요 추가에 실패했습니다.');
     }
   }
 
-  async minusPostLikes(userId: string, postId: string): Promise<LikeStatus> {
+  async minusPostLikes(userId: string, postId: string) {
     try {
       await this.prisma.$transaction([
         this.prisma.postLikes.delete({
@@ -178,9 +183,9 @@ export class PostService {
           },
         }),
       ]);
-      return LikeStatus.MINUS_SUCCESS;
+      return LikeStatus.MINUS;
     } catch {
-      return LikeStatus.MINUS_FAIL;
+      throw new InternalServerErrorException('게시글 좋아요 취소에 실패했습니다.');
     }
   }
 }

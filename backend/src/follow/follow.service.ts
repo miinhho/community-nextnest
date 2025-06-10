@@ -1,17 +1,13 @@
 import { PrismaService } from '@/common/database/prisma.service';
 import { FollowStatus } from '@/common/status/follow-status';
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';
 
 @Injectable()
 export class FollowService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async followUser(
-    userId: string,
-    targetId: string,
-    toggle: boolean = true,
-  ): Promise<FollowStatus> {
+  async followUser(userId: string, targetId: string, toggle: boolean = true) {
     try {
       await this.prisma.follow.create({
         data: {
@@ -19,16 +15,16 @@ export class FollowService {
           followingId: targetId,
         },
       });
-      return FollowStatus.FOLLOW_SUCCESS;
+      return FollowStatus.FOLLOW;
     } catch (err) {
       if (toggle && err.code === PrismaError.UniqueConstraintViolation) {
         return this.unfollowUser(userId, targetId);
       }
-      return FollowStatus.FOLLOW_FAIL;
+      throw new InternalServerErrorException('팔로우 실패');
     }
   }
 
-  async unfollowUser(userId: string, targetId: string): Promise<FollowStatus> {
+  async unfollowUser(userId: string, targetId: string) {
     try {
       await this.prisma.follow.delete({
         where: {
@@ -38,9 +34,9 @@ export class FollowService {
           },
         },
       });
-      return FollowStatus.UNFOLLOW_SUCCESS;
+      return FollowStatus.UNFOLLOW;
     } catch {
-      return FollowStatus.UNFOLLOW_FAIL;
+      throw new InternalServerErrorException('언팔로우 실패');
     }
   }
 }

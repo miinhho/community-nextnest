@@ -4,8 +4,11 @@ import {
   postSelections,
   userSelections,
 } from '@/common/database/select';
-import { ResultStatus } from '@/common/status/result-status';
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';
 
 @Injectable()
@@ -31,7 +34,7 @@ export class UserService {
       });
       return user;
     } catch {
-      return null;
+      throw new InternalServerErrorException('유저 생성에 실패했습니다');
     }
   }
 
@@ -43,9 +46,8 @@ export class UserService {
           ...dataToUpdate,
         },
       });
-      return ResultStatus.SUCCESS;
-    } catch (err) {
-      return ResultStatus.ERROR;
+    } catch {
+      throw new InternalServerErrorException('사용자 정보 업데이트에 실패했습니다.');
     }
   }
 
@@ -75,9 +77,15 @@ export class UserService {
           },
         },
       });
+      if (!user) {
+        throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
+      }
       return user;
-    } catch {
-      return null;
+    } catch (err) {
+      if (err instanceof NotFoundException) {
+        throw err;
+      }
+      throw new InternalServerErrorException('사용자 조회에 실패했습니다.');
     }
   }
 
@@ -95,9 +103,15 @@ export class UserService {
           password: password,
         },
       });
+      if (!user) {
+        throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
+      }
       return user;
-    } catch {
-      return null;
+    } catch (err) {
+      if (err instanceof NotFoundException) {
+        throw err;
+      }
+      throw new InternalServerErrorException('사용자 조회에 실패했습니다.');
     }
   }
 
@@ -116,36 +130,48 @@ export class UserService {
         take: size,
       });
       return user;
-    } catch {
-      return null;
+    } catch (err) {
+      throw new InternalServerErrorException('사용자 조회에 실패했습니다.');
     }
   }
 
   async deleteUserById(id: string) {
     try {
-      await this.prisma.user.delete({
+      const user = await this.prisma.user.delete({
         where: { id },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          image: true,
+        },
       });
-      return ResultStatus.SUCCESS;
+      return user;
     } catch (err) {
       if (err.code === PrismaError.RecordsNotFound) {
-        return ResultStatus.NOT_FOUND;
+        throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
       }
-      return ResultStatus.ERROR;
+      throw new InternalServerErrorException('사용자 삭제에 실패했습니다.');
     }
   }
 
   async deleteUserByEmail(email: string) {
     try {
-      await this.prisma.user.delete({
+      const user = await this.prisma.user.delete({
         where: { email },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          image: true,
+        },
       });
-      return ResultStatus.SUCCESS;
+      return user;
     } catch (err) {
       if (err.code === PrismaError.RecordsNotFound) {
-        return ResultStatus.NOT_FOUND;
+        throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
       }
-      return ResultStatus.ERROR;
+      throw new InternalServerErrorException('사용자 삭제에 실패했습니다.');
     }
   }
 }

@@ -1,8 +1,12 @@
 import { PrismaService } from '@/common/database/prisma.service';
 import { commentSelections, userSelections } from '@/common/database/select';
 import { LikeStatus } from '@/common/status/like-status';
-import { ResultStatus } from '@/common/status/result-status';
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';
 
 @Injectable()
@@ -11,26 +15,28 @@ export class CommentService {
 
   async createComment(postId: string, authorId: string, content: string) {
     try {
-      const comment = await this.prisma.comment.create({
-        data: {
-          content,
-          authorId,
-          postId,
-        },
-        select: {
-          id: true,
-        },
-      });
-
-      await this.prisma.post.update({
-        where: { id: postId },
-        data: {
-          commentCount: { increment: 1 },
-        },
-      });
-      return comment;
+      const comment = await this.prisma.$transaction([
+        this.prisma.comment.create({
+          data: {
+            content,
+            authorId,
+            postId,
+          },
+          select: {
+            id: true,
+          },
+        }),
+        this.prisma.post.update({
+          where: { id: postId },
+          data: {
+            commentCount: { increment: 1 },
+          },
+          select: {},
+        }),
+      ]);
+      return comment[0];
     } catch {
-      return null;
+      throw new InternalServerErrorException('댓글 작성에 실패했습니다.');
     }
   }
 
@@ -46,31 +52,36 @@ export class CommentService {
     content: string;
   }) {
     try {
-      const comment = await this.prisma.comment.create({
-        data: {
-          content,
-          postId,
-          authorId,
-          parentId: commentId,
-        },
-        select: {
-          id: true,
-        },
-      });
+      const comment = await this.prisma.$transaction([
+        this.prisma.comment.create({
+          data: {
+            content,
+            postId,
+            authorId,
+            parentId: commentId,
+          },
+          select: {
+            id: true,
+          },
+        }),
+        this.prisma.post.update({
+          where: { id: postId },
+          data: {
+            commentCount: { increment: 1 },
+          },
+          select: {},
+        }),
+      ]);
 
-      await this.prisma.post.update({
-        where: { id: postId },
-        data: {
-          commentCount: { increment: 1 },
-        },
-      });
-
-      return comment;
+      return comment[0];
     } catch {
-      return null;
+      throw new InternalServerErrorException('댓글 답글 작성에 실패했습니다.');
     }
   }
 
+  /**
+   * @throws {ForbiddenException, NotFoundException, InternalServerErrorException}
+   */
   async updateComment(
     commentId: string,
     content: string,
@@ -79,11 +90,8 @@ export class CommentService {
   ) {
     try {
       const comment = await this.findCommentById(commentId);
-      if (!comment) {
-        return ResultStatus.NOT_FOUND;
-      }
       if (!isAdmin && comment.authorId !== userId) {
-        return ResultStatus.ACCESS_DENIED;
+        throw new ForbiddenException('댓글 수정 권한이 없습니다.');
       }
 
       await this.prisma.comment.update({
@@ -91,10 +99,13 @@ export class CommentService {
         data: {
           content,
         },
+        select: {},
       });
-      return ResultStatus.SUCCESS;
-    } catch {
-      return ResultStatus.ERROR;
+    } catch (err) {
+      if (err instanceof NotFoundException || err instanceof ForbiddenException) {
+        throw err;
+      }
+      throw new InternalServerErrorException('댓글 수정에 실패했습니다.');
     }
   }
 
@@ -129,9 +140,15 @@ export class CommentService {
           updatedAt: true,
         },
       });
+      if (!comment) {
+        throw new NotFoundException('댓글을 찾을 수 없습니다.');
+      }
       return comment;
-    } catch {
-      return null;
+    } catch (err) {
+      if (err instanceof NotFoundException) {
+        throw err;
+      }
+      throw new InternalServerErrorException('댓글 조회에 실패했습니다.');
     }
   }
 
@@ -158,8 +175,8 @@ export class CommentService {
         },
       });
       return comments;
-    } catch {
-      return null;
+    } catch (err) {
+      throw new InternalServerErrorException('사용자 댓글 조회에 실패했습니다.');
     }
   }
 
@@ -182,8 +199,8 @@ export class CommentService {
         orderBy: { createdAt: 'desc' },
       });
       return comments;
-    } catch {
-      return null;
+    } catch (err) {
+      throw new InternalServerErrorException('댓글 조회에 실패했습니다.');
     }
   }
 
@@ -208,38 +225,41 @@ export class CommentService {
         take: size,
       });
       return replies;
-    } catch {
-      return null;
+    } catch (err) {
+      throw new InternalServerErrorException('댓글 답글 조회에 실패했습니다.');
     }
   }
 
   async deleteCommentById(commentId: string, userId: string, isAdmin: boolean = false) {
     try {
-      const comment = await this.prisma.comment.findUnique({
-        where: { id: commentId },
-      });
-
-      if (!comment) {
-        return ResultStatus.NOT_FOUND;
-      }
+      const comment = await this.findCommentById(commentId);
       if (!isAdmin && comment.authorId !== userId) {
-        return ResultStatus.ACCESS_DENIED;
+        throw new ForbiddenException('댓글 삭제 권한이 없습니다.');
       }
 
-      await this.prisma.$transaction([
+      const deletedComment = await this.prisma.$transaction([
         this.prisma.comment.delete({
           where: { id: commentId },
+          select: {
+            postId: true,
+            authorId: true,
+            content: true,
+          },
         }),
         this.prisma.post.update({
           where: { id: comment.postId },
           data: {
             commentCount: { decrement: 1 },
           },
+          select: {},
         }),
       ]);
-      return ResultStatus.SUCCESS;
-    } catch {
-      return ResultStatus.ERROR;
+      return deletedComment[0];
+    } catch (err) {
+      if (err instanceof NotFoundException || err instanceof ForbiddenException) {
+        throw err;
+      }
+      throw new InternalServerErrorException('댓글 삭제에 실패했습니다.');
     }
   }
 
@@ -263,12 +283,12 @@ export class CommentService {
           },
         }),
       ]);
-      return LikeStatus.PLUS_SUCCESS;
+      return LikeStatus.PLUS;
     } catch (err) {
       if (toggle && err.code === PrismaError.UniqueConstraintViolation) {
         return this.minusCommentLikes(userId, commentId);
       }
-      return LikeStatus.PLUS_FAIL;
+      throw new InternalServerErrorException('댓글 좋아요 추가에 실패했습니다.');
     }
   }
 
@@ -291,9 +311,9 @@ export class CommentService {
         }),
       ]);
 
-      return LikeStatus.MINUS_SUCCESS;
+      return LikeStatus.MINUS;
     } catch {
-      return LikeStatus.MINUS_FAIL;
+      throw new InternalServerErrorException('댓글 좋아요 취소에 실패했습니다.');
     }
   }
 }

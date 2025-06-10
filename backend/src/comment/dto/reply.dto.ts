@@ -1,15 +1,14 @@
-import { cuidRegex } from '@/common/regex';
-import { IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { IsString, IsUUID, MaxLength, MinLength } from 'class-validator';
 
 export class ReplyContentDto {
   @IsString()
-  @Matches(cuidRegex, {
+  @IsUUID(4, {
     message: '유효하지 않은 포스트 ID입니다.',
   })
   postId: string;
 
   @IsString()
-  @Matches(cuidRegex, {
+  @IsUUID(4, {
     message: '유효하지 않은 댓글 ID입니다.',
   })
   commentId: string;

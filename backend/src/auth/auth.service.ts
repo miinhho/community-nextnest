@@ -12,7 +12,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import { compareSync, genSalt, hash } from 'bcrypt';
+import { compare, genSalt, hash } from 'bcrypt';
 
 const SALT_ROUND = 12;
 
@@ -29,14 +29,7 @@ export class AuthService {
   async validateUser(email: string, password: string) {
     try {
       const user = await this.userService.findUserByEmail(email, true);
-      if (!user) {
-        throw new UnauthorizedException('존재하지 않는 이메일입니다');
-      }
-
-      const isPasswordValid = this.comparePassword(password, user.password);
-      if (!isPasswordValid) {
-        throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
-      }
+      await this.comparePassword(password, user.password);
 
       return {
         id: user.id,
@@ -83,10 +76,6 @@ export class AuthService {
       name: userDto.name,
     });
 
-    if (!user) {
-      throw new InternalServerErrorException('유저 생성에 실패했습니다');
-    }
-
     return this.login({
       id: user.id,
       role: user.role,
@@ -103,7 +92,7 @@ export class AuthService {
 
       if (new Date(storedToken.expiresAt) < new Date()) {
         await this.refreshTokenService.revokeRefreshToken(storedToken.id);
-        throw new UnauthorizedException('Refresh token expired');
+        throw new UnauthorizedException('토큰이 만료되었습니다');
       }
 
       const newAccessToken = this.tokenService.generateAccessToken(userId);
@@ -147,7 +136,10 @@ export class AuthService {
     return hash(plain, salt);
   }
 
-  private comparePassword(plain: string, hashed: string) {
-    return compareSync(plain, hashed);
+  private async comparePassword(plain: string, hashed: string) {
+    const isValid = await compare(plain, hashed);
+    if (!isValid) {
+      throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
+    }
   }
 }

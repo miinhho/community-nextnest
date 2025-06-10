@@ -1,6 +1,4 @@
 export enum FollowStatus {
-  FOLLOW_SUCCESS,
-  FOLLOW_FAIL,
-  UNFOLLOW_SUCCESS,
-  UNFOLLOW_FAIL,
+  FOLLOW,
+  UNFOLLOW,
 }

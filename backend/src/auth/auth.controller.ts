@@ -17,17 +17,27 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import { Request, Response } from 'express';
+import { CookieOptions, Request, Response } from 'express';
 
 @Controller('api/auth')
 export class AuthController {
+  private readonly COOKIE_OPTIONS: CookieOptions;
+
   constructor(
     private authService: AuthService,
     @Inject(jwt.KEY)
     private jwtConfig: ConfigType<typeof jwt>,
     @Inject(app.KEY)
     private appConfig: ConfigType<typeof app>,
-  ) {}
+  ) {
+    this.COOKIE_OPTIONS = {
+      httpOnly: true,
+      secure: this.appConfig.isProduction,
+      sameSite: 'strict',
+      maxAge: this.jwtConfig.refreshExpiration,
+      path: '/',
+    };
+  }
 
   @Public()
   @Post('register')
@@ -40,14 +50,7 @@ export class AuthController {
   @Post('login')
   async login(@User() user: UserData, @Res({ passthrough: true }) res: Response) {
     const result = await this.authService.login(user);
-
-    res.cookie('refreshToken', result.refreshToken, {
-      httpOnly: true,
-      secure: this.appConfig.isProduction,
-      sameSite: 'strict',
-      maxAge: this.jwtConfig.refreshExpiration,
-      path: '/',
-    });
+    this.setRefreshTokenCookie(res, result.refreshToken);
 
     const { refreshToken: _, ...responseData } = result;
     return responseData;
@@ -55,20 +58,10 @@ export class AuthController {
 
   @Post('refresh')
   async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const refreshToken = req.cookies.refreshToken;
-    if (!refreshToken) {
-      throw new UnauthorizedException('토큰이 존재하지 않습니다');
-    }
-
+    const refreshToken = this.extractRefreshToken(req);
     const tokens = await this.authService.refreshTokens(refreshToken);
-    res.cookie('refreshToken', tokens.refreshToken, {
-      httpOnly: true,
-      secure: this.appConfig.isProduction,
-      sameSite: 'strict',
-      maxAge: this.jwtConfig.refreshExpiration,
-      path: '/',
-    });
 
+    this.setRefreshTokenCookie(res, tokens.refreshToken);
     return { accessToken: tokens.accessToken };
   }
 
@@ -81,5 +74,17 @@ export class AuthController {
 
     res.clearCookie('refreshToken');
     return { success: true };
+  }
+
+  private extractRefreshToken(req: Request) {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      throw new UnauthorizedException('토큰이 존재하지 않습니다');
+    }
+    return refreshToken;
+  }
+
+  private setRefreshTokenCookie(res: Response, refreshToken: string) {
+    res.cookie('refreshToken', refreshToken, this.COOKIE_OPTIONS);
   }
 }

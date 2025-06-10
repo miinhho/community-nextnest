@@ -10,7 +10,7 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String    @id @default(uuid())
   name          String
   email         String    @unique
   emailVerified DateTime?
@@ -32,7 +32,7 @@ model User {
 }
 
 model Follow {
-  id          String @id @default(cuid())
+  id          String @id @default(uuid())
   followerId  String
   followingId String
 
@@ -48,7 +48,7 @@ model Follow {
 }
 
 model Post {
-  id           String      @id @default(cuid())
+  id           String      @id @default(uuid())
   content      String
   authorId     String
   commentCount Int         @default(0)
@@ -68,7 +68,7 @@ model Post {
 }
 
 model Comment {
-  id       String @id @default(cuid())
+  id       String @id @default(uuid())
   content  String
   postId   String
   authorId String
@@ -93,7 +93,7 @@ model Comment {
 }
 
 model PostLikes {
-  id     String @id @default(cuid())
+  id     String @id @default(uuid())
   userId String
   postId String
 
@@ -110,7 +110,7 @@ model PostLikes {
 }
 
 model CommentLikes {
-  id        String @id @default(cuid())
+  id        String @id @default(uuid())
   userId    String
   commentId String
 
@@ -129,7 +129,7 @@ enum Role {
 }
 
 model RefreshToken {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   userId    String
   token     String   @unique
   expiresAt DateTime
