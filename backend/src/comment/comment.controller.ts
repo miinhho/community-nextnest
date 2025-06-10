@@ -22,7 +22,7 @@ import {
 import { Response } from 'express';
 import { CommentService } from './comment.service';
 
-@Controller('comment')
+@Controller('api/comment')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 

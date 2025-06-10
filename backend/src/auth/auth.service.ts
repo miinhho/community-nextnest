@@ -118,7 +118,10 @@ export class AuthService {
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
       };
-    } catch {
+    } catch (err) {
+      if (err instanceof UnauthorizedException) {
+        throw err;
+      }
       throw new UnauthorizedException('Invalid refresh token');
     }
   }
@@ -135,12 +138,12 @@ export class AuthService {
     }
   }
 
-  async hashPassword(plain: string) {
+  private async hashPassword(plain: string) {
     const salt = await genSalt(SALT_ROUND);
     return hash(plain, salt);
   }
 
-  comparePassword(plain: string, hashed: string) {
+  private comparePassword(plain: string, hashed: string) {
     return compareSync(plain, hashed);
   }
 }
