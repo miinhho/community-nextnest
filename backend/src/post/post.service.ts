@@ -89,8 +89,7 @@ export class PostService {
 
   async findPostsByPage(page: number = 1, size: number = 10) {
     try {
-      const [totalCount, posts] = await this.prisma.$transaction([
-        this.prisma.post.count(),
+      const [posts, totalCount] = await this.prisma.$transaction([
         this.prisma.post.findMany({
           select: {
             ...postSelections,
@@ -110,6 +109,7 @@ export class PostService {
             createdAt: 'desc',
           },
         }),
+        this.prisma.post.count(),
       ]);
       return {
         totalCount,
@@ -118,6 +118,49 @@ export class PostService {
       };
     } catch (err) {
       throw new InternalServerErrorException('게시글 목록 조회에 실패했습니다.');
+    }
+  }
+
+  async findPostCountByUserId(userId: string) {
+    try {
+      const count = await this.prisma.post.count({
+        where: { authorId: userId },
+      });
+      return count;
+    } catch {
+      throw new InternalServerErrorException('사용자 게시글 수 조회에 실패했습니다.');
+    }
+  }
+
+  async findPostsByUserId(userId: string, page: number = 1, size: number = 10) {
+    try {
+      const [posts, totalCount] = await this.prisma.$transaction([
+        this.prisma.post.findMany({
+          where: { authorId: userId },
+          select: {
+            ...postSelections,
+            createdAt: true,
+            updatedAt: true,
+            authorId: true,
+            commentCount: true,
+          },
+          skip: (page - 1) * size,
+          take: size,
+          orderBy: {
+            createdAt: 'desc',
+          },
+        }),
+        this.prisma.post.count({
+          where: { authorId: userId },
+        }),
+      ]);
+      return {
+        totalCount,
+        totalPage: Math.ceil(totalCount / size),
+        posts,
+      };
+    } catch (err) {
+      throw new InternalServerErrorException('사용자 게시글 조회에 실패했습니다.');
     }
   }
 

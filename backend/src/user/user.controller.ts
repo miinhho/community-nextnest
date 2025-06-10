@@ -2,6 +2,8 @@ import { CommentService } from '@/comment/comment.service';
 import { IdParam } from '@/common/decorator/id.decorator';
 import { Owner } from '@/common/decorator/owner.decorator';
 import { PageQuery } from '@/common/decorator/page-query.decorator';
+import { FollowService } from '@/follow/follow.service';
+import { PostService } from '@/post/post.service';
 import { UpdateUserDto } from '@/user/dto/user.dto';
 import { Body, Controller, Delete, Get, Patch } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -10,7 +12,9 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(
     private userService: UserService,
+    private postService: PostService,
     private commentService: CommentService,
+    private followService: FollowService,
   ) {}
 
   @Patch(':id')
@@ -32,6 +36,36 @@ export class UserController {
     };
   }
 
+  @Get(':id/posts-count')
+  async getUserPostsCount(@IdParam() id: string) {
+    const postCount = await this.postService.findPostCountByUserId(id);
+    return {
+      success: true,
+      data: { postCount },
+    };
+  }
+
+  @Get(':id/posts')
+  async getUserPosts(@IdParam() id: string, @PageQuery() { page, size }: PageQuery) {
+    const { totalCount, totalPage, posts } = await this.postService.findPostsByUserId(
+      id,
+      page,
+      size,
+    );
+    return {
+      success: true,
+      data: {
+        posts,
+        meta: {
+          totalCount,
+          totalPage,
+          page,
+          size,
+        },
+      },
+    };
+  }
+
   @Get(':id/comments')
   async getUserComments(@IdParam() id: string, @PageQuery() { page, size }: PageQuery) {
     const { totalCount, totalPage, comments } =
@@ -40,6 +74,66 @@ export class UserController {
       success: true,
       data: {
         comments,
+        meta: {
+          totalCount,
+          totalPage,
+          page,
+          size,
+        },
+      },
+    };
+  }
+
+  @Get(':id/following-count')
+  async getUserFollowingCount(@IdParam() id: string) {
+    const followingCount = await this.followService.getFollowingCount(id);
+    return {
+      success: true,
+      data: { followingCount },
+    };
+  }
+
+  @Get(':id/followers-count')
+  async getUserFollowersCount(@IdParam() id: string) {
+    const followersCount = await this.followService.getFollowersCount(id);
+    return {
+      success: true,
+      data: { followersCount },
+    };
+  }
+
+  @Get(':id/followers')
+  async getUserFollowers(@IdParam() id: string, @PageQuery() { page, size }: PageQuery) {
+    const { followers, totalCount, totalPage } = await this.followService.getFollowers(
+      id,
+      page,
+      size,
+    );
+    return {
+      success: true,
+      data: {
+        followers,
+        meta: {
+          totalCount,
+          totalPage,
+          page,
+          size,
+        },
+      },
+    };
+  }
+
+  @Get(':id/following')
+  async getUserFollowing(@IdParam() id: string, @PageQuery() { page, size }: PageQuery) {
+    const { following, totalCount, totalPage } = await this.followService.getFollowing(
+      id,
+      page,
+      size,
+    );
+    return {
+      success: true,
+      data: {
+        following,
         meta: {
           totalCount,
           totalPage,

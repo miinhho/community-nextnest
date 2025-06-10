@@ -154,10 +154,7 @@ export class CommentService {
 
   async findCommentsByUserId(userId: string, page: number = 1, size: number = 10) {
     try {
-      const [totalCount, comments] = await this.prisma.$transaction([
-        this.prisma.comment.count({
-          where: { authorId: userId },
-        }),
+      const [comments, totalCount] = await this.prisma.$transaction([
         this.prisma.comment.findMany({
           where: { authorId: userId },
           select: {
@@ -178,6 +175,9 @@ export class CommentService {
             createdAt: 'desc',
           },
         }),
+        this.prisma.comment.count({
+          where: { authorId: userId },
+        }),
       ]);
       return {
         totalCount,
@@ -191,10 +191,7 @@ export class CommentService {
 
   async findCommentsByPostId(postId: string, page: number = 1, size: number = 10) {
     try {
-      const [totalCount, comments] = await this.prisma.$transaction([
-        this.prisma.comment.count({
-          where: { postId, parentId: null },
-        }),
+      const [comments, totalCount] = await this.prisma.$transaction([
         this.prisma.comment.findMany({
           where: { postId, parentId: null },
           select: {
@@ -210,6 +207,9 @@ export class CommentService {
           skip: (page - 1) * size,
           take: size,
           orderBy: { createdAt: 'desc' },
+        }),
+        this.prisma.comment.count({
+          where: { postId, parentId: null },
         }),
       ]);
       return {

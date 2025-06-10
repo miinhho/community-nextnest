@@ -1,9 +1,5 @@
 import { PrismaService } from '@/common/database/prisma.service';
-import {
-  commentSelections,
-  postSelections,
-  userSelections,
-} from '@/common/database/select';
+import { userSelections } from '@/common/database/select';
 import {
   Injectable,
   InternalServerErrorException,
@@ -53,34 +49,36 @@ export class UserService {
 
   async findUserById(id: string) {
     try {
-      const user = await this.prisma.user.findUnique({
-        where: { id },
-        select: {
-          name: true,
-          email: true,
-          emailVerified: true,
-          image: true,
-          role: true,
-          posts: {
+      const [user, followingCount, followerCount, postCount] =
+        await this.prisma.$transaction([
+          this.prisma.user.findUnique({
+            where: { id },
             select: {
-              ...postSelections,
-              commentCount: true,
+              ...userSelections,
+              emailVerified: true,
+              createdAt: true,
+              updatedAt: true,
             },
-          },
-          createdAt: true,
-          updatedAt: true,
-          comments: {
-            select: {
-              ...commentSelections,
-              postId: true,
-            },
-          },
-        },
-      });
+          }),
+          this.prisma.follow.count({
+            where: { followingId: id },
+          }),
+          this.prisma.follow.count({
+            where: { followerId: id },
+          }),
+          this.prisma.post.count({
+            where: { authorId: id },
+          }),
+        ]);
       if (!user) {
         throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
       }
-      return user;
+      return {
+        ...user,
+        followingCount,
+        followerCount,
+        postCount,
+      };
     } catch (err) {
       if (err instanceof NotFoundException) {
         throw err;
@@ -96,10 +94,8 @@ export class UserService {
         select: {
           ...userSelections,
           emailVerified: true,
-          posts: true,
           createdAt: true,
           updatedAt: true,
-          comments: true,
           password: password,
         },
       });
@@ -117,14 +113,7 @@ export class UserService {
 
   async findUsersByName(name: string, page: number = 1, size: number = 10) {
     try {
-      const [totalCount, user] = await this.prisma.$transaction([
-        this.prisma.user.count({
-          where: {
-            name: {
-              startsWith: name,
-            },
-          },
-        }),
+      const [user, totalCount] = await this.prisma.$transaction([
         this.prisma.user.findMany({
           where: {
             name: {
@@ -136,6 +125,13 @@ export class UserService {
           },
           skip: (page - 1) * size,
           take: size,
+        }),
+        this.prisma.user.count({
+          where: {
+            name: {
+              startsWith: name,
+            },
+          },
         }),
       ]);
 
