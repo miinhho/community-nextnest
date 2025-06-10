@@ -259,7 +259,7 @@ export class CommentService {
         }),
       ]);
       return LikeStatus.PLUS_SUCCESS;
-    } catch (err: any) {
+    } catch (err) {
       if (toggle && err.code === PrismaError.UniqueConstraintViolation) {
         return this.minusCommentLikes(userId, commentId);
       }

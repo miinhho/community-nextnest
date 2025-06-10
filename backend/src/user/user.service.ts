@@ -6,6 +6,7 @@ import {
 } from '@/common/database/select';
 import { ResultStatus } from '@/common/status/result-status';
 import { Injectable } from '@nestjs/common';
+import { PrismaError } from 'prisma-error-enum';
 
 @Injectable()
 export class UserService {
@@ -125,7 +126,10 @@ export class UserService {
         where: { id },
       });
       return ResultStatus.SUCCESS;
-    } catch {
+    } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        return ResultStatus.NOT_FOUND;
+      }
       return ResultStatus.ERROR;
     }
   }
@@ -136,7 +140,10 @@ export class UserService {
         where: { email },
       });
       return ResultStatus.SUCCESS;
-    } catch {
+    } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        return ResultStatus.NOT_FOUND;
+      }
       return ResultStatus.ERROR;
     }
   }

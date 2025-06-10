@@ -20,7 +20,7 @@ export class FollowService {
         },
       });
       return FollowStatus.FOLLOW_SUCCESS;
-    } catch (err: any) {
+    } catch (err) {
       if (toggle && err.code === PrismaError.UniqueConstraintViolation) {
         return this.unfollowUser(userId, targetId);
       }

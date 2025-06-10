@@ -56,7 +56,7 @@ export class AuthController {
   async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
-      throw new UnauthorizedException('Refresh token is required');
+      throw new UnauthorizedException('토큰이 존재하지 않습니다');
     }
 
     const tokens = await this.authService.refreshTokens(refreshToken);

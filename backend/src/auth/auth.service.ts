@@ -30,12 +30,12 @@ export class AuthService {
     try {
       const user = await this.userService.findUserByEmail(email, true);
       if (!user) {
-        throw new UnauthorizedException('Invalid credentials');
+        throw new UnauthorizedException('존재하지 않는 이메일입니다');
       }
 
       const isPasswordValid = this.comparePassword(password, user.password);
       if (!isPasswordValid) {
-        throw new UnauthorizedException('Invalid credentials');
+        throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
       }
 
       return {
@@ -47,7 +47,7 @@ export class AuthService {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
-      throw new InternalServerErrorException('Authentication failed');
+      throw new InternalServerErrorException('사용자 인증에 실패했습니다');
     }
   }
 
@@ -74,7 +74,7 @@ export class AuthService {
   async register(userDto: UserRegisterDto) {
     const existingUser = await this.userService.findUserByEmail(userDto.email);
     if (existingUser) {
-      throw new BadRequestException('Email already exists');
+      throw new BadRequestException('이미 사용 중인 이메일입니다');
     }
 
     const hashedPassword = await this.hashPassword(userDto.password);
@@ -83,6 +83,10 @@ export class AuthService {
       password: hashedPassword,
       name: userDto.name,
     });
+
+    if (!user) {
+      throw new InternalServerErrorException('유저 생성에 실패했습니다');
+    }
 
     return this.login({
       id: user.id,
@@ -122,7 +126,8 @@ export class AuthService {
       if (err instanceof UnauthorizedException) {
         throw err;
       }
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException('유효하지 않은 토큰입니다');
+      // TODO : Logger 에 Refresh Token Error 남기기
     }
   }
 
