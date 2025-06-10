@@ -1,6 +1,7 @@
-import { PrismaService } from '@/lib/database/prisma.service';
-import { postSelections, userSelections } from '@/lib/database/select';
-import { LikeStatus } from '@/lib/status/like-status';
+import { PrismaService } from '@/common/database/prisma.service';
+import { postSelections, userSelections } from '@/common/database/select';
+import { LikeStatus } from '@/common/status/like-status';
+import { ResultStatus } from '@/common/status/result-status';
 import { Injectable } from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';
 
@@ -26,11 +27,27 @@ export class PostService {
     }
   }
 
-  async updatePost(id: string, content: string) {
-    await this.prisma.post.update({
-      where: { id },
-      data: { content },
-    });
+  async updatePost(id: string, content: string, userId: string) {
+    try {
+      const post = await this.prisma.post.findUnique({
+        where: { id },
+        select: { authorId: true },
+      });
+      if (!post) {
+        return ResultStatus.NOT_FOUND;
+      }
+      if (post.authorId !== userId) {
+        return ResultStatus.ACCESS_DENIED;
+      }
+
+      await this.prisma.post.update({
+        where: { id },
+        data: { content },
+      });
+      return ResultStatus.SUCCESS;
+    } catch {
+      return ResultStatus.ERROR;
+    }
   }
 
   async findPostById(id: string) {
@@ -58,7 +75,7 @@ export class PostService {
     }
   }
 
-  async findPostsByPage(page: number = 0, pageSize: number = 10) {
+  async findPostsByPage(page: number = 0, size: number = 10) {
     try {
       const posts = await this.prisma.post.findMany({
         select: {
@@ -73,8 +90,8 @@ export class PostService {
             },
           },
         },
-        skip: page * pageSize,
-        take: pageSize,
+        skip: page * size,
+        take: size,
         orderBy: {
           createdAt: 'desc',
         },
@@ -85,18 +102,33 @@ export class PostService {
     }
   }
 
-  async deletePostById(id: string) {
+  async deletePostById(postId: string, userId: string) {
     try {
-      await this.prisma.post.delete({
-        where: { id },
+      const post = await this.prisma.post.findUnique({
+        where: { id: postId },
+        select: { authorId: true },
       });
-      return true;
+      if (!post) {
+        return ResultStatus.NOT_FOUND;
+      }
+      if (post.authorId !== userId) {
+        return ResultStatus.ACCESS_DENIED;
+      }
+
+      await this.prisma.post.delete({
+        where: { id: postId },
+      });
+      return ResultStatus.SUCCESS;
     } catch {
-      return false;
+      return ResultStatus.ERROR;
     }
   }
 
-  async addPostLikes(userId: string, postId: string, toggle: boolean = true): Promise<LikeStatus> {
+  async addPostLikes(
+    userId: string,
+    postId: string,
+    toggle: boolean = true,
+  ): Promise<LikeStatus> {
     try {
       await this.prisma.$transaction([
         this.prisma.postLikes.create({

@@ -1,11 +1,11 @@
-import { createZodDto } from 'nestjs-zod';
-import { z } from 'zod';
+import { MaxLength, MinLength } from 'class-validator';
 
-const postContentDto = z.object({
-  content: z
-    .string()
-    .min(5, '5글자 이상의 내용을 적어주세요.')
-    .max(1_000_000, '최대 글자 수에 도달했습니다.'),
-});
-
-export class PostContentDto extends createZodDto(postContentDto) {}
+export class PostContentDto {
+  @MinLength(5, {
+    message: '5글자 이상의 내용을 적어주세요.',
+  })
+  @MaxLength(1_000_000, {
+    message: '최대 글자 수에 도달했습니다.',
+  })
+  content: string;
+}

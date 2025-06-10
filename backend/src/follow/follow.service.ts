@@ -1,5 +1,5 @@
-import { PrismaService } from '@/lib/database/prisma.service';
-import { FollowStatus } from '@/lib/status/follow-status';
+import { PrismaService } from '@/common/database/prisma.service';
+import { FollowStatus } from '@/common/status/follow-status';
 import { Injectable } from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';
 

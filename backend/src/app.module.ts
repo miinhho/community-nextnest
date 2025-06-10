@@ -5,10 +5,9 @@ import app from '@/config/app.config';
 import jwt from '@/config/jwt.config';
 import { FollowController } from '@/follow/follow.controller';
 import { UserController } from '@/user/user.controller';
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD, APP_PIPE } from '@nestjs/core';
-import { ZodValidationPipe } from 'nestjs-zod';
 import { AuthModule } from './auth/auth.module';
 import { CommentModule } from './comment/comment.module';
 import { FollowModule } from './follow/follow.module';
@@ -39,7 +38,12 @@ import { UserModule } from './user/user.module';
   providers: [
     {
       provide: APP_PIPE,
-      useClass: ZodValidationPipe,
+      useClass: ValidationPipe,
+      useValue: new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
     },
     {
       provide: APP_GUARD,

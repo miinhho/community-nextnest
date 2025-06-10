@@ -1,6 +1,6 @@
 import { JwtStrategy } from '@/auth/strategy/jwt.strategy';
 import { LocalStrategy } from '@/auth/strategy/local.strategy';
-import { PrismaService } from '@/lib/database/prisma.service';
+import { PrismaService } from '@/common/database/prisma.service';
 import { UserModule } from '@/user/user.module';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';

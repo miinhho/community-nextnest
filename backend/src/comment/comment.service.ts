@@ -1,6 +1,7 @@
-import { PrismaService } from '@/lib/database/prisma.service';
-import { commentSelections, userSelections } from '@/lib/database/select';
-import { LikeStatus } from '@/lib/status/like-status';
+import { PrismaService } from '@/common/database/prisma.service';
+import { commentSelections, userSelections } from '@/common/database/select';
+import { LikeStatus } from '@/common/status/like-status';
+import { ResultStatus } from '@/common/status/result-status';
 import { Injectable } from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';
 
@@ -10,24 +11,26 @@ export class CommentService {
 
   async createComment(postId: string, authorId: string, content: string) {
     try {
-      await this.prisma.$transaction([
-        this.prisma.comment.create({
-          data: {
-            content,
-            authorId,
-            postId,
-          },
-        }),
-        this.prisma.post.update({
-          where: { id: postId },
-          data: {
-            commentCount: { increment: 1 },
-          },
-        }),
-      ]);
-      return true;
+      const comment = await this.prisma.comment.create({
+        data: {
+          content,
+          authorId,
+          postId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      await this.prisma.post.update({
+        where: { id: postId },
+        data: {
+          commentCount: { increment: 1 },
+        },
+      });
+      return comment;
     } catch {
-      return false;
+      return null;
     }
   }
 
@@ -35,54 +38,58 @@ export class CommentService {
     authorId,
     postId,
     commentId,
-    content
+    content,
   }: {
-      authorId: string,
-      postId: string,
-      commentId: string,
-    content: string,
+    authorId: string;
+    postId: string;
+    commentId: string;
+    content: string;
   }) {
     try {
-      await this.prisma.$transaction([
-        this.prisma.comment.create({
-          data: {
-            content,
-            postId,
-            authorId,
-            parentId: commentId,
-          },
-        }),
-        this.prisma.post.update({
-          where: { id: postId },
-          data: {
-            commentCount: { increment: 1 },
-          },
-        }),
-      ]);
-      return true;
+      const comment = await this.prisma.comment.create({
+        data: {
+          content,
+          postId,
+          authorId,
+          parentId: commentId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      await this.prisma.post.update({
+        where: { id: postId },
+        data: {
+          commentCount: { increment: 1 },
+        },
+      });
+
+      return comment;
     } catch {
-      return false;
+      return null;
     }
   }
 
-  async updateComment(
-    id: string,
-    dataToUpdate: {
-      content?: string;
-      postId?: string;
-      authorId?: string;
-    },
-  ) {
+  async updateComment(commentId: string, content: string, userId: string) {
     try {
+      const comment = await this.findCommentById(commentId);
+      if (!comment) {
+        return ResultStatus.NOT_FOUND;
+      }
+      if (comment.authorId !== userId) {
+        return ResultStatus.ACCESS_DENIED;
+      }
+
       await this.prisma.comment.update({
-        where: { id },
+        where: { id: commentId },
         data: {
-          ...dataToUpdate,
+          content,
         },
       });
-      return true;
+      return ResultStatus.SUCCESS;
     } catch {
-      return false;
+      return ResultStatus.ERROR;
     }
   }
 
@@ -123,7 +130,7 @@ export class CommentService {
     }
   }
 
-  async findCommentsByUser(userId: string, page: number = 0, pageSize: number = 10) {
+  async findCommentsByUserId(userId: string, page: number = 0, size: number = 10) {
     try {
       const comments = await this.prisma.comment.findMany({
         where: { authorId: userId },
@@ -139,8 +146,8 @@ export class CommentService {
           createdAt: true,
           updatedAt: true,
         },
-        skip: page * pageSize,
-        take: pageSize,
+        skip: page * size,
+        take: size,
         orderBy: {
           createdAt: 'desc',
         },
@@ -151,7 +158,7 @@ export class CommentService {
     }
   }
 
-  async findCommentsByPost(postId: string, page: number = 0, pageSize: number = 10) {
+  async findCommentsByPostId(postId: string, page: number = 0, size: number = 10) {
     try {
       const comments = await this.prisma.comment.findMany({
         where: { postId, parentId: null },
@@ -165,8 +172,8 @@ export class CommentService {
           createdAt: true,
           updatedAt: true,
         },
-        skip: page * pageSize,
-        take: pageSize,
+        skip: page * size,
+        take: size,
         orderBy: { createdAt: 'desc' },
       });
       return comments;
@@ -175,7 +182,7 @@ export class CommentService {
     }
   }
 
-  async findRepliesByComment(commentId: string, page: number = 0, pageSize: number = 10) {
+  async findRepliesByCommentId(commentId: string, page: number = 0, size: number = 10) {
     try {
       const replies = await this.prisma.comment.findMany({
         where: { id: commentId },
@@ -192,8 +199,8 @@ export class CommentService {
             orderBy: { createdAt: 'desc' },
           },
         },
-        skip: page * pageSize,
-        take: pageSize,
+        skip: page * size,
+        take: size,
       });
       return replies;
     } catch {
@@ -201,22 +208,33 @@ export class CommentService {
     }
   }
 
-  async deleteCommentById(commentId: string, postId: string) {
+  async deleteCommentById(commentId: string, userId: string) {
     try {
+      const comment = await this.prisma.comment.findUnique({
+        where: { id: commentId },
+      });
+
+      if (!comment) {
+        return ResultStatus.NOT_FOUND;
+      }
+      if (comment.authorId !== userId) {
+        return ResultStatus.ACCESS_DENIED;
+      }
+
       await this.prisma.$transaction([
         this.prisma.comment.delete({
           where: { id: commentId },
         }),
         this.prisma.post.update({
-          where: { id: postId },
+          where: { id: comment.postId },
           data: {
             commentCount: { decrement: 1 },
           },
         }),
       ]);
-      return true;
+      return ResultStatus.SUCCESS;
     } catch {
-      return false;
+      return ResultStatus.ERROR;
     }
   }
 
@@ -263,7 +281,7 @@ export class CommentService {
         this.prisma.comment.update({
           where: { id: commentId },
           data: {
-            likesCount: { increment: 1 },
+            likesCount: { decrement: 1 },
           },
         }),
       ]);

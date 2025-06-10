@@ -1,4 +1,4 @@
-import { PrismaService } from '@/lib/database/prisma.service';
+import { PrismaService } from '@/common/database/prisma.service';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 @Injectable()

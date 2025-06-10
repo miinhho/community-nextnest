@@ -1,5 +1,9 @@
-import { PrismaService } from '@/lib/database/prisma.service';
-import { commentSelections, postSelections, userSelections } from '@/lib/database/select';
+import { PrismaService } from '@/common/database/prisma.service';
+import {
+  commentSelections,
+  postSelections,
+  userSelections,
+} from '@/common/database/select';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 @Injectable()
@@ -97,7 +101,7 @@ export class UserService {
     }
   }
 
-  async findUsersByName(name: string, page: number = 0, pageSize: number = 10) {
+  async findUsersByName(name: string, page: number = 0, size: number = 10) {
     try {
       const user = await this.prisma.user.findMany({
         where: {
@@ -108,8 +112,8 @@ export class UserService {
         select: {
           ...userSelections,
         },
-        skip: page * pageSize,
-        take: pageSize,
+        skip: page * size,
+        take: size,
       });
       return user;
     } catch {

@@ -1,0 +1,36 @@
+import { cuidRegex } from '@/common/regex';
+import { IsString, Matches, MaxLength, MinLength } from 'class-validator';
+
+export class CommentCreateDto {
+  @IsString()
+  @Matches(cuidRegex, {
+    message: '유효하지 않은 포스트 ID입니다.',
+  })
+  postId: string;
+
+  @IsString()
+  @MinLength(5, {
+    message: '5글자 이상의 내용을 적어주세요.',
+  })
+  @MaxLength(1_000_000, {
+    message: '최대 글자 수에 도달했습니다.',
+  })
+  content: string;
+}
+
+export class CommentUpdateDto {
+  @IsString()
+  @Matches(cuidRegex, {
+    message: '유효하지 않은 댓글 ID입니다.',
+  })
+  commentId: string;
+
+  @IsString()
+  @MinLength(5, {
+    message: '5글자 이상의 내용을 적어주세요.',
+  })
+  @MaxLength(1_000_000, {
+    message: '최대 글자 수에 도달했습니다.',
+  })
+  content: string;
+}
