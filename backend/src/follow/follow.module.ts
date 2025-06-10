@@ -1,9 +1,10 @@
+import { PrismaService } from '@/common/database/prisma.service';
 import { Module } from '@nestjs/common';
-import { FollowService } from './follow.service';
 import { FollowController } from './follow.controller';
+import { FollowService } from './follow.service';
 
 @Module({
-  providers: [FollowService],
-  controllers: [FollowController]
+  controllers: [FollowController],
+  providers: [FollowService, PrismaService],
 })
 export class FollowModule {}
