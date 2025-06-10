@@ -1,7 +1,7 @@
 import { PageQueryDto } from '@/common/page.query';
 import { LikeStatus } from '@/common/status/like-status';
 import { ResultStatus } from '@/common/status/result-status';
-import { UserData } from '@/types/user.data';
+import { UserData } from '@/common/user.data';
 import { User } from '@/user/user.decorator';
 import {
   Body,

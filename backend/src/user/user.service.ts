@@ -4,7 +4,8 @@ import {
   postSelections,
   userSelections,
 } from '@/common/database/select';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { ResultStatus } from '@/common/status/result-status';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class UserService {
@@ -29,14 +30,11 @@ export class UserService {
       });
       return user;
     } catch {
-      throw new InternalServerErrorException('Failed to create user');
+      return null;
     }
   }
 
-  async updateUserById(
-    id: string,
-    dataToUpdate: { name?: string; email?: string; image?: string },
-  ) {
+  async updateUserById(id: string, dataToUpdate: { name?: string; image?: string }) {
     try {
       await this.prisma.user.update({
         where: { id },
@@ -44,9 +42,9 @@ export class UserService {
           ...dataToUpdate,
         },
       });
-      return true;
-    } catch {
-      return false;
+      return ResultStatus.SUCCESS;
+    } catch (err) {
+      return ResultStatus.ERROR;
     }
   }
 
@@ -126,9 +124,9 @@ export class UserService {
       await this.prisma.user.delete({
         where: { id },
       });
-      return true;
+      return ResultStatus.SUCCESS;
     } catch {
-      return false;
+      return ResultStatus.ERROR;
     }
   }
 
@@ -137,9 +135,9 @@ export class UserService {
       await this.prisma.user.delete({
         where: { email },
       });
-      return true;
+      return ResultStatus.SUCCESS;
     } catch {
-      return false;
+      return ResultStatus.ERROR;
     }
   }
 }

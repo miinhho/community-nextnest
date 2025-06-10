@@ -1,8 +1,8 @@
 import { UserRegisterDto } from '@/auth/dto/register.dto';
 import { RefreshTokenService } from '@/auth/token/refresh-token.service';
 import { TokenService } from '@/auth/token/token.service';
+import { UserData } from '@/common/user.data';
 import jwt from '@/config/jwt.config';
-import { UserData } from '@/types/user.data';
 import { UserService } from '@/user/user.service';
 import {
   BadRequestException,

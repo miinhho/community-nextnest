@@ -4,4 +4,5 @@ export enum ResultStatus {
   SUCCESS,
   NOT_FOUND,
   ERROR,
+  DUPLICATE,
 }
