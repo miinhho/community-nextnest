@@ -5,12 +5,15 @@ import {
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';
 
 @Injectable()
 export class PostService {
+  private readonly logger = new Logger(PostService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async createPost(authorId: string, content: string) {
@@ -26,7 +29,8 @@ export class PostService {
       });
 
       return post;
-    } catch {
+    } catch (err) {
+      this.logger.error('게시글 작성 중 오류 발생', err.stack, { authorId, content });
       throw new InternalServerErrorException('게시글 작성에 실패했습니다.');
     }
   }
@@ -49,9 +53,15 @@ export class PostService {
         select: {},
       });
     } catch (err) {
-      if (err instanceof NotFoundException || err instanceof ForbiddenException) {
+      if (err instanceof ForbiddenException) {
         throw err;
       }
+
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('존재하지 않는 게시글입니다.');
+      }
+
+      this.logger.error('게시글 수정 중 오류 발생', err.stack, { id, content, userId });
       throw new InternalServerErrorException('게시글 수정에 실패했습니다.');
     }
   }
@@ -83,6 +93,8 @@ export class PostService {
       if (err instanceof NotFoundException) {
         throw err;
       }
+
+      this.logger.error('게시글 조회 중 오류 발생', err.stack, { postId: id });
       throw new InternalServerErrorException('게시글 조회에 실패했습니다.');
     }
   }
@@ -117,6 +129,7 @@ export class PostService {
         posts,
       };
     } catch (err) {
+      this.logger.error('게시글 목록 조회 중 오류 발생', err.stack, { page, size });
       throw new InternalServerErrorException('게시글 목록 조회에 실패했습니다.');
     }
   }
@@ -127,7 +140,12 @@ export class PostService {
         where: { authorId: userId },
       });
       return count;
-    } catch {
+    } catch (err) {
+      if (err.code === PrismaError.ForeignConstraintViolation) {
+        throw new NotFoundException('존재하지 않는 사용자입니다.');
+      }
+
+      this.logger.error('사용자 게시글 수 조회 중 오류 발생', err.stack, { userId });
       throw new InternalServerErrorException('사용자 게시글 수 조회에 실패했습니다.');
     }
   }
@@ -160,6 +178,13 @@ export class PostService {
         posts,
       };
     } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('존재하지 않는 사용자입니다.');
+      }
+
+      this.logger.error('사용자 게시글 조회 중 오류 발생', err.stack, {
+        userId,
+      });
       throw new InternalServerErrorException('사용자 게시글 조회에 실패했습니다.');
     }
   }
@@ -181,9 +206,15 @@ export class PostService {
       });
       return deletedPost;
     } catch (err) {
-      if (err instanceof NotFoundException || err instanceof ForbiddenException) {
+      if (err instanceof ForbiddenException) {
         throw err;
       }
+
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('존재하지 않는 게시글입니다.');
+      }
+
+      this.logger.error('게시글 삭제 중 오류 발생', err.stack, { postId, userId });
       throw new InternalServerErrorException('게시글 삭제 중 오류가 발생했습니다.');
     }
   }
@@ -211,6 +242,12 @@ export class PostService {
           return this.minusPostLikes(userId, postId);
         }
       }
+
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('존재하지 않는 게시글입니다.');
+      }
+
+      this.logger.error('게시글 좋아요 추가 중 오류 발생', err.stack, { userId, postId });
       throw new InternalServerErrorException('게시글 좋아요 추가에 실패했습니다.');
     }
   }
@@ -234,7 +271,12 @@ export class PostService {
         }),
       ]);
       return LikeStatus.MINUS;
-    } catch {
+    } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('존재하지 않는 게시글입니다.');
+      }
+
+      this.logger.error('게시글 좋아요 취소 중 오류 발생', err.stack, { userId, postId });
       throw new InternalServerErrorException('게시글 좋아요 취소에 실패했습니다.');
     }
   }

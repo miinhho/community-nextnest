@@ -5,12 +5,15 @@ import {
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';
 
 @Injectable()
 export class CommentService {
+  private readonly logger = new Logger(CommentService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async createComment(postId: string, authorId: string, content: string) {
@@ -35,7 +38,15 @@ export class CommentService {
         }),
       ]);
       return comment[0];
-    } catch {
+    } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('게시글을 찾을 수 없습니다.');
+      }
+
+      this.logger.error('댓글 작성 중 오류 발생', err.stack, {
+        postId,
+        authorId,
+      });
       throw new InternalServerErrorException('댓글 작성에 실패했습니다.');
     }
   }
@@ -74,7 +85,16 @@ export class CommentService {
       ]);
 
       return comment[0];
-    } catch {
+    } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('게시글 또는 댓글을 찾을 수 없습니다.');
+      }
+
+      this.logger.error('댓글 답글 작성 중 오류 발생', err.stack, {
+        authorId,
+        postId,
+        commentId,
+      });
       throw new InternalServerErrorException('댓글 답글 작성에 실패했습니다.');
     }
   }
@@ -102,9 +122,18 @@ export class CommentService {
         select: {},
       });
     } catch (err) {
-      if (err instanceof NotFoundException || err instanceof ForbiddenException) {
+      if (err instanceof ForbiddenException) {
         throw err;
       }
+
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('댓글을 찾을 수 없습니다.');
+      }
+
+      this.logger.error('댓글 수정 중 오류 발생', err.stack, {
+        commentId,
+        userId,
+      });
       throw new InternalServerErrorException('댓글 수정에 실패했습니다.');
     }
   }
@@ -148,6 +177,8 @@ export class CommentService {
       if (err instanceof NotFoundException) {
         throw err;
       }
+
+      this.logger.error('댓글 조회 중 오류 발생', err.stack, { id });
       throw new InternalServerErrorException('댓글 조회에 실패했습니다.');
     }
   }
@@ -179,12 +210,18 @@ export class CommentService {
           where: { authorId: userId },
         }),
       ]);
+
       return {
         totalCount,
         totalPage: Math.ceil(totalCount / size),
         comments,
       };
     } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('사용자를 찾을 수 없습니다.');
+      }
+
+      this.logger.error('사용자 댓글 조회 중 오류 발생', err.stack, { userId });
       throw new InternalServerErrorException('댓글 조회에 실패했습니다.');
     }
   }
@@ -218,6 +255,11 @@ export class CommentService {
         comments,
       };
     } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('게시글을 찾을 수 없습니다.');
+      }
+
+      this.logger.error('게시글 댓글 조회 중 오류 발생', err.stack, { postId });
       throw new InternalServerErrorException('댓글 조회에 실패했습니다.');
     }
   }
@@ -244,6 +286,11 @@ export class CommentService {
       });
       return replies;
     } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('댓글을 찾을 수 없습니다.');
+      }
+
+      this.logger.error('댓글 답글 조회 중 오류 발생', err.stack, { commentId });
       throw new InternalServerErrorException('댓글 답글 조회에 실패했습니다.');
     }
   }
@@ -274,9 +321,18 @@ export class CommentService {
       ]);
       return deletedComment[0];
     } catch (err) {
-      if (err instanceof NotFoundException || err instanceof ForbiddenException) {
+      if (err instanceof ForbiddenException) {
         throw err;
       }
+
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('댓글을 찾을 수 없습니다.');
+      }
+
+      this.logger.error('댓글 삭제 중 오류 발생', err.stack, {
+        commentId,
+        userId,
+      });
       throw new InternalServerErrorException('댓글 삭제에 실패했습니다.');
     }
   }
@@ -306,6 +362,15 @@ export class CommentService {
       if (toggle && err.code === PrismaError.UniqueConstraintViolation) {
         return this.minusCommentLikes(userId, commentId);
       }
+
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('댓글을 찾을 수 없습니다.');
+      }
+
+      this.logger.error('댓글 좋아요 추가 중 오류 발생', err.stack, {
+        userId,
+        commentId,
+      });
       throw new InternalServerErrorException('댓글 좋아요 추가에 실패했습니다.');
     }
   }
@@ -330,7 +395,15 @@ export class CommentService {
       ]);
 
       return LikeStatus.MINUS;
-    } catch {
+    } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('댓글을 찾을 수 없습니다.');
+      }
+
+      this.logger.error('댓글 좋아요 취소 중 오류 발생', err.stack, {
+        userId,
+        commentId,
+      });
       throw new InternalServerErrorException('댓글 좋아요 취소에 실패했습니다.');
     }
   }

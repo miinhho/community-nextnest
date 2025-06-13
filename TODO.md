@@ -5,7 +5,8 @@ Backend:
   - [x] Post Controller
   - [x] User Controller
   - [x] Follow Controller
-  - [ ] Logger 추가
+  - [x] Logger 추가
+  - [ ] Repository 패턴 확장
   - [ ] Swagger Docs
 
 

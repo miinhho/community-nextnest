@@ -1,10 +1,12 @@
 import { PrismaService } from '@/common/database/prisma.service';
 import { FollowStatus } from '@/common/status/follow-status';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';
 
 @Injectable()
 export class FollowService {
+  private readonly logger = new Logger(FollowService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async followUser(userId: string, targetId: string, toggle: boolean = true) {
@@ -20,6 +22,15 @@ export class FollowService {
       if (toggle && err.code === PrismaError.UniqueConstraintViolation) {
         return this.unfollowUser(userId, targetId);
       }
+
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new InternalServerErrorException('존재하지 않는 사용자입니다.');
+      }
+
+      this.logger.error('팔로우 중 오류 발생', err.stack, {
+        userId,
+        targetId,
+      });
       throw new InternalServerErrorException('팔로우 실패');
     }
   }
@@ -35,7 +46,15 @@ export class FollowService {
         },
       });
       return FollowStatus.UNFOLLOW;
-    } catch {
+    } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new InternalServerErrorException('존재하지 않는 사용자입니다.');
+      }
+
+      this.logger.error('언팔로우 중 오류 발생', err.stack, {
+        followerId: userId,
+        followingId: targetId,
+      });
       throw new InternalServerErrorException('언팔로우 실패');
     }
   }
@@ -51,7 +70,15 @@ export class FollowService {
         },
       });
       return !!follow;
-    } catch {
+    } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new InternalServerErrorException('존재하지 않는 사용자입니다.');
+      }
+
+      this.logger.error('팔로우 상태 확인 중 오류 발생', err.stack, {
+        followerId: userId,
+        followingId: targetId,
+      });
       throw new InternalServerErrorException('팔로우 상태 확인 실패');
     }
   }
@@ -61,7 +88,14 @@ export class FollowService {
       return await this.prisma.follow.count({
         where: { followingId: userId },
       });
-    } catch {
+    } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new InternalServerErrorException('존재하지 않는 사용자입니다.');
+      }
+
+      this.logger.error('팔로워 수 조회 중 오류 발생', err.stack, {
+        followingId: userId,
+      });
       throw new InternalServerErrorException('팔로워 수 조회 실패');
     }
   }
@@ -71,7 +105,14 @@ export class FollowService {
       return await this.prisma.follow.count({
         where: { followerId: userId },
       });
-    } catch {
+    } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new InternalServerErrorException('존재하지 않는 사용자입니다.');
+      }
+
+      this.logger.error('팔로잉 수 조회 중 오류 발생', err.stack, {
+        followerId: userId,
+      });
       throw new InternalServerErrorException('팔로잉 수 조회 실패');
     }
   }
@@ -92,7 +133,12 @@ export class FollowService {
         totalCount,
         totalPage: Math.ceil(totalCount / size),
       };
-    } catch {
+    } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new InternalServerErrorException('존재하지 않는 사용자입니다.');
+      }
+
+      this.logger.error('팔로워 목록 조회 중 오류 발생', err.stack, { userId });
       throw new InternalServerErrorException('팔로워 목록 조회 실패');
     }
   }
@@ -113,7 +159,12 @@ export class FollowService {
         totalCount,
         totalPage: Math.ceil(totalCount / size),
       };
-    } catch {
+    } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new InternalServerErrorException('존재하지 않는 사용자입니다.');
+      }
+
+      this.logger.error('팔로잉 목록 조회 중 오류 발생', err.stack, { userId });
       throw new InternalServerErrorException('팔로잉 목록 조회 실패');
     }
   }
