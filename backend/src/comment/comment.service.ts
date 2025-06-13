@@ -1,54 +1,14 @@
-import { PrismaService } from '@/common/database/prisma.service';
-import { commentSelections, userSelections } from '@/common/database/select';
+import { CommentRepository } from '@/comment/comment.repository';
 import { LikeStatus } from '@/common/status/like-status';
-import {
-  ForbiddenException,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';
 
 @Injectable()
 export class CommentService {
-  private readonly logger = new Logger(CommentService.name);
-
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private commentRepository: CommentRepository) {}
 
   async createComment(postId: string, authorId: string, content: string) {
-    try {
-      const comment = await this.prisma.$transaction([
-        this.prisma.comment.create({
-          data: {
-            content,
-            authorId,
-            postId,
-          },
-          select: {
-            id: true,
-          },
-        }),
-        this.prisma.post.update({
-          where: { id: postId },
-          data: {
-            commentCount: { increment: 1 },
-          },
-          select: {},
-        }),
-      ]);
-      return comment[0];
-    } catch (err) {
-      if (err.code === PrismaError.RecordsNotFound) {
-        throw new NotFoundException('게시글을 찾을 수 없습니다.');
-      }
-
-      this.logger.error('댓글 작성 중 오류 발생', err.stack, {
-        postId,
-        authorId,
-      });
-      throw new InternalServerErrorException('댓글 작성에 실패했습니다.');
-    }
+    return this.commentRepository.createComment(postId, authorId, content);
   }
 
   async createCommentReply({
@@ -62,349 +22,87 @@ export class CommentService {
     commentId: string;
     content: string;
   }) {
-    try {
-      const comment = await this.prisma.$transaction([
-        this.prisma.comment.create({
-          data: {
-            content,
-            postId,
-            authorId,
-            parentId: commentId,
-          },
-          select: {
-            id: true,
-          },
-        }),
-        this.prisma.post.update({
-          where: { id: postId },
-          data: {
-            commentCount: { increment: 1 },
-          },
-          select: {},
-        }),
-      ]);
-
-      return comment[0];
-    } catch (err) {
-      if (err.code === PrismaError.RecordsNotFound) {
-        throw new NotFoundException('게시글 또는 댓글을 찾을 수 없습니다.');
-      }
-
-      this.logger.error('댓글 답글 작성 중 오류 발생', err.stack, {
-        authorId,
-        postId,
-        commentId,
-      });
-      throw new InternalServerErrorException('댓글 답글 작성에 실패했습니다.');
-    }
+    return this.commentRepository.createCommentReply({
+      authorId,
+      postId,
+      commentId,
+      content,
+    });
   }
 
-  /**
-   * @throws {ForbiddenException, NotFoundException, InternalServerErrorException}
-   */
   async updateComment(
     commentId: string,
     content: string,
     userId: string,
     isAdmin: boolean = false,
   ) {
-    try {
-      const comment = await this.findCommentById(commentId);
-      if (!isAdmin && comment.authorId !== userId) {
-        throw new ForbiddenException('댓글 수정 권한이 없습니다.');
-      }
-
-      await this.prisma.comment.update({
-        where: { id: commentId },
-        data: {
-          content,
-        },
-        select: {},
-      });
-    } catch (err) {
-      if (err instanceof ForbiddenException) {
-        throw err;
-      }
-
-      if (err.code === PrismaError.RecordsNotFound) {
-        throw new NotFoundException('댓글을 찾을 수 없습니다.');
-      }
-
-      this.logger.error('댓글 수정 중 오류 발생', err.stack, {
-        commentId,
-        userId,
-      });
-      throw new InternalServerErrorException('댓글 수정에 실패했습니다.');
+    const comment = await this.findCommentById(commentId);
+    if (!isAdmin && comment.authorId !== userId) {
+      throw new ForbiddenException('댓글 수정 권한이 없습니다.');
     }
+
+    await this.commentRepository.updateComment(commentId, content);
   }
 
   async findCommentById(id: string) {
-    try {
-      const selections = {
-        ...commentSelections,
-        author: {
-          select: {
-            ...userSelections,
-          },
-        },
-      };
-
-      const comment = await this.prisma.comment.findUnique({
-        where: { id },
-        select: {
-          ...selections,
-          parent: {
-            select: {
-              ...selections,
-            },
-          },
-          replies: {
-            select: {
-              ...selections,
-            },
-            orderBy: { createdAt: 'desc' },
-          },
-          postId: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-      });
-      if (!comment) {
-        throw new NotFoundException('댓글을 찾을 수 없습니다.');
-      }
-      return comment;
-    } catch (err) {
-      if (err instanceof NotFoundException) {
-        throw err;
-      }
-
-      this.logger.error('댓글 조회 중 오류 발생', err.stack, { id });
-      throw new InternalServerErrorException('댓글 조회에 실패했습니다.');
-    }
+    return this.commentRepository.findCommentById(id);
   }
 
   async findCommentsByUserId(userId: string, page: number = 1, size: number = 10) {
-    try {
-      const [comments, totalCount] = await this.prisma.$transaction([
-        this.prisma.comment.findMany({
-          where: { authorId: userId },
-          select: {
-            ...commentSelections,
-            postId: true,
-            post: {
-              select: {
-                id: true,
-                content: true,
-              },
-            },
-            createdAt: true,
-            updatedAt: true,
-          },
-          skip: (page - 1) * size,
-          take: size,
-          orderBy: {
-            createdAt: 'desc',
-          },
-        }),
-        this.prisma.comment.count({
-          where: { authorId: userId },
-        }),
-      ]);
+    const [comments, totalCount] = await this.commentRepository.findCommentsByUserId(
+      userId,
+      page,
+      size,
+    );
 
-      return {
-        totalCount,
-        totalPage: Math.ceil(totalCount / size),
-        comments,
-      };
-    } catch (err) {
-      if (err.code === PrismaError.RecordsNotFound) {
-        throw new NotFoundException('사용자를 찾을 수 없습니다.');
-      }
-
-      this.logger.error('사용자 댓글 조회 중 오류 발생', err.stack, { userId });
-      throw new InternalServerErrorException('댓글 조회에 실패했습니다.');
-    }
+    return {
+      totalCount,
+      totalPage: Math.ceil(totalCount / size),
+      comments,
+    };
   }
 
   async findCommentsByPostId(postId: string, page: number = 1, size: number = 10) {
-    try {
-      const [comments, totalCount] = await this.prisma.$transaction([
-        this.prisma.comment.findMany({
-          where: { postId, parentId: null },
-          select: {
-            ...commentSelections,
-            author: {
-              select: {
-                ...userSelections,
-              },
-            },
-            createdAt: true,
-            updatedAt: true,
-          },
-          skip: (page - 1) * size,
-          take: size,
-          orderBy: { createdAt: 'desc' },
-        }),
-        this.prisma.comment.count({
-          where: { postId, parentId: null },
-        }),
-      ]);
-      return {
-        totalCount,
-        totalPage: Math.ceil(totalCount / size),
-        comments,
-      };
-    } catch (err) {
-      if (err.code === PrismaError.RecordsNotFound) {
-        throw new NotFoundException('게시글을 찾을 수 없습니다.');
-      }
+    const [comments, totalCount] = await this.commentRepository.findCommentsByPostId(
+      postId,
+      page,
+      size,
+    );
 
-      this.logger.error('게시글 댓글 조회 중 오류 발생', err.stack, { postId });
-      throw new InternalServerErrorException('댓글 조회에 실패했습니다.');
-    }
+    return {
+      totalCount,
+      totalPage: Math.ceil(totalCount / size),
+      comments,
+    };
   }
 
-  async findRepliesByCommentId(commentId: string, page: number = 0, size: number = 10) {
-    try {
-      const replies = await this.prisma.comment.findMany({
-        where: { id: commentId },
-        select: {
-          replies: {
-            select: {
-              ...commentSelections,
-              author: {
-                select: {
-                  ...userSelections,
-                },
-              },
-            },
-            orderBy: { createdAt: 'desc' },
-          },
-        },
-        skip: page * size,
-        take: size,
-      });
-      return replies;
-    } catch (err) {
-      if (err.code === PrismaError.RecordsNotFound) {
-        throw new NotFoundException('댓글을 찾을 수 없습니다.');
-      }
-
-      this.logger.error('댓글 답글 조회 중 오류 발생', err.stack, { commentId });
-      throw new InternalServerErrorException('댓글 답글 조회에 실패했습니다.');
-    }
+  async findRepliesByCommentId(commentId: string, page: number = 1, size: number = 10) {
+    return this.commentRepository.findRepliesByCommentId(commentId, page, size);
   }
 
   async deleteCommentById(commentId: string, userId: string, isAdmin: boolean = false) {
-    try {
-      const comment = await this.findCommentById(commentId);
-      if (!isAdmin && comment.authorId !== userId) {
-        throw new ForbiddenException('댓글 삭제 권한이 없습니다.');
-      }
-
-      const deletedComment = await this.prisma.$transaction([
-        this.prisma.comment.delete({
-          where: { id: commentId },
-          select: {
-            postId: true,
-            authorId: true,
-            content: true,
-          },
-        }),
-        this.prisma.post.update({
-          where: { id: comment.postId },
-          data: {
-            commentCount: { decrement: 1 },
-          },
-          select: {},
-        }),
-      ]);
-      return deletedComment[0];
-    } catch (err) {
-      if (err instanceof ForbiddenException) {
-        throw err;
-      }
-
-      if (err.code === PrismaError.RecordsNotFound) {
-        throw new NotFoundException('댓글을 찾을 수 없습니다.');
-      }
-
-      this.logger.error('댓글 삭제 중 오류 발생', err.stack, {
-        commentId,
-        userId,
-      });
-      throw new InternalServerErrorException('댓글 삭제에 실패했습니다.');
+    const comment = await this.findCommentById(commentId);
+    if (!isAdmin && comment.authorId !== userId) {
+      throw new ForbiddenException('댓글 삭제 권한이 없습니다.');
     }
+
+    return this.commentRepository.deleteCommentById(comment);
   }
 
-  async addCommentLikes(
-    userId: string,
-    commentId: string,
-    toggle: boolean = true,
-  ): Promise<LikeStatus> {
+  async addCommentLikes(userId: string, commentId: string, toggle: boolean = true) {
     try {
-      await this.prisma.$transaction([
-        this.prisma.commentLikes.create({
-          data: {
-            userId,
-            commentId,
-          },
-        }),
-        this.prisma.comment.update({
-          where: { id: commentId },
-          data: {
-            likesCount: { increment: 1 },
-          },
-        }),
-      ]);
+      await this.commentRepository.addCommentLike(userId, commentId);
       return LikeStatus.PLUS;
     } catch (err) {
       if (toggle && err.code === PrismaError.UniqueConstraintViolation) {
         return this.minusCommentLikes(userId, commentId);
       }
-
-      if (err.code === PrismaError.RecordsNotFound) {
-        throw new NotFoundException('댓글을 찾을 수 없습니다.');
-      }
-
-      this.logger.error('댓글 좋아요 추가 중 오류 발생', err.stack, {
-        userId,
-        commentId,
-      });
-      throw new InternalServerErrorException('댓글 좋아요 추가에 실패했습니다.');
+      throw err;
     }
   }
 
-  async minusCommentLikes(userId: string, commentId: string): Promise<LikeStatus> {
-    try {
-      await this.prisma.$transaction([
-        this.prisma.commentLikes.delete({
-          where: {
-            userId_commentId: {
-              userId,
-              commentId,
-            },
-          },
-        }),
-        this.prisma.comment.update({
-          where: { id: commentId },
-          data: {
-            likesCount: { decrement: 1 },
-          },
-        }),
-      ]);
-
-      return LikeStatus.MINUS;
-    } catch (err) {
-      if (err.code === PrismaError.RecordsNotFound) {
-        throw new NotFoundException('댓글을 찾을 수 없습니다.');
-      }
-
-      this.logger.error('댓글 좋아요 취소 중 오류 발생', err.stack, {
-        userId,
-        commentId,
-      });
-      throw new InternalServerErrorException('댓글 좋아요 취소에 실패했습니다.');
-    }
+  async minusCommentLikes(userId: string, commentId: string) {
+    await this.commentRepository.minusCommentLike(userId, commentId);
+    return LikeStatus.MINUS;
   }
 }
