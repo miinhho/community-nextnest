@@ -1,10 +1,12 @@
 import { CommentCreateDto, CommentUpdateDto } from '@/comment/dto/comment.dto';
 import { ReplyContentDto } from '@/comment/dto/reply.dto';
+import { CommentOwner } from '@/comment/guard/comment-owner.guard';
 import { IdParam } from '@/common/decorator/id.decorator';
 import { PageQuery } from '@/common/decorator/page-query.decorator';
+import { Public } from '@/common/decorator/public.decorator';
 import { User } from '@/common/decorator/user.decorator';
 import { LikeStatus } from '@/common/status/like-status';
-import { isAdmin, UserData } from '@/common/user';
+import { UserData } from '@/common/user';
 import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
 import { CommentService } from './comment.service';
 
@@ -42,18 +44,17 @@ export class CommentController {
     };
   }
 
+  @CommentOwner()
   @Put()
-  async updateComment(
-    @Body() { commentId, content }: CommentUpdateDto,
-    @User() user: UserData,
-  ) {
-    await this.commentService.updateComment(commentId, content, user.id, isAdmin(user));
+  async updateComment(@Body() { commentId, content }: CommentUpdateDto) {
+    await this.commentService.updateComment(commentId, content);
     return {
       success: true,
       message: '댓글이 성공적으로 수정되었습니다.',
     };
   }
 
+  @Public()
   @Get(':id')
   async getCommentById(@IdParam() id: string) {
     const comment = await this.commentService.findCommentById(id);
@@ -63,7 +64,8 @@ export class CommentController {
     };
   }
 
-  @Get('reply/:id')
+  @Public()
+  @Get(':id/replies')
   async getCommentReplies(@IdParam() id: string, @PageQuery() { page, size }: PageQuery) {
     const replies = await this.commentService.findRepliesByCommentId(id, page, size);
     return {
@@ -72,13 +74,10 @@ export class CommentController {
     };
   }
 
+  @CommentOwner()
   @Delete(':id')
-  async deleteComment(@IdParam() commentId: string, @User() user: UserData) {
-    const deletedComment = await this.commentService.deleteCommentById(
-      commentId,
-      user.id,
-      isAdmin(user),
-    );
+  async deleteComment(@IdParam() commentId: string) {
+    const deletedComment = await this.commentService.deleteCommentById(commentId);
     return {
       success: true,
       data: deletedComment,

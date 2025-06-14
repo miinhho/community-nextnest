@@ -1,8 +1,8 @@
 import { isAdmin } from '@/common/user';
-import { CanActivate, ForbiddenException } from '@nestjs/common';
+import { CanActivate, ForbiddenException, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 
-export class OwnerGuard implements CanActivate {
+export class UserOwnerGuard implements CanActivate {
   canActivate(context: any): boolean {
     const request = context.switchToHttp().getRequest();
     const user = (request as Request).user;
@@ -16,6 +16,10 @@ export class OwnerGuard implements CanActivate {
       return true;
     }
 
-    throw new ForbiddenException('자신의 계정만 접근할 수 있습니다.');
+    throw new ForbiddenException('권한이 없습니다.');
   }
+}
+
+export function UserOwner() {
+  return UseGuards(UserOwnerGuard);
 }

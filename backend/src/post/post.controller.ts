@@ -1,9 +1,11 @@
 import { CommentService } from '@/comment/comment.service';
 import { IdParam } from '@/common/decorator/id.decorator';
 import { PageQuery } from '@/common/decorator/page-query.decorator';
+import { Public } from '@/common/decorator/public.decorator';
 import { User } from '@/common/decorator/user.decorator';
 import { LikeStatus } from '@/common/status/like-status';
-import { isAdmin, UserData } from '@/common/user';
+import { UserData } from '@/common/user';
+import { PostOwner } from '@/post/guard/post-owner.guard';
 import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
 import { PostContentDto } from './dto/post.dto';
 import { PostService } from './post.service';
@@ -24,6 +26,7 @@ export class PostController {
     };
   }
 
+  @Public()
   @Get(':id')
   async findPostById(@IdParam() postId: string) {
     const post = await this.postService.findPostById(postId);
@@ -33,54 +36,47 @@ export class PostController {
     };
   }
 
+  @Public()
   @Get()
   async findPosts(@PageQuery() { page, size }: PageQuery) {
-    const { posts, totalCount, totalPage } = await this.postService.findPostsByPage(
+    const { data: posts, meta } = await this.postService.findPostsByPage(page, size);
+    return {
+      success: true,
+      data: {
+        posts,
+        meta,
+      },
+    };
+  }
+
+  @Public()
+  @Get(':id/comments')
+  async getCommentsByPostId(
+    @IdParam() id: string,
+    @PageQuery() { page, size }: PageQuery,
+  ) {
+    const { data: comments, meta } = await this.commentService.findCommentsByPostId(
+      id,
       page,
       size,
     );
     return {
       success: true,
       data: {
-        posts,
-        meta: {
-          totalCount,
-          totalPage,
-          page,
-          size,
-        },
-      },
-    };
-  }
-
-  @Get('/post/:id')
-  async getCommentsByPostId(
-    @IdParam() id: string,
-    @PageQuery() { page, size }: PageQuery,
-  ) {
-    const { totalCount, totalPage, comments } =
-      await this.commentService.findCommentsByPostId(id, page, size);
-    return {
-      success: true,
-      data: {
         comments,
-        meta: {
-          totalCount,
-          totalPage,
-          page,
-          size,
-        },
+        meta,
       },
     };
   }
 
+  @PostOwner()
   @Put(':id')
   async updatePost(
     @IdParam() postId: string,
     @Body() { content }: PostContentDto,
     @User() user: UserData,
   ) {
-    await this.postService.updatePost(postId, content, user.id, isAdmin(user));
+    await this.postService.updatePost(postId, content);
     return {
       success: true,
       data: {
@@ -91,20 +87,17 @@ export class PostController {
     };
   }
 
+  @PostOwner()
   @Delete(':id')
-  async deletePost(@IdParam() postId: string, @User() user: UserData) {
-    const deletedPost = await this.postService.deletePostById(
-      postId,
-      user.id,
-      isAdmin(user),
-    );
+  async deletePost(@IdParam() postId: string) {
+    const deletedPost = await this.postService.deletePostById(postId);
     return {
       success: true,
       data: deletedPost,
     };
   }
 
-  @Post('/like/:id')
+  @Post(':id/like')
   async toggleLike(@IdParam() postId: string, @User() user: UserData) {
     const status = await this.postService.addPostLikes(user.id, postId);
 

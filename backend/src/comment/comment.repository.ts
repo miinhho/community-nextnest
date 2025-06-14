@@ -1,12 +1,12 @@
 import { PrismaService } from '@/common/database/prisma.service';
 import { commentSelections, userSelections } from '@/common/database/select';
+import { toPageData } from '@/common/utils/page';
 import {
   Injectable,
   InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Comment } from '@prisma/client';
 import { PrismaError } from 'prisma-error-enum';
 
 @Injectable()
@@ -162,7 +162,7 @@ export class CommentRepository {
 
   async findCommentsByUserId(userId: string, page: number = 1, size: number = 10) {
     try {
-      return this.prisma.$transaction([
+      const [comments, totalCount] = await this.prisma.$transaction([
         this.prisma.comment.findMany({
           where: { authorId: userId },
           select: {
@@ -187,11 +187,14 @@ export class CommentRepository {
           where: { authorId: userId },
         }),
       ]);
-    } catch (err) {
-      if (err.code === PrismaError.RecordsNotFound) {
-        throw new NotFoundException('사용자를 찾을 수 없습니다.');
-      }
 
+      return toPageData<typeof comments>({
+        data: comments,
+        totalCount,
+        page,
+        size,
+      });
+    } catch (err) {
       this.logger.error('사용자 댓글 조회 중 오류 발생', err.stack, { userId });
       throw new InternalServerErrorException('댓글 조회에 실패했습니다.');
     }
@@ -199,7 +202,7 @@ export class CommentRepository {
 
   async findCommentsByPostId(postId: string, page: number = 1, size: number = 10) {
     try {
-      return this.prisma.$transaction([
+      const [comments, totalCount] = await this.prisma.$transaction([
         this.prisma.comment.findMany({
           where: { postId, parentId: null },
           select: {
@@ -220,6 +223,13 @@ export class CommentRepository {
           where: { postId, parentId: null },
         }),
       ]);
+
+      return toPageData<typeof comments>({
+        data: comments,
+        totalCount,
+        page,
+        size,
+      });
     } catch (err) {
       if (err.code === PrismaError.RecordsNotFound) {
         throw new NotFoundException('게시글을 찾을 수 없습니다.');
@@ -251,18 +261,31 @@ export class CommentRepository {
         take: size,
       });
     } catch (err) {
-      if (err.code === PrismaError.RecordsNotFound) {
-        throw new NotFoundException('댓글을 찾을 수 없습니다.');
-      }
-
       this.logger.error('댓글 답글 조회 중 오류 발생', err.stack, { commentId });
       throw new InternalServerErrorException('댓글 답글 조회에 실패했습니다.');
     }
   }
 
-  async deleteCommentById(comment: Comment) {
+  async findPostIdByCommentId(commentId: string) {
     try {
-      const commentId = comment.id;
+      const comment = await this.prisma.comment.findUnique({
+        where: { id: commentId },
+        select: { postId: true },
+      });
+
+      if (!comment) {
+        throw new NotFoundException('댓글을 찾을 수 없습니다.');
+      }
+
+      return comment.postId;
+    } catch (err) {
+      this.logger.error('댓글의 게시글 ID 조회 중 오류 발생', err.stack, { commentId });
+      throw new InternalServerErrorException('게시글 ID 조회에 실패했습니다.');
+    }
+  }
+
+  async deleteCommentById(commentId: string, postId: string) {
+    try {
       const result = await this.prisma.$transaction([
         this.prisma.comment.delete({
           where: { id: commentId },
@@ -273,7 +296,7 @@ export class CommentRepository {
           },
         }),
         this.prisma.post.update({
-          where: { id: comment.postId },
+          where: { id: postId },
           data: {
             commentCount: { decrement: 1 },
           },
@@ -287,8 +310,8 @@ export class CommentRepository {
       }
 
       this.logger.error('댓글 삭제 중 오류 발생', err.stack, {
-        commentId: comment.id,
-        userId: comment.authorId,
+        commentId,
+        postId,
       });
       throw new InternalServerErrorException('댓글 삭제에 실패했습니다.');
     }
@@ -357,6 +380,16 @@ export class CommentRepository {
         commentId,
       });
       throw new InternalServerErrorException('댓글 좋아요 취소에 실패했습니다.');
+    }
+  }
+
+  async validateCommentExists(id: string) {
+    const comment = await this.prisma.comment.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!comment) {
+      throw new NotFoundException('존재하지 않는 댓글입니다.');
     }
   }
 }

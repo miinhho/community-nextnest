@@ -1,10 +1,11 @@
 import { CommentService } from '@/comment/comment.service';
 import { IdParam } from '@/common/decorator/id.decorator';
-import { Owner } from '@/common/decorator/owner.decorator';
 import { PageQuery } from '@/common/decorator/page-query.decorator';
+import { Public } from '@/common/decorator/public.decorator';
 import { FollowService } from '@/follow/follow.service';
 import { PostService } from '@/post/post.service';
 import { UpdateUserDto } from '@/user/dto/user.dto';
+import { UserOwner } from '@/user/guard/user-owner.guard';
 import { Body, Controller, Delete, Get, Patch } from '@nestjs/common';
 import { UserService } from './user.service';
 
@@ -17,8 +18,8 @@ export class UserController {
     private readonly followService: FollowService,
   ) {}
 
+  @UserOwner()
   @Patch(':id')
-  @Owner()
   async updateUser(@IdParam() id: string, @Body() updateUserDto: UpdateUserDto) {
     const updatedUser = await this.userService.updateUserById(id, updateUserDto);
     return {
@@ -27,6 +28,7 @@ export class UserController {
     };
   }
 
+  @Public()
   @Get(':id')
   async findUserById(@IdParam() id: string) {
     const user = await this.userService.findUserById(id);
@@ -36,6 +38,7 @@ export class UserController {
     };
   }
 
+  @Public()
   @Get(':id/posts-count')
   async getUserPostsCount(@IdParam() id: string) {
     const postCount = await this.postService.findPostCountByUserId(id);
@@ -45,9 +48,10 @@ export class UserController {
     };
   }
 
+  @Public()
   @Get(':id/posts')
   async getUserPosts(@IdParam() id: string, @PageQuery() { page, size }: PageQuery) {
-    const { totalCount, totalPage, posts } = await this.postService.findPostsByUserId(
+    const { data: posts, meta } = await this.postService.findPostsByUserId(
       id,
       page,
       size,
@@ -56,34 +60,29 @@ export class UserController {
       success: true,
       data: {
         posts,
-        meta: {
-          totalCount,
-          totalPage,
-          page,
-          size,
-        },
+        meta,
       },
     };
   }
 
+  @Public()
   @Get(':id/comments')
   async getUserComments(@IdParam() id: string, @PageQuery() { page, size }: PageQuery) {
-    const { totalCount, totalPage, comments } =
-      await this.commentService.findCommentsByUserId(id, page, size);
+    const { data: comments, meta } = await this.commentService.findCommentsByUserId(
+      id,
+      page,
+      size,
+    );
     return {
       success: true,
       data: {
         comments,
-        meta: {
-          totalCount,
-          totalPage,
-          page,
-          size,
-        },
+        meta,
       },
     };
   }
 
+  @Public()
   @Get(':id/following-count')
   async getUserFollowingCount(@IdParam() id: string) {
     const followingCount = await this.followService.getFollowingCount(id);
@@ -93,6 +92,7 @@ export class UserController {
     };
   }
 
+  @Public()
   @Get(':id/followers-count')
   async getUserFollowersCount(@IdParam() id: string) {
     const followersCount = await this.followService.getFollowersCount(id);
@@ -102,9 +102,10 @@ export class UserController {
     };
   }
 
+  @Public()
   @Get(':id/followers')
   async getUserFollowers(@IdParam() id: string, @PageQuery() { page, size }: PageQuery) {
-    const { followers, totalCount, totalPage } = await this.followService.getFollowers(
+    const { data: followers, meta } = await this.followService.getFollowers(
       id,
       page,
       size,
@@ -113,19 +114,15 @@ export class UserController {
       success: true,
       data: {
         followers,
-        meta: {
-          totalCount,
-          totalPage,
-          page,
-          size,
-        },
+        meta,
       },
     };
   }
 
+  @Public()
   @Get(':id/following')
   async getUserFollowing(@IdParam() id: string, @PageQuery() { page, size }: PageQuery) {
-    const { following, totalCount, totalPage } = await this.followService.getFollowing(
+    const { data: following, meta } = await this.followService.getFollowing(
       id,
       page,
       size,
@@ -134,18 +131,13 @@ export class UserController {
       success: true,
       data: {
         following,
-        meta: {
-          totalCount,
-          totalPage,
-          page,
-          size,
-        },
+        meta,
       },
     };
   }
 
+  @UserOwner()
   @Delete(':id')
-  @Owner()
   async deleteUser(@IdParam() id: string) {
     const deletedUser = await this.userService.deleteUserById(id);
     return {

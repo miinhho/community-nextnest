@@ -1,4 +1,4 @@
-import { alphabetNumbericRegex, specialCharRegex } from '@/common/regex';
+import { alphabetNumbericRegex, specialCharRegex } from '@/common/utils/regex';
 import { IsEmail, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
 export class UserLoginDto {

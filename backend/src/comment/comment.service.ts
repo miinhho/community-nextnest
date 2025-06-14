@@ -1,11 +1,17 @@
 import { CommentRepository } from '@/comment/comment.repository';
 import { LikeStatus } from '@/common/status/like-status';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { PostService } from '@/post/post.service';
+import { UserService } from '@/user/user.service';
+import { Injectable } from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';
 
 @Injectable()
 export class CommentService {
-  constructor(private readonly commentRepository: CommentRepository) {}
+  constructor(
+    private readonly commentRepository: CommentRepository,
+    private readonly userService: UserService,
+    private readonly postService: PostService,
+  ) {}
 
   async createComment(postId: string, authorId: string, content: string) {
     return this.commentRepository.createComment(postId, authorId, content);
@@ -30,17 +36,7 @@ export class CommentService {
     });
   }
 
-  async updateComment(
-    commentId: string,
-    content: string,
-    userId: string,
-    isAdmin: boolean = false,
-  ) {
-    const comment = await this.findCommentById(commentId);
-    if (!isAdmin && comment.authorId !== userId) {
-      throw new ForbiddenException('댓글 수정 권한이 없습니다.');
-    }
-
+  async updateComment(commentId: string, content: string) {
     await this.commentRepository.updateComment(commentId, content);
   }
 
@@ -49,44 +45,23 @@ export class CommentService {
   }
 
   async findCommentsByUserId(userId: string, page: number = 1, size: number = 10) {
-    const [comments, totalCount] = await this.commentRepository.findCommentsByUserId(
-      userId,
-      page,
-      size,
-    );
-
-    return {
-      totalCount,
-      totalPage: Math.ceil(totalCount / size),
-      comments,
-    };
+    await this.userService.validateUserExists(userId);
+    return this.commentRepository.findCommentsByUserId(userId, page, size);
   }
 
   async findCommentsByPostId(postId: string, page: number = 1, size: number = 10) {
-    const [comments, totalCount] = await this.commentRepository.findCommentsByPostId(
-      postId,
-      page,
-      size,
-    );
-
-    return {
-      totalCount,
-      totalPage: Math.ceil(totalCount / size),
-      comments,
-    };
+    await this.postService.validatePostExists(postId);
+    return this.commentRepository.findCommentsByPostId(postId, page, size);
   }
 
   async findRepliesByCommentId(commentId: string, page: number = 1, size: number = 10) {
+    await this.commentRepository.validateCommentExists(commentId);
     return this.commentRepository.findRepliesByCommentId(commentId, page, size);
   }
 
-  async deleteCommentById(commentId: string, userId: string, isAdmin: boolean = false) {
-    const comment = await this.findCommentById(commentId);
-    if (!isAdmin && comment.authorId !== userId) {
-      throw new ForbiddenException('댓글 삭제 권한이 없습니다.');
-    }
-
-    return this.commentRepository.deleteCommentById(comment);
+  async deleteCommentById(commentId: string) {
+    const postId = await this.commentRepository.findPostIdByCommentId(commentId);
+    return this.commentRepository.deleteCommentById(commentId, postId);
   }
 
   async addCommentLikes(userId: string, commentId: string, toggle: boolean = true) {
@@ -104,5 +79,9 @@ export class CommentService {
   async minusCommentLikes(userId: string, commentId: string) {
     await this.commentRepository.minusCommentLike(userId, commentId);
     return LikeStatus.MINUS;
+  }
+
+  async validateCommentExists(id: string) {
+    return this.commentRepository.validateCommentExists(id);
   }
 }
