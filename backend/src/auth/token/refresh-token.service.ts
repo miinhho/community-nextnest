@@ -11,7 +11,7 @@ import { PrismaError } from 'prisma-error-enum';
 export class RefreshTokenService {
   private readonly logger = new Logger(RefreshTokenService.name);
 
-  constructor(private prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async createRefreshToken(userId: string, token: string, expiresIn: number) {
     try {

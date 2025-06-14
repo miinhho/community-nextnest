@@ -11,8 +11,8 @@ import { PostService } from './post.service';
 @Controller('api/post')
 export class PostController {
   constructor(
-    private postService: PostService,
-    private commentService: CommentService,
+    private readonly postService: PostService,
+    private readonly commentService: CommentService,
   ) {}
 
   @Post()

@@ -7,7 +7,7 @@ import { FollowService } from './follow.service';
 
 @Controller('api/follow')
 export class FollowController {
-  constructor(private followService: FollowService) {}
+  constructor(private readonly followService: FollowService) {}
 
   @Post(':id')
   async followUser(@IdParam() targetId: string, @User() user: UserData) {

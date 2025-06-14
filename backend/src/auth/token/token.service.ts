@@ -8,10 +8,10 @@ import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class TokenService {
   constructor(
-    private jwtService: JwtService,
+    private readonly jwtService: JwtService,
     @Inject(jwt.KEY)
-    private jwtConfig: ConfigType<typeof jwt>,
-    private userService: UserService,
+    private readonly jwtConfig: ConfigType<typeof jwt>,
+    private readonly userService: UserService,
   ) {}
 
   async generateAccessToken(userId: string) {

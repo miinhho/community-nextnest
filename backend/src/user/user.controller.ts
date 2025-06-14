@@ -11,10 +11,10 @@ import { UserService } from './user.service';
 @Controller('api/user')
 export class UserController {
   constructor(
-    private userService: UserService,
-    private postService: PostService,
-    private commentService: CommentService,
-    private followService: FollowService,
+    private readonly userService: UserService,
+    private readonly postService: PostService,
+    private readonly commentService: CommentService,
+    private readonly followService: FollowService,
   ) {}
 
   @Patch(':id')

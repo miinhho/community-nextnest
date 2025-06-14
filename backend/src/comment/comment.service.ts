@@ -5,7 +5,7 @@ import { PrismaError } from 'prisma-error-enum';
 
 @Injectable()
 export class CommentService {
-  constructor(private commentRepository: CommentRepository) {}
+  constructor(private readonly commentRepository: CommentRepository) {}
 
   async createComment(postId: string, authorId: string, content: string) {
     return this.commentRepository.createComment(postId, authorId, content);
