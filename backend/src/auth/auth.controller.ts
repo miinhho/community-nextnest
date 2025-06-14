@@ -24,11 +24,11 @@ export class AuthController {
   private readonly COOKIE_OPTIONS: CookieOptions;
 
   constructor(
-    private authService: AuthService,
+    private readonly authService: AuthService,
     @Inject(jwt.KEY)
-    private jwtConfig: ConfigType<typeof jwt>,
+    private readonly jwtConfig: ConfigType<typeof jwt>,
     @Inject(app.KEY)
-    private appConfig: ConfigType<typeof app>,
+    private readonly appConfig: ConfigType<typeof app>,
   ) {
     this.COOKIE_OPTIONS = {
       httpOnly: true,

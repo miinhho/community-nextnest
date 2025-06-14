@@ -9,6 +9,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
@@ -18,12 +19,14 @@ const SALT_ROUND = 12;
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     @Inject(jwt.KEY)
-    private jwtConfig: ConfigType<typeof jwt>,
-    private userService: UserService,
-    private tokenService: TokenService,
-    private refreshTokenService: RefreshTokenService,
+    private readonly jwtConfig: ConfigType<typeof jwt>,
+    private readonly userService: UserService,
+    private readonly tokenService: TokenService,
+    private readonly refreshTokenService: RefreshTokenService,
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -35,10 +38,14 @@ export class AuthService {
         id: user.id,
         role: user.role,
       } as UserData;
-    } catch (error) {
-      if (error instanceof UnauthorizedException) {
-        throw error;
+    } catch (err) {
+      if (err instanceof UnauthorizedException) {
+        throw err;
       }
+      this.logger.error('사용자 인증 실패', err.stack, {
+        email,
+        passwordLength: password.length,
+      });
       throw new InternalServerErrorException('사용자 인증에 실패했습니다');
     }
   }
@@ -114,6 +121,8 @@ export class AuthService {
       if (err instanceof UnauthorizedException) {
         throw err;
       }
+
+      this.logger.error('토큰 갱신 실패', err.stack, { refreshToken });
       throw new UnauthorizedException('유효하지 않은 토큰입니다');
     }
   }
