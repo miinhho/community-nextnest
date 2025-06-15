@@ -1,14 +1,15 @@
 import { ConsoleLogger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: new ConsoleLogger({
       prefix: 'Backend',
-      logLevels: ['error', 'warn'],
+      logLevels: ['error', 'warn', 'log', 'debug'],
+      timestamp: true,
       // production 이나 클라우드, 로그 서비스를 사용할 때 키지만
       // 현재는 development 환경이므로 꺼둔다.
       // json: true,

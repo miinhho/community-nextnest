@@ -3,7 +3,7 @@ import { LocalStrategy } from '@/auth/strategy/local.strategy';
 import { RefreshTokenService } from '@/auth/token/refresh-token.service';
 import { TokenService } from '@/auth/token/token.service';
 import { PrismaService } from '@/common/database/prisma.service';
-import { UserService } from '@/user/user.service';
+import { UserModule } from '@/user/user.module';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -21,13 +21,13 @@ import { AuthService } from './auth.service';
         signOptions: { expiresIn: config.get<number>('jwt.accessExpiration') },
       }),
     }),
+    UserModule,
   ],
   providers: [
     AuthService,
     LocalStrategy,
     JwtStrategy,
     PrismaService,
-    UserService,
     TokenService,
     RefreshTokenService,
   ],

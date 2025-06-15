@@ -1,6 +1,8 @@
-export interface PageMeta {
-  page: number;
-  size: number;
+import { PageQuery } from '@/common/decorator/page-query.decorator';
+
+export type PageParams = Partial<PageQuery>;
+
+export interface PageMeta extends PageQuery {
   totalPage: number;
   totalCount: number;
 }
@@ -18,9 +20,7 @@ export const toPageData = <T>({
 }: {
   data: T;
   totalCount: number;
-  page: number;
-  size: number;
-}): PageData<T> => {
+} & PageParams): PageData<T> => {
   return {
     data,
     meta: {

@@ -1,5 +1,5 @@
 import { PrismaService } from '@/common/database/prisma.service';
-import { toPageData } from '@/common/utils/page';
+import { PageParams, toPageData } from '@/common/utils/page';
 import { AlreadyFollowError } from '@/follow/error/already-follow.error';
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';
@@ -10,7 +10,7 @@ export class FollowRepository {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async followUser(userId: string, targetId: string) {
+  async followUser({ userId, targetId }: { userId: string; targetId: string }) {
     try {
       await this.prisma.follow.create({
         data: {
@@ -30,7 +30,7 @@ export class FollowRepository {
     }
   }
 
-  async unfollowUser(userId: string, targetId: string) {
+  async unfollowUser({ userId, targetId }: { userId: string; targetId: string }) {
     try {
       await this.prisma.follow.delete({
         where: {
@@ -53,7 +53,7 @@ export class FollowRepository {
     }
   }
 
-  async isFollowing(userId: string, targetId: string) {
+  async isFollowing({ userId, targetId }: { userId: string; targetId: string }) {
     try {
       const follow = await this.prisma.follow.findUnique({
         where: {
@@ -99,7 +99,7 @@ export class FollowRepository {
     }
   }
 
-  async getFollowers(userId: string, page: number = 1, size: number = 10) {
+  async getFollowers(userId: string, { page = 1, size = 10 }: PageParams) {
     try {
       const [followers, totalCount] = await this.prisma.$transaction([
         this.prisma.follow.findMany({
@@ -123,7 +123,7 @@ export class FollowRepository {
     }
   }
 
-  async getFollowing(userId: string, page: number = 1, size: number = 10) {
+  async getFollowing(userId: string, { page = 1, size = 10 }: PageParams) {
     try {
       const [following, totalCount] = await this.prisma.$transaction([
         this.prisma.follow.findMany({

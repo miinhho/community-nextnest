@@ -10,16 +10,20 @@ import { UserData } from '@/common/user';
 import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
 import { CommentService } from './comment.service';
 
-@Controller('api/comment')
+@Controller('api')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
-  @Post()
+  @Post('comment')
   async createComment(
     @Body() { postId, content }: CommentCreateDto,
     @User() user: UserData,
   ) {
-    const commentId = await this.commentService.createComment(postId, user.id, content);
+    const commentId = await this.commentService.createComment({
+      postId,
+      authorId: user.id,
+      content,
+    });
     return {
       success: true,
       data: { commentId, postId, authorId: user.id, content },
@@ -45,9 +49,9 @@ export class CommentController {
   }
 
   @CommentOwner()
-  @Put()
+  @Put('comment')
   async updateComment(@Body() { commentId, content }: CommentUpdateDto) {
-    await this.commentService.updateComment(commentId, content);
+    await this.commentService.updateComment({ commentId, content });
     return {
       success: true,
       message: '댓글이 성공적으로 수정되었습니다.',
@@ -55,7 +59,7 @@ export class CommentController {
   }
 
   @Public()
-  @Get(':id')
+  @Get('comment/:id')
   async getCommentById(@IdParam() id: string) {
     const comment = await this.commentService.findCommentById(id);
     return {
@@ -65,9 +69,41 @@ export class CommentController {
   }
 
   @Public()
-  @Get(':id/replies')
-  async getCommentReplies(@IdParam() id: string, @PageQuery() { page, size }: PageQuery) {
-    const replies = await this.commentService.findRepliesByCommentId(id, page, size);
+  @Get('post/:id/comments')
+  async getCommentsByPostId(@IdParam() id: string, @PageQuery() pageQuery: PageQuery) {
+    const { data: comments, meta } = await this.commentService.findCommentsByPostId(
+      id,
+      pageQuery,
+    );
+    return {
+      success: true,
+      data: {
+        comments,
+        meta,
+      },
+    };
+  }
+
+  @Public()
+  @Get('user/:id/comments')
+  async getCommentsByUserId(@IdParam() id: string, @PageQuery() pageQuery: PageQuery) {
+    const { data: comments, meta } = await this.commentService.findCommentsByUserId(
+      id,
+      pageQuery,
+    );
+    return {
+      success: true,
+      data: {
+        comments,
+        meta,
+      },
+    };
+  }
+
+  @Public()
+  @Get('comment/:id/replies')
+  async getCommentReplies(@IdParam() id: string, @PageQuery() pageQuery: PageQuery) {
+    const replies = await this.commentService.findRepliesByCommentId(id, pageQuery);
     return {
       success: true,
       data: replies,
@@ -75,21 +111,21 @@ export class CommentController {
   }
 
   @CommentOwner()
-  @Delete(':id')
-  async deleteComment(@IdParam() commentId: string) {
-    const deletedComment = await this.commentService.deleteCommentById(commentId);
+  @Delete('comment/:id')
+  async deleteComment(@IdParam() id: string) {
+    const deletedComment = await this.commentService.deleteCommentById(id);
     return {
       success: true,
       data: deletedComment,
     };
   }
 
-  @Post('like/:id')
+  @Post('comment/:id/like')
   async toggleCommentLike(@IdParam() commentId: string, @User() user: UserData) {
-    const likeStatus: LikeStatus = await this.commentService.addCommentLikes(
-      user.id,
+    const likeStatus: LikeStatus = await this.commentService.addCommentLikes({
       commentId,
-    );
+      userId: user.id,
+    });
 
     switch (likeStatus) {
       case LikeStatus.PLUS:

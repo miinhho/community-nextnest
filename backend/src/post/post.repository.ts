@@ -1,6 +1,6 @@
 import { PrismaService } from '@/common/database/prisma.service';
 import { postSelections, userSelections } from '@/common/database/select';
-import { toPageData } from '@/common/utils/page';
+import { PageParams, toPageData } from '@/common/utils/page';
 import { AlreadyLikeError } from '@/post/error/already-like.error';
 import {
   Injectable,
@@ -16,7 +16,7 @@ export class PostRepository {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async createPost(authorId: string, content: string) {
+  async createPost({ authorId, content }: { authorId: string; content: string }) {
     try {
       const post = await this.prisma.post.create({
         data: {
@@ -35,7 +35,7 @@ export class PostRepository {
     }
   }
 
-  async updatePost(id: string, content: string) {
+  async updatePost({ id, content }: { id: string; content: string }) {
     try {
       await this.prisma.post.update({
         where: { id },
@@ -101,7 +101,7 @@ export class PostRepository {
     }
   }
 
-  async findPostsByPage(page: number = 1, size: number = 10) {
+  async findPostsByPage({ page = 1, size = 10 }: PageParams) {
     try {
       const [posts, totalCount] = await this.prisma.$transaction([
         this.prisma.post.findMany({
@@ -145,7 +145,7 @@ export class PostRepository {
     }
   }
 
-  async findPostsByUserId(userId: string, page: number = 1, size: number = 10) {
+  async findPostsByUserId(userId: string, { page = 1, size = 10 }: PageParams) {
     try {
       const [posts, totalCount] = await this.prisma.$transaction([
         this.prisma.post.findMany({
@@ -203,7 +203,7 @@ export class PostRepository {
     }
   }
 
-  async addPostLikes(userId: string, postId: string) {
+  async addPostLikes({ userId, postId }: { userId: string; postId: string }) {
     try {
       await this.prisma.$transaction([
         this.prisma.postLikes.create({
@@ -233,7 +233,7 @@ export class PostRepository {
     }
   }
 
-  async minusPostLikes(userId: string, postId: string) {
+  async minusPostLikes({ userId, postId }: { userId: string; postId: string }) {
     try {
       await this.prisma.$transaction([
         this.prisma.postLikes.delete({

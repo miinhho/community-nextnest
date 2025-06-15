@@ -1,6 +1,6 @@
 import { PrismaService } from '@/common/database/prisma.service';
 import { userSelections } from '@/common/database/select';
-import { toPageData } from '@/common/utils/page';
+import { PageParams, toPageData } from '@/common/utils/page';
 import {
   Injectable,
   InternalServerErrorException,
@@ -128,7 +128,7 @@ export class UserRepository {
     }
   }
 
-  async findUsersByName(name: string, page: number = 1, size: number = 10) {
+  async findUsersByName(name: string, { page = 1, size = 10 }: PageParams) {
     try {
       const [user, totalCount] = await this.prisma.$transaction([
         this.prisma.user.findMany({
@@ -204,16 +204,6 @@ export class UserRepository {
 
       this.logger.error('사용자 삭제 중 오류 발생', err.stack, { email });
       throw new InternalServerErrorException('사용자 삭제에 실패했습니다.');
-    }
-  }
-
-  async validateUserExists(id: string) {
-    const userExists = await this.prisma.user.findUnique({
-      where: { id },
-      select: { id: true },
-    });
-    if (!userExists) {
-      throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
     }
   }
 }

@@ -1,3 +1,4 @@
+import { PageParams } from '@/common/utils/page';
 import { UserRepository } from '@/user/user.repository';
 import { Injectable } from '@nestjs/common';
 
@@ -29,8 +30,8 @@ export class UserService {
     return this.userRepository.findUserByEmail(email, password);
   }
 
-  async findUsersByName(name: string, page: number = 1, size: number = 10) {
-    return this.userRepository.findUsersByName(name, page, size);
+  async findUsersByName(name: string, pageParams: PageParams) {
+    return this.userRepository.findUsersByName(name, pageParams);
   }
 
   async deleteUserById(id: string) {
@@ -39,9 +40,5 @@ export class UserService {
 
   async deleteUserByEmail(email: string) {
     return this.userRepository.deleteUserByEmail(email);
-  }
-
-  async validateUserExists(id: string) {
-    return this.userRepository.validateUserExists(id);
   }
 }
