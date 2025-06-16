@@ -1,4 +1,5 @@
 import { PrismaService } from '@/common/database/prisma.service';
+import { userSelections } from '@/common/database/select';
 import { PageParams, toPageData } from '@/common/utils/page';
 import { AlreadyFollowError } from '@/follow/error/already-follow.error';
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
@@ -104,7 +105,11 @@ export class FollowRepository {
       const [followers, totalCount] = await this.prisma.$transaction([
         this.prisma.follow.findMany({
           where: { followingId: userId },
-          include: { follower: true },
+          select: {
+            follower: {
+              select: userSelections,
+            },
+          },
           skip: (page - 1) * size,
           take: size,
         }),
@@ -128,7 +133,11 @@ export class FollowRepository {
       const [following, totalCount] = await this.prisma.$transaction([
         this.prisma.follow.findMany({
           where: { followerId: userId },
-          include: { following: true },
+          select: {
+            following: {
+              select: userSelections,
+            },
+          },
           skip: (page - 1) * size,
           take: size,
         }),

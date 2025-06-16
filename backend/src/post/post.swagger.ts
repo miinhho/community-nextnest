@@ -1,4 +1,4 @@
-import { paginationMetaSchema } from '@/common/swagger/page.swagger';
+import { PageSwaggerQuery, pageMetaSchema } from '@/common/swagger/page.swagger';
 import { postCommonSchema, userCommonSchema } from '@/common/swagger/select.swagger';
 import { CONTENT_LEN } from '@/common/utils/content';
 import { SwaggerAuthName } from '@/config/swagger.config';
@@ -193,6 +193,7 @@ export const ApiGetUserPosts = () =>
       type: String,
       required: true,
     }),
+    PageSwaggerQuery(),
     ApiOkResponse({
       description: '사용자의 게시글 목록 조회 성공',
       schema: {
@@ -214,7 +215,7 @@ export const ApiGetUserPosts = () =>
                   },
                 },
               },
-              meta: paginationMetaSchema,
+              meta: pageMetaSchema,
             },
           },
         },
@@ -227,6 +228,7 @@ export const ApiGetUserPosts = () =>
 export const ApiFindPosts = () =>
   applyDecorators(
     ApiTags('post'),
+    PageSwaggerQuery(),
     ApiOkResponse({
       description: '게시글 목록 조회 성공',
       schema: {
@@ -248,7 +250,7 @@ export const ApiFindPosts = () =>
                   },
                 },
               },
-              meta: paginationMetaSchema,
+              meta: pageMetaSchema,
             },
           },
         },

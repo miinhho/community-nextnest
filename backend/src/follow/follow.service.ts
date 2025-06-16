@@ -39,11 +39,8 @@ export class FollowService {
     }
   }
 
-  async unfollowUser({ userId, targetId }: { userId: string; targetId: string }) {
-    await this.followRepository.unfollowUser({
-      userId,
-      targetId,
-    });
+  async unfollowUser(props: { userId: string; targetId: string }) {
+    await this.followRepository.unfollowUser(props);
     return FollowStatus.UNFOLLOW;
   }
 

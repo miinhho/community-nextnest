@@ -1,7 +1,7 @@
 import { CreateCommentDto, UpdateCommentDto } from '@/comment/dto/comment.dto';
 import { ReplyContentDto } from '@/comment/dto/reply.dto';
 import { LikeStatus } from '@/common/status/like-status';
-import { paginationMetaSchema } from '@/common/swagger/page.swagger';
+import { PageSwaggerQuery, pageMetaSchema } from '@/common/swagger/page.swagger';
 import {
   commentCommonSchema,
   postCommonSchema,
@@ -18,7 +18,6 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiParam,
-  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 
@@ -281,20 +280,7 @@ export const ApiGetCommentsByPostId = () =>
       type: 'string',
       format: 'uuid',
     }),
-    ApiQuery({
-      name: 'page',
-      required: false,
-      description: '페이지 번호 (기본값: 1)',
-      type: 'integer',
-      example: 1,
-    }),
-    ApiQuery({
-      name: 'limit',
-      required: false,
-      description: '페이지당 댓글 수 (기본값: 10)',
-      type: 'integer',
-      example: 10,
-    }),
+    PageSwaggerQuery(),
     ApiOkResponse({
       description: '댓글 조회 성공',
       schema: {
@@ -326,7 +312,7 @@ export const ApiGetCommentsByPostId = () =>
                   },
                 },
               },
-              meta: paginationMetaSchema,
+              meta: pageMetaSchema,
             },
           },
         },
@@ -345,20 +331,7 @@ export const ApiGetCommentsByUserId = () =>
       type: 'string',
       format: 'uuid',
     }),
-    ApiQuery({
-      name: 'page',
-      required: false,
-      description: '페이지 번호 (기본값: 1)',
-      type: 'integer',
-      example: 1,
-    }),
-    ApiQuery({
-      name: 'limit',
-      required: false,
-      description: '페이지당 댓글 수 (기본값: 10)',
-      type: 'integer',
-      example: 10,
-    }),
+    PageSwaggerQuery(),
     ApiOkResponse({
       description: '사용자의 댓글 조회 성공',
       schema: {
@@ -383,7 +356,7 @@ export const ApiGetCommentsByUserId = () =>
                   },
                 },
               },
-              meta: paginationMetaSchema,
+              meta: pageMetaSchema,
             },
           },
         },
