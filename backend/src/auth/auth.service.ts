@@ -40,7 +40,7 @@ export class AuthService {
         role: user.role,
       } as UserData;
     } catch (err) {
-      if (err instanceof NotFoundException || err instanceof BadRequestException) {
+      if (err instanceof NotFoundException || err instanceof UnauthorizedException) {
         throw err;
       }
       this.logger.error('사용자 인증 실패', err.stack, {
@@ -143,7 +143,7 @@ export class AuthService {
   private async comparePassword(plain: string, hashed: string) {
     const isValid = await compare(plain, hashed);
     if (!isValid) {
-      throw new BadRequestException('비밀번호가 일치하지 않습니다');
+      throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
     }
   }
 }

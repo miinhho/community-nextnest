@@ -1,5 +1,9 @@
 import { PrismaService } from '@/common/database/prisma.service';
-import { commentSelections, userSelections } from '@/common/database/select';
+import {
+  commentSelections,
+  postSelections,
+  userSelections,
+} from '@/common/database/select';
 import { PageParams, toPageData } from '@/common/utils/page';
 import { ValidateService } from '@/common/validate/validate.service';
 import {
@@ -184,8 +188,7 @@ export class CommentRepository {
             postId: true,
             post: {
               select: {
-                id: true,
-                content: true,
+                ...postSelections,
               },
             },
             createdAt: true,

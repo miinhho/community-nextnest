@@ -8,43 +8,21 @@ import { PrismaError } from 'prisma-error-enum';
 export class CommentService {
   constructor(private readonly commentRepository: CommentRepository) {}
 
-  async createComment({
-    postId,
-    authorId,
-    content,
-  }: {
-    postId: string;
-    authorId: string;
-    content: string;
-  }) {
-    return this.commentRepository.createComment({
-      postId,
-      authorId,
-      content,
-    });
+  async createComment(props: { postId: string; authorId: string; content: string }) {
+    return this.commentRepository.createComment(props);
   }
 
-  async createCommentReply({
-    authorId,
-    postId,
-    commentId,
-    content,
-  }: {
+  async createCommentReply(props: {
     authorId: string;
     postId: string;
     commentId: string;
     content: string;
   }) {
-    return this.commentRepository.createCommentReply({
-      authorId,
-      postId,
-      commentId,
-      content,
-    });
+    return this.commentRepository.createCommentReply(props);
   }
 
-  async updateComment({ commentId, content }: { commentId: string; content: string }) {
-    await this.commentRepository.updateComment({ commentId, content });
+  async updateComment(props: { commentId: string; content: string }) {
+    await this.commentRepository.updateComment(props);
   }
 
   async findCommentById(id: string) {
@@ -97,11 +75,8 @@ export class CommentService {
     }
   }
 
-  async minusCommentLikes({ userId, commentId }: { userId: string; commentId: string }) {
-    await this.commentRepository.minusCommentLike({
-      userId,
-      commentId,
-    });
+  async minusCommentLikes(props: { userId: string; commentId: string }) {
+    await this.commentRepository.minusCommentLike(props);
     return LikeStatus.MINUS;
   }
 }

@@ -28,7 +28,10 @@ async function bootstrap() {
     .setVersion(config.get('swagger.version')!)
     .addBearerAuth()
     .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, swaggerDocument);
+  const documentFactory = () =>
+    SwaggerModule.createDocument(app, swaggerDocument, {
+      autoTagControllers: false,
+    });
   SwaggerModule.setup('api', app, documentFactory());
 
   await app.listen(config.get('app.port')!);

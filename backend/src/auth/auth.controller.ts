@@ -56,7 +56,8 @@ export class AuthController {
     return {
       success: true,
       data: {
-        user,
+        id: user.id,
+        role: user.role,
         accessToken,
       },
     };
@@ -73,7 +74,11 @@ export class AuthController {
     const { refreshToken: _, ...responseData } = result;
     return {
       success: true,
-      data: responseData,
+      data: {
+        id: responseData.user.id,
+        role: responseData.user.role,
+        accessToken: responseData.accessToken,
+      },
     };
   }
 

@@ -18,9 +18,9 @@ export const ApiRegister = () =>
       type: RegisterUserDto,
       schema: {
         properties: {
-          name: { type: 'string', description: '사용자 이름' },
-          email: { type: 'string', format: 'email', description: '이메일 주소' },
-          password: { type: 'string', description: '비밀번호' },
+          name: { type: 'string' },
+          email: { type: 'string', format: 'email' },
+          password: { type: 'string' },
         },
         required: ['email', 'password', 'name'],
       },
@@ -34,13 +34,8 @@ export const ApiRegister = () =>
           data: {
             type: 'object',
             properties: {
-              user: {
-                type: 'object',
-                properties: {
-                  id: { type: 'string' },
-                  role: { type: 'enum', enum: [Role.USER, Role.ADMIN] },
-                },
-              },
+              id: { type: 'string' },
+              role: { type: 'enum', enum: [Role.USER, Role.ADMIN] },
               accessToken: { type: 'string' },
             },
           },
@@ -58,8 +53,8 @@ export const ApiLogin = () =>
       type: LoginUserDto,
       schema: {
         properties: {
-          email: { type: 'string', format: 'email', description: '이메일 주소' },
-          password: { type: 'string', description: '비밀번호' },
+          email: { type: 'string', format: 'email' },
+          password: { type: 'string' },
         },
         required: ['email', 'password'],
       },
@@ -73,13 +68,8 @@ export const ApiLogin = () =>
           data: {
             type: 'object',
             properties: {
-              user: {
-                type: 'object',
-                properties: {
-                  id: { type: 'string' },
-                  role: { type: 'enum', enum: [Role.USER, Role.ADMIN] },
-                },
-              },
+              id: { type: 'string' },
+              role: { type: 'enum', enum: [Role.USER, Role.ADMIN] },
               accessToken: { type: 'string' },
             },
           },
@@ -87,7 +77,8 @@ export const ApiLogin = () =>
       },
     }),
     ApiNotFoundResponse({ description: '잘못된 이메일입니다' }),
-    ApiBadRequestResponse({ description: '잘못된 비밀번호입니다' }),
+    ApiUnauthorizedResponse({ description: '잘못된 비밀번호입니다' }),
+    ApiBadRequestResponse({ description: '잘못된 형식의 이메일이나 비밀번호입니다' }),
     ApiInternalServerErrorResponse({ description: '서버 오류' }),
   );
 

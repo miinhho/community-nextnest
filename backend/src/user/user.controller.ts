@@ -1,11 +1,11 @@
 import { IdParam } from '@/common/decorator/id.decorator';
 import { Public } from '@/common/decorator/public.decorator';
+import { UpdateUserDto } from '@/user/dto/user.dto';
 import { UserOwner } from '@/user/guard/user-owner.guard';
 import { ApiDeleteUser, ApiGetUserById, ApiUpdateUser } from '@/user/user.swagger';
 import { Body, Controller, Delete, Get, Patch } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { UpdateUserDto } from '@/user/dto/user.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -19,7 +19,9 @@ export class UserController {
     const user = await this.userService.findUserById(id);
     return {
       success: true,
-      data: user,
+      data: {
+        ...user,
+      },
     };
   }
 
@@ -40,7 +42,9 @@ export class UserController {
     const deletedUser = await this.userService.deleteUserById(id);
     return {
       success: true,
-      data: deletedUser,
+      data: {
+        ...deletedUser,
+      },
     };
   }
 }

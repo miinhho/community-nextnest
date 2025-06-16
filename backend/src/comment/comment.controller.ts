@@ -1,4 +1,14 @@
-import { CommentCreateDto, CommentUpdateDto } from '@/comment/dto/comment.dto';
+import {
+  ApiCreateComment,
+  ApiCreateCommentReply,
+  ApiDeleteComment,
+  ApiGetCommentById,
+  ApiGetCommentsByPostId,
+  ApiGetCommentsByUserId,
+  ApiToggleCommentLike,
+  ApiUpdateComment,
+} from '@/comment/comment.swagger';
+import { CreateCommentDto, UpdateCommentDto } from '@/comment/dto/comment.dto';
 import { ReplyContentDto } from '@/comment/dto/reply.dto';
 import { CommentOwner } from '@/comment/guard/comment-owner.guard';
 import { IdParam } from '@/common/decorator/id.decorator';
@@ -15,8 +25,9 @@ export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   @Post('comment')
+  @ApiCreateComment()
   async createComment(
-    @Body() { postId, content }: CommentCreateDto,
+    @Body() { postId, content }: CreateCommentDto,
     @User() user: UserData,
   ) {
     const commentId = await this.commentService.createComment({
@@ -31,6 +42,7 @@ export class CommentController {
   }
 
   @Post('reply')
+  @ApiCreateCommentReply()
   async createCommentReply(
     @Body() { postId, content, commentId }: ReplyContentDto,
     @User() user: UserData,
@@ -50,16 +62,19 @@ export class CommentController {
 
   @CommentOwner()
   @Put('comment')
-  async updateComment(@Body() { commentId, content }: CommentUpdateDto) {
+  @ApiUpdateComment()
+  async updateComment(@Body() { commentId, content }: UpdateCommentDto) {
     await this.commentService.updateComment({ commentId, content });
     return {
       success: true,
+      data: { commentId },
       message: '댓글이 성공적으로 수정되었습니다.',
     };
   }
 
   @Public()
   @Get('comment/:id')
+  @ApiGetCommentById()
   async getCommentById(@IdParam() id: string) {
     const comment = await this.commentService.findCommentById(id);
     return {
@@ -70,6 +85,7 @@ export class CommentController {
 
   @Public()
   @Get('post/:id/comments')
+  @ApiGetCommentsByPostId()
   async getCommentsByPostId(@IdParam() id: string, @PageQuery() pageQuery: PageQuery) {
     const { data: comments, meta } = await this.commentService.findCommentsByPostId(
       id,
@@ -78,6 +94,7 @@ export class CommentController {
     return {
       success: true,
       data: {
+        postId: id,
         comments,
         meta,
       },
@@ -86,6 +103,7 @@ export class CommentController {
 
   @Public()
   @Get('user/:id/comments')
+  @ApiGetCommentsByUserId()
   async getCommentsByUserId(@IdParam() id: string, @PageQuery() pageQuery: PageQuery) {
     const { data: comments, meta } = await this.commentService.findCommentsByUserId(
       id,
@@ -112,6 +130,7 @@ export class CommentController {
 
   @CommentOwner()
   @Delete('comment/:id')
+  @ApiDeleteComment()
   async deleteComment(@IdParam() id: string) {
     const deletedComment = await this.commentService.deleteCommentById(id);
     return {
@@ -121,6 +140,7 @@ export class CommentController {
   }
 
   @Post('comment/:id/like')
+  @ApiToggleCommentLike()
   async toggleCommentLike(@IdParam() commentId: string, @User() user: UserData) {
     const likeStatus: LikeStatus = await this.commentService.addCommentLikes({
       commentId,

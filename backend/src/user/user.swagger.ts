@@ -27,7 +27,7 @@ export const ApiGetUserById = () =>
             type: 'object',
             properties: {
               id: { type: 'string' },
-              username: { type: 'string' },
+              name: { type: 'string' },
               email: { type: 'string' },
               createdAt: { type: 'string', format: 'date-time' },
               updatedAt: { type: 'string', format: 'date-time' },
@@ -54,7 +54,7 @@ export const ApiUpdateUser = () =>
       schema: {
         type: 'object',
         properties: {
-          name: { type: 'string', description: '사용자 이름', nullable: true },
+          name: { type: 'string', nullable: true },
           image: { type: 'string', description: '사용자 이미지 URL', nullable: true },
         },
       },
@@ -94,7 +94,7 @@ export const ApiDeleteUser = () =>
               id: { type: 'string' },
               name: { type: 'string' },
               email: { type: 'string' },
-              image: { type: 'string', nullable: true },
+              image: { type: 'string', description: '사용자 이미지 URL', nullable: true },
             },
           },
         },
