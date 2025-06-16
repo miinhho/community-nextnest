@@ -30,6 +30,10 @@ export class UserService {
     return this.userRepository.findUserByEmail(email, password);
   }
 
+  async findUserExistsByEmail(email: string) {
+    return this.userRepository.findUserExistsByEmail(email);
+  }
+
   async findUsersByName(name: string, pageParams: PageParams) {
     return this.userRepository.findUsersByName(name, pageParams);
   }

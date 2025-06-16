@@ -32,7 +32,7 @@ export class CommentOwnerGuard implements CanActivate {
     }
 
     const comment = await this.commentRepository.findCommentById(commentId);
-    if (comment.authorId !== user.id) {
+    if (comment.author.id !== user.id) {
       throw new ForbiddenException('댓글 수정 권한이 없습니다.');
     }
 

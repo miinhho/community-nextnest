@@ -1,8 +1,7 @@
-import { SwaggerDocument } from '@/config/swagger.config';
 import { ConsoleLogger, ConsoleLoggerOptions } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule } from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
@@ -23,8 +22,13 @@ async function bootstrap() {
 
   app.use(helmet());
 
-  const swaggerOptions = config.get<SwaggerDocument>('swagger.document')!;
-  const documentFactory = () => SwaggerModule.createDocument(app, swaggerOptions);
+  const swaggerDocument = new DocumentBuilder()
+    .setTitle(config.get('swagger.title')!)
+    .setDescription(config.get('swagger.description')!)
+    .setVersion(config.get('swagger.version')!)
+    .addBearerAuth()
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, swaggerDocument);
   SwaggerModule.setup('api', app, documentFactory());
 
   await app.listen(config.get('app.port')!);

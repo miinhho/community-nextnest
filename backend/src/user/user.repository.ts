@@ -68,6 +68,7 @@ export class UserRepository {
             where: { id },
             select: {
               ...userSelections,
+              role: true,
               emailVerified: true,
               createdAt: true,
               updatedAt: true,
@@ -108,6 +109,7 @@ export class UserRepository {
         where: { email },
         select: {
           ...userSelections,
+          role: true,
           emailVerified: true,
           createdAt: true,
           updatedAt: true,
@@ -125,6 +127,21 @@ export class UserRepository {
 
       this.logger.error('사용자 조회 중 오류 발생', err.stack, { email });
       throw new InternalServerErrorException('사용자 조회에 실패했습니다.');
+    }
+  }
+
+  async findUserExistsByEmail(email: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { email },
+        select: {
+          id: true,
+        },
+      });
+      return !!user;
+    } catch (err) {
+      this.logger.error('사용자 존재 여부 조회 중 오류 발생', err.stack, { email });
+      throw new InternalServerErrorException('사용자 존재 여부 조회에 실패했습니다.');
     }
   }
 

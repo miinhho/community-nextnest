@@ -1,20 +1,16 @@
-import { Comment, Post, User } from '@prisma/client';
-
-type SelectionUtil<Model> = Partial<Record<keyof Model, boolean>>;
-
-export const commentSelections: SelectionUtil<Comment> = {
+export const commentSelections = {
   id: true,
   content: true,
   likesCount: true,
 };
 
-export const postSelections: SelectionUtil<Post> = {
+export const postSelections = {
   id: true,
   content: true,
   likeCount: true,
 };
 
-export const userSelections: SelectionUtil<User> = {
+export const userSelections = {
   id: true,
   name: true,
   image: true,

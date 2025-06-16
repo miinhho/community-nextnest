@@ -1,5 +1,6 @@
 import { AuthService } from '@/auth/auth.service';
-import { UserRegisterDto } from '@/auth/dto/register.dto';
+import { ApiLogin, ApiLogout, ApiRefresh, ApiRegister } from '@/auth/auth.swagger';
+import { RegisterUserDto } from '@/auth/dto/register.dto';
 import { LocalAuthGuard } from '@/auth/guard/local.guard';
 import { Public } from '@/common/decorator/public.decorator';
 import { User } from '@/common/decorator/user.decorator';
@@ -10,15 +11,17 @@ import {
   Body,
   Controller,
   Inject,
+  NotFoundException,
   Post,
   Req,
   Res,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
+import { ApiTags } from '@nestjs/swagger';
 import { CookieOptions, Request, Response } from 'express';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   private readonly COOKIE_OPTIONS: CookieOptions;
@@ -41,31 +44,41 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  register(@Body() userRegisterDto: UserRegisterDto) {
-    return this.authService.register(userRegisterDto);
+  @ApiRegister()
+  async register(
+    @Body() registerUserDto: RegisterUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { user, accessToken, refreshToken } =
+      await this.authService.register(registerUserDto);
+
+    this.setRefreshTokenCookie(res, refreshToken);
+    return {
+      success: true,
+      data: {
+        user,
+        accessToken,
+      },
+    };
   }
 
   @Public()
   @UseGuards(LocalAuthGuard)
+  @ApiLogin()
   @Post('login')
   async login(@User() user: UserData, @Res({ passthrough: true }) res: Response) {
     const result = await this.authService.login(user);
     this.setRefreshTokenCookie(res, result.refreshToken);
 
     const { refreshToken: _, ...responseData } = result;
-    return responseData;
-  }
-
-  @Post('refresh')
-  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const refreshToken = this.extractRefreshToken(req);
-    const tokens = await this.authService.refreshTokens(refreshToken);
-
-    this.setRefreshTokenCookie(res, tokens.refreshToken);
-    return { accessToken: tokens.accessToken };
+    return {
+      success: true,
+      data: responseData,
+    };
   }
 
   @Post('logout')
+  @ApiLogout()
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const refreshToken = req.cookies.refreshToken;
     if (refreshToken) {
@@ -76,10 +89,25 @@ export class AuthController {
     return { success: true };
   }
 
+  @Post('refresh')
+  @ApiRefresh()
+  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const refreshToken = this.extractRefreshToken(req);
+    const tokens = await this.authService.refreshTokens(refreshToken);
+
+    this.setRefreshTokenCookie(res, tokens.refreshToken);
+    return {
+      success: true,
+      data: {
+        accessToken: tokens.accessToken,
+      },
+    };
+  }
+
   private extractRefreshToken(req: Request) {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
-      throw new UnauthorizedException('토큰이 존재하지 않습니다');
+      throw new NotFoundException('토큰이 존재하지 않습니다');
     }
     return refreshToken;
   }

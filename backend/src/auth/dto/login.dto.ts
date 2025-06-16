@@ -1,7 +1,8 @@
 import { alphabetNumbericRegex, specialCharRegex } from '@/common/utils/regex';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
-export class UserLoginDto {
+export class LoginUserDto {
   @IsString()
   @IsEmail(
     {},
@@ -9,6 +10,10 @@ export class UserLoginDto {
       message: '유효한 이메일 주소가 아닙니다.',
     },
   )
+  @ApiProperty({
+    type: String,
+    description: '사용자 이메일',
+  })
   email: string;
 
   @IsString()
@@ -23,6 +28,13 @@ export class UserLoginDto {
   })
   @Matches(specialCharRegex, {
     message: '특수문자가 포함되어야 합니다',
+  })
+  @ApiProperty({
+    type: String,
+    description: '사용자 비밀번호',
+    minLength: 8,
+    maxLength: 25,
+    pattern: alphabetNumbericRegex.source + '|' + specialCharRegex.source,
   })
   password: string;
 }

@@ -87,12 +87,11 @@ export class RefreshTokenService {
       const refreshToken = await this.prismaService.refreshToken.findUnique({
         where: { token },
       });
-      return refreshToken!;
-    } catch (err) {
-      if (err.code === PrismaError.RecordsNotFound) {
+      if (!refreshToken) {
         throw new NotFoundException('해당 토큰이 존재하지 않습니다');
       }
-
+      return refreshToken;
+    } catch (err) {
       this.logger.error('토큰을 찾는 중 오류 발생', err.stack, {
         tokenPrefix: token.substring(0, 8) + '...',
       });

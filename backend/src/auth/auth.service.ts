@@ -1,4 +1,4 @@
-import { UserRegisterDto } from '@/auth/dto/register.dto';
+import { RegisterUserDto } from '@/auth/dto/register.dto';
 import { RefreshTokenService } from '@/auth/token/refresh-token.service';
 import { TokenService } from '@/auth/token/token.service';
 import { UserData } from '@/common/user';
@@ -10,6 +10,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
@@ -39,7 +40,7 @@ export class AuthService {
         role: user.role,
       } as UserData;
     } catch (err) {
-      if (err instanceof UnauthorizedException) {
+      if (err instanceof NotFoundException || err instanceof BadRequestException) {
         throw err;
       }
       this.logger.error('사용자 인증 실패', err.stack, {
@@ -70,9 +71,9 @@ export class AuthService {
     };
   }
 
-  async register(userDto: UserRegisterDto) {
-    const existingUser = await this.userService.findUserByEmail(userDto.email);
-    if (existingUser) {
+  async register(userDto: RegisterUserDto) {
+    const userExists = await this.userService.findUserExistsByEmail(userDto.email);
+    if (userExists) {
       throw new BadRequestException('이미 사용 중인 이메일입니다');
     }
 
@@ -123,19 +124,14 @@ export class AuthService {
       }
 
       this.logger.error('토큰 갱신 실패', err.stack, { refreshToken });
-      throw new UnauthorizedException('유효하지 않은 토큰입니다');
+      throw new UnauthorizedException('토큰 갱신에 실패했습니다');
     }
   }
 
   async logout(refreshToken: string) {
-    try {
-      const token = await this.refreshTokenService.findRefreshTokenByToken(refreshToken);
-      if (token) {
-        await this.refreshTokenService.revokeRefreshToken(token.id);
-      }
-      return true;
-    } catch {
-      return false;
+    const token = await this.refreshTokenService.findRefreshTokenByToken(refreshToken);
+    if (token) {
+      await this.refreshTokenService.revokeRefreshToken(token.id);
     }
   }
 
@@ -147,7 +143,7 @@ export class AuthService {
   private async comparePassword(plain: string, hashed: string) {
     const isValid = await compare(plain, hashed);
     if (!isValid) {
-      throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
+      throw new BadRequestException('비밀번호가 일치하지 않습니다');
     }
   }
 }
