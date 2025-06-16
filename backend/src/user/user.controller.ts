@@ -5,7 +5,7 @@ import { UserOwner } from '@/user/guard/user-owner.guard';
 import { Body, Controller, Delete, Get, Patch } from '@nestjs/common';
 import { UserService } from './user.service';
 
-@Controller('api/user')
+@Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

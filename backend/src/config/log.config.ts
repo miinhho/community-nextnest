@@ -1,4 +1,4 @@
-import { ConsoleLogger, ConsoleLoggerOptions } from '@nestjs/common';
+import { ConsoleLoggerOptions } from '@nestjs/common';
 import { registerAs } from '@nestjs/config';
 
 const development: ConsoleLoggerOptions = {
@@ -15,7 +15,5 @@ const production: ConsoleLoggerOptions = {
 };
 
 export default registerAs('log', () => ({
-  logger: new ConsoleLogger(
-    process.env.NODE_ENV === 'production' ? production : development,
-  ),
+  options: process.env.NODE_ENV === 'production' ? production : development,
 }));

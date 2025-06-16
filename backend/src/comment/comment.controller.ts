@@ -10,7 +10,7 @@ import { UserData } from '@/common/user';
 import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
 import { CommentService } from './comment.service';
 
-@Controller('api')
+@Controller()
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 

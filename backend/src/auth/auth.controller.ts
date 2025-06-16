@@ -19,7 +19,7 @@ import {
 import { ConfigType } from '@nestjs/config';
 import { CookieOptions, Request, Response } from 'express';
 
-@Controller('api/auth')
+@Controller('auth')
 export class AuthController {
   private readonly COOKIE_OPTIONS: CookieOptions;
 

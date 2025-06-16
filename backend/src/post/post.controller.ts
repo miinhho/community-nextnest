@@ -9,7 +9,7 @@ import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
 import { PostContentDto } from './dto/post.dto';
 import { PostService } from './post.service';
 
-@Controller('api')
+@Controller()
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
