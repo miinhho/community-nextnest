@@ -10,6 +10,7 @@ Backend:
   - [x] Swagger Docs
   - [ ] WebSocket 을 사용한 채팅 시스템
   - [ ] RabbitMQ 를 사용한 실시간 알림 시스템
+  - [ ] AWS S3 나 Cloudflare CDN 을 활용한 이미지 파일 저장
 
 
 Frontend:

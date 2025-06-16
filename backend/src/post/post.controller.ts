@@ -42,7 +42,9 @@ export class PostController {
     const post = await this.postService.findPostById(id);
     return {
       success: true,
-      data: post,
+      data: {
+        ...post,
+      },
     };
   }
 
@@ -103,7 +105,9 @@ export class PostController {
     const deletedPost = await this.postService.deletePostById(id);
     return {
       success: true,
-      data: deletedPost,
+      data: {
+        ...deletedPost,
+      },
     };
   }
 

@@ -6,16 +6,8 @@ import { Injectable } from '@nestjs/common';
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async createUser({
-    email,
-    password,
-    name,
-  }: {
-    email: string;
-    password: string;
-    name: string;
-  }) {
-    return this.userRepository.createUser({ email, password, name });
+  async createUser(props: { email: string; password: string; name: string }) {
+    return this.userRepository.createUser(props);
   }
 
   async updateUserById(id: string, dataToUpdate: { name?: string; image?: string }) {

@@ -4,6 +4,7 @@ import {
   postSelections,
   userSelections,
 } from '@/common/database/select';
+import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { PageParams, toPageData } from '@/common/utils/page';
 import { ValidateService } from '@/common/validate/validate.service';
 import {
@@ -367,12 +368,12 @@ export class CommentRepository {
         }),
       ]);
     } catch (err) {
-      if (err.code === PrismaError.RecordsNotFound) {
-        throw new NotFoundException('댓글을 찾을 수 없습니다.');
+      if (err.code === PrismaError.UniqueConstraintViolation) {
+        throw new AlreadyLikeError(commentId, userId);
       }
 
-      if (err.code === PrismaError.UniqueConstraintViolation) {
-        throw err; // 이미 좋아요가 추가된 경우, 예외를 던져 호출자에게 처리하도록 함.
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('댓글을 찾을 수 없습니다.');
       }
 
       this.logger.error('댓글 좋아요 추가 중 오류 발생', err.stack, {

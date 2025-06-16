@@ -1,8 +1,8 @@
 import { CommentRepository } from '@/comment/comment.repository';
+import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { LikeStatus } from '@/common/status/like-status';
 import { PageParams } from '@/common/utils/page';
 import { Injectable } from '@nestjs/common';
-import { PrismaError } from 'prisma-error-enum';
 
 @Injectable()
 export class CommentService {
@@ -65,7 +65,8 @@ export class CommentService {
       });
       return LikeStatus.PLUS;
     } catch (err) {
-      if (toggle && err.code === PrismaError.UniqueConstraintViolation) {
+      // 이미 좋아요를 누른 경우 toggle 이 true 이면 좋아요를 취소
+      if (toggle && err instanceof AlreadyLikeError) {
         return this.minusCommentLikes({
           userId,
           commentId,
