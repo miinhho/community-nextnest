@@ -271,6 +271,44 @@ export const ApiGetCommentById = () =>
     }),
   );
 
+export const ApiGetCommentReplies = () =>
+  applyDecorators(
+    ApiTags('comment'),
+    ApiParam({
+      name: 'id',
+      description: '조회할 댓글의 ID',
+      type: 'string',
+      format: 'uuid',
+    }),
+    PageSwaggerQuery(),
+    ApiOkResponse({
+      description: '댓글 답글 조회 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean' },
+          data: {
+            type: 'object',
+            properties: {
+              replies: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    ...commentCommonSchema.properties,
+                    author: userCommonSchema,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }),
+    ApiNotFoundResponse({ description: '존재하지 않는 댓글입니다.' }),
+    ApiInternalServerErrorResponse({ description: '서버 오류' }),
+  );
+
 export const ApiGetCommentsByPostId = () =>
   applyDecorators(
     ApiTags('post'),

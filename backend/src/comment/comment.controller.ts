@@ -3,6 +3,7 @@ import {
   ApiCreateCommentReply,
   ApiDeleteComment,
   ApiGetCommentById,
+  ApiGetCommentReplies,
   ApiGetCommentsByPostId,
   ApiGetCommentsByUserId,
   ApiToggleCommentLike,
@@ -120,6 +121,7 @@ export class CommentController {
 
   @Public()
   @Get('comment/:id/replies')
+  @ApiGetCommentReplies()
   async getCommentReplies(@IdParam() id: string, @PageQuery() pageQuery: PageQuery) {
     const replies = await this.commentService.findRepliesByCommentId(id, pageQuery);
     return {
