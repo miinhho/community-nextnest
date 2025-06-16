@@ -1,16 +1,18 @@
 import { CreateCommentDto, UpdateCommentDto } from '@/comment/dto/comment.dto';
 import { ReplyContentDto } from '@/comment/dto/reply.dto';
 import { LikeStatus } from '@/common/status/like-status';
-import { PaginationMetaSchema } from '@/common/swagger/page.swagger';
+import { paginationMetaSchema } from '@/common/swagger/page.swagger';
 import {
-  CommentCommonSchema,
-  PostCommonSchema,
-  UserCommonSchema,
+  commentCommonSchema,
+  postCommonSchema,
+  userCommonSchema,
 } from '@/common/swagger/select.swagger';
 import { COMMENT_LEN } from '@/common/utils/content';
+import { SwaggerAuthName } from '@/config/swagger.config';
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiBody,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
@@ -22,6 +24,7 @@ import {
 
 export const ApiCreateComment = () =>
   applyDecorators(
+    ApiBearerAuth(SwaggerAuthName),
     ApiTags('comment'),
     ApiBody({
       description: '댓글 생성 요청 데이터',
@@ -67,6 +70,7 @@ export const ApiCreateComment = () =>
 
 export const ApiCreateCommentReply = () =>
   applyDecorators(
+    ApiBearerAuth(SwaggerAuthName),
     ApiTags('comment'),
     ApiBody({
       description: '답글 생성 요청 데이터',
@@ -117,6 +121,7 @@ export const ApiCreateCommentReply = () =>
 
 export const ApiUpdateComment = () =>
   applyDecorators(
+    ApiBearerAuth(SwaggerAuthName),
     ApiTags('comment'),
     ApiBody({
       description: '댓글 수정 요청 데이터',
@@ -160,6 +165,7 @@ export const ApiUpdateComment = () =>
 
 export const ApiDeleteComment = () =>
   applyDecorators(
+    ApiBearerAuth(SwaggerAuthName),
     ApiTags('comment'),
     ApiParam({
       name: 'id',
@@ -183,6 +189,7 @@ export const ApiDeleteComment = () =>
 
 export const ApiToggleCommentLike = () =>
   applyDecorators(
+    ApiBearerAuth(SwaggerAuthName),
     ApiTags('comment'),
     ApiParam({
       name: 'id',
@@ -229,21 +236,21 @@ export const ApiGetCommentById = () =>
           data: {
             type: 'object',
             properties: {
-              ...CommentCommonSchema.properties,
+              ...commentCommonSchema.properties,
               postId: { type: 'string' },
               createdAt: { type: 'string', format: 'date-time' },
               updatedAt: { type: 'string', format: 'date-time' },
               author: {
-                ...UserCommonSchema,
+                ...userCommonSchema,
               },
               replies: {
                 type: 'array',
                 items: {
                   type: 'object',
                   properties: {
-                    ...CommentCommonSchema.properties,
+                    ...commentCommonSchema.properties,
                     author: {
-                      ...UserCommonSchema,
+                      ...userCommonSchema,
                     },
                   },
                 },
@@ -252,9 +259,9 @@ export const ApiGetCommentById = () =>
                 type: 'object',
                 nullable: true,
                 properties: {
-                  ...CommentCommonSchema.properties,
+                  ...commentCommonSchema.properties,
                   author: {
-                    ...UserCommonSchema,
+                    ...userCommonSchema,
                   },
                 },
               },
@@ -319,7 +326,7 @@ export const ApiGetCommentsByPostId = () =>
                   },
                 },
               },
-              meta: PaginationMetaSchema,
+              meta: paginationMetaSchema,
             },
           },
         },
@@ -366,17 +373,17 @@ export const ApiGetCommentsByUserId = () =>
                 items: {
                   type: 'object',
                   properties: {
-                    ...CommentCommonSchema.properties,
+                    ...commentCommonSchema.properties,
                     postId: { type: 'string' },
                     createdAt: { type: 'string', format: 'date-time' },
                     updatedAt: { type: 'string', format: 'date-time' },
                     post: {
-                      ...PostCommonSchema,
+                      ...postCommonSchema,
                     },
                   },
                 },
               },
-              meta: PaginationMetaSchema,
+              meta: paginationMetaSchema,
             },
           },
         },

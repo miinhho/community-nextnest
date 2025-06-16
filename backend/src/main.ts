@@ -1,3 +1,4 @@
+import { SwaggerAuthName } from '@/config/swagger.config';
 import { ConsoleLogger, ConsoleLoggerOptions } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -26,7 +27,7 @@ async function bootstrap() {
     .setTitle(config.get('swagger.title')!)
     .setDescription(config.get('swagger.description')!)
     .setVersion(config.get('swagger.version')!)
-    .addBearerAuth()
+    .addBearerAuth(config.get('swagger.bearerAuth'), SwaggerAuthName)
     .build();
   const documentFactory = () =>
     SwaggerModule.createDocument(app, swaggerDocument, {

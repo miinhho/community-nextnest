@@ -12,18 +12,12 @@ export class PostService {
     private readonly validateService: ValidateService,
   ) {}
 
-  async createPost({ authorId, content }: { authorId: string; content: string }) {
-    return this.postRepository.createPost({
-      authorId,
-      content,
-    });
+  async createPost(props: { authorId: string; content: string }) {
+    return this.postRepository.createPost(props);
   }
 
-  async updatePost({ id, content }: { id: string; content: string }) {
-    return this.postRepository.updatePost({
-      id,
-      content,
-    });
+  async updatePost(props: { id: string; content: string }) {
+    return this.postRepository.updatePost(props);
   }
 
   async findPostById(id: string) {
@@ -32,11 +26,6 @@ export class PostService {
 
   async findPostsByPage(pageParams: PageParams) {
     return this.postRepository.findPostsByPage(pageParams);
-  }
-
-  async findPostCountByUserId(userId: string) {
-    await this.validateService.validateUserExists(userId);
-    return this.postRepository.findPostCountByUserId(userId);
   }
 
   async findPostsByUserId(userId: string, pageParams: PageParams) {
@@ -75,11 +64,8 @@ export class PostService {
     }
   }
 
-  async minusPostLikes({ userId, postId }: { userId: string; postId: string }) {
-    await this.postRepository.minusPostLikes({
-      userId,
-      postId,
-    });
+  async minusPostLikes(props: { userId: string; postId: string }) {
+    await this.postRepository.minusPostLikes(props);
     return LikeStatus.MINUS;
   }
 }

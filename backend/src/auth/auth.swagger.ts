@@ -1,8 +1,10 @@
 import { LoginUserDto } from '@/auth/dto/login.dto';
 import { RegisterUserDto } from '@/auth/dto/register.dto';
+import { SwaggerAuthName } from '@/config/swagger.config';
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiBody,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
@@ -84,6 +86,7 @@ export const ApiLogin = () =>
 
 export const ApiLogout = () =>
   applyDecorators(
+    ApiBearerAuth(SwaggerAuthName),
     ApiOkResponse({
       description: '로그아웃 성공',
       schema: {
@@ -100,6 +103,7 @@ export const ApiLogout = () =>
 
 export const ApiRefresh = () =>
   applyDecorators(
+    ApiBearerAuth(SwaggerAuthName),
     ApiOkResponse({
       description: '토큰 갱신 성공',
       schema: {

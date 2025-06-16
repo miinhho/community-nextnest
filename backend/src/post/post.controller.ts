@@ -5,6 +5,15 @@ import { User } from '@/common/decorator/user.decorator';
 import { LikeStatus } from '@/common/status/like-status';
 import { UserData } from '@/common/user';
 import { PostOwner } from '@/post/guard/post-owner.guard';
+import {
+  ApiCreatePost,
+  ApiDeletePost,
+  ApiFindPostById,
+  ApiFindPosts,
+  ApiGetUserPosts,
+  ApiTogglePostLike,
+  ApiUpdatePost,
+} from '@/post/post.swagger';
 import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
 import { PostContentDto } from './dto/post.dto';
 import { PostService } from './post.service';
@@ -14,6 +23,7 @@ export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Post('post')
+  @ApiCreatePost()
   async createPost(@Body() { content }: PostContentDto, @User() user: UserData) {
     const postId = await this.postService.createPost({
       authorId: user.id,
@@ -27,6 +37,7 @@ export class PostController {
 
   @Public()
   @Get('post/:id')
+  @ApiFindPostById()
   async findPostById(@IdParam() id: string) {
     const post = await this.postService.findPostById(id);
     return {
@@ -37,6 +48,7 @@ export class PostController {
 
   @Public()
   @Get('user/:id/posts')
+  @ApiGetUserPosts()
   async getUserPosts(@IdParam() id: string, @PageQuery() pageQuery: PageQuery) {
     const { data: posts, meta } = await this.postService.findPostsByUserId(id, pageQuery);
     return {
@@ -49,17 +61,8 @@ export class PostController {
   }
 
   @Public()
-  @Get('user/:id/posts-count')
-  async getUserPostsCount(@IdParam() id: string) {
-    const postCount = await this.postService.findPostCountByUserId(id);
-    return {
-      success: true,
-      data: { postCount },
-    };
-  }
-
-  @Public()
   @Get('post')
+  @ApiFindPosts()
   async findPosts(@PageQuery() pageQuery: PageQuery) {
     const { data: posts, meta } = await this.postService.findPostsByPage(pageQuery);
     return {
@@ -73,6 +76,7 @@ export class PostController {
 
   @PostOwner()
   @Put('post/:id')
+  @ApiUpdatePost()
   async updatePost(
     @IdParam() postId: string,
     @Body() { content }: PostContentDto,
@@ -85,7 +89,7 @@ export class PostController {
     return {
       success: true,
       data: {
-        postId,
+        id: postId,
         content,
         authorId: user.id,
       },
@@ -94,6 +98,7 @@ export class PostController {
 
   @PostOwner()
   @Delete('post/:id')
+  @ApiDeletePost()
   async deletePost(@IdParam() id: string) {
     const deletedPost = await this.postService.deletePostById(id);
     return {
@@ -103,6 +108,7 @@ export class PostController {
   }
 
   @Post('post/:id/like')
+  @ApiTogglePostLike()
   async toggleLike(@IdParam() postId: string, @User() user: UserData) {
     const status = await this.postService.addPostLikes({
       userId: user.id,
@@ -116,7 +122,7 @@ export class PostController {
           message: '게시글 좋아요가 취소되었습니다.',
           data: {
             status: LikeStatus.MINUS,
-            postId,
+            id: postId,
           },
         };
       case LikeStatus.PLUS:
@@ -125,7 +131,7 @@ export class PostController {
           message: '게시글 좋아요가 추가되었습니다.',
           data: {
             status: LikeStatus.PLUS,
-            postId,
+            id: postId,
           },
         };
     }

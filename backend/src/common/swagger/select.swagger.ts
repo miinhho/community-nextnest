@@ -1,4 +1,4 @@
-export const CommentCommonSchema = {
+export const commentCommonSchema = {
   type: 'object',
   properties: {
     id: { type: 'string' },
@@ -7,7 +7,7 @@ export const CommentCommonSchema = {
   },
 };
 
-export const UserCommonSchema = {
+export const userCommonSchema = {
   type: 'object',
   properties: {
     id: { type: 'string' },
@@ -16,7 +16,7 @@ export const UserCommonSchema = {
   },
 };
 
-export const PostCommonSchema = {
+export const postCommonSchema = {
   type: 'object',
   properties: {
     id: { type: 'string' },

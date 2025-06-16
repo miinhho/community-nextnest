@@ -1,4 +1,4 @@
-export const PaginationMetaSchema = {
+export const paginationMetaSchema = {
   type: 'object',
   properties: {
     totalCount: { type: 'number', description: '전체 항목 수' },

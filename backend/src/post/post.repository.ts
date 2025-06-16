@@ -109,7 +109,6 @@ export class PostRepository {
             ...postSelections,
             createdAt: true,
             updatedAt: true,
-            authorId: true,
             commentCount: true,
             author: {
               select: {
@@ -130,18 +129,6 @@ export class PostRepository {
     } catch (err) {
       this.logger.error('게시글 목록 조회 중 오류 발생', err.stack, { page, size });
       throw new InternalServerErrorException('게시글 목록 조회에 실패했습니다.');
-    }
-  }
-
-  async findPostCountByUserId(userId: string) {
-    try {
-      const count = await this.prisma.post.count({
-        where: { authorId: userId },
-      });
-      return count;
-    } catch (err) {
-      this.logger.error('사용자 게시글 수 조회 중 오류 발생', err.stack, { userId });
-      throw new InternalServerErrorException('사용자 게시글 수 조회에 실패했습니다.');
     }
   }
 

@@ -1,6 +1,9 @@
+import { userCommonSchema } from '@/common/swagger/select.swagger';
+import { SwaggerAuthName } from '@/config/swagger.config';
 import { UpdateUserDto } from '@/user/dto/user.dto';
 import { applyDecorators } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
@@ -26,9 +29,7 @@ export const ApiGetUserById = () =>
           data: {
             type: 'object',
             properties: {
-              id: { type: 'string' },
-              name: { type: 'string' },
-              email: { type: 'string' },
+              ...userCommonSchema.properties,
               createdAt: { type: 'string', format: 'date-time' },
               updatedAt: { type: 'string', format: 'date-time' },
             },
@@ -42,6 +43,7 @@ export const ApiGetUserById = () =>
 
 export const ApiUpdateUser = () =>
   applyDecorators(
+    ApiBearerAuth(SwaggerAuthName),
     ApiParam({
       name: 'id',
       description: '사용자 ID',
@@ -76,6 +78,7 @@ export const ApiUpdateUser = () =>
 
 export const ApiDeleteUser = () =>
   applyDecorators(
+    ApiBearerAuth(SwaggerAuthName),
     ApiParam({
       name: 'id',
       description: '사용자 ID',
@@ -91,9 +94,7 @@ export const ApiDeleteUser = () =>
           data: {
             type: 'object',
             properties: {
-              id: { type: 'string' },
-              name: { type: 'string' },
-              email: { type: 'string' },
+              ...userCommonSchema.properties,
               image: { type: 'string', description: '사용자 이미지 URL', nullable: true },
             },
           },
