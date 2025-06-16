@@ -7,7 +7,9 @@ Backend:
   - [x] Follow Controller
   - [x] Logger 추가
   - [x] Repository 패턴 확장
-  - [ ] Swagger Docs
+  - [x] Swagger Docs
+  - [ ] WebSocket 을 사용한 채팅 시스템
+  - [ ] RabbitMQ 를 사용한 실시간 알림 시스템
 
 
 Frontend:
