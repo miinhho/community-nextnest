@@ -5,25 +5,17 @@ import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    logger: new ConsoleLogger({
-      prefix: 'Backend',
-      logLevels: ['error', 'warn', 'log', 'debug'],
-      timestamp: true,
-      // production 이나 클라우드, 로그 서비스를 사용할 때 키지만
-      // 현재는 development 환경이므로 꺼둔다.
-      // json: true,
-    }),
-  });
+  const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
 
+  app.useLogger(config.get<ConsoleLogger>('log.logger')!);
   app.use(cookieParser());
   app.enableCors({
-    origin: config.get('CORS_ORIGIN')!,
+    origin: config.get('app.origin')!,
     credentials: true,
   });
 
-  await app.listen(config.get('PORT') ?? 3000);
+  await app.listen(config.get('app.port') ?? 3000);
 }
 
 void bootstrap().catch((error) => {
