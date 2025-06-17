@@ -1,7 +1,7 @@
-import { PrismaService } from '@/common/database/prisma.service';
-import { userSelections } from '@/common/database/select';
+import { userSelections } from '@/common/select';
 import { PageParams, toPageData } from '@/common/utils/page';
 import { AlreadyFollowError } from '@/follow/error/already-follow.error';
+import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';
 

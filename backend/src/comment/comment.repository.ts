@@ -1,12 +1,8 @@
-import { PrismaService } from '@/common/database/prisma.service';
-import {
-  commentSelections,
-  postSelections,
-  userSelections,
-} from '@/common/database/select';
 import { AlreadyLikeError } from '@/common/error/already-like.error';
+import { commentSelections, postSelections, userSelections } from '@/common/select';
 import { PageParams, toPageData } from '@/common/utils/page';
 import { ValidateService } from '@/common/validate/validate.service';
+import { PrismaService } from '@/prisma/prisma.service';
 import {
   Injectable,
   InternalServerErrorException,

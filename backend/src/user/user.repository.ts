@@ -1,6 +1,6 @@
-import { PrismaService } from '@/common/database/prisma.service';
-import { userSelections } from '@/common/database/select';
+import { userSelections } from '@/common/select';
 import { PageParams, toPageData } from '@/common/utils/page';
+import { PrismaService } from '@/prisma/prisma.service';
 import {
   Injectable,
   InternalServerErrorException,
