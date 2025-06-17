@@ -1,5 +1,5 @@
 import { SwaggerAuthName } from '@/config/swagger.config';
-import { ConsoleLogger, ConsoleLoggerOptions } from '@nestjs/common';
+import { ConsoleLogger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -8,11 +8,16 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  const config = app.get(ConfigService);
+  const app = await NestFactory.create(AppModule, {
+    logger: new ConsoleLogger({
+      prefix: 'Backend',
+      logLevels: ['error', 'warn', 'log'],
+      timestamp: true,
+      json: process.env.NODE_ENV === 'production',
+    }),
+  });
 
-  const loggerOptions = config.get<ConsoleLoggerOptions>('log.options')!;
-  app.useLogger(new ConsoleLogger(loggerOptions));
+  const config = app.get(ConfigService);
 
   app.use(cookieParser());
 
