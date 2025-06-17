@@ -8,12 +8,17 @@ import {
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 export const ApiGetUserById = () =>
   applyDecorators(
+    ApiOperation({
+      summary: '사용자 조회',
+      description: 'ID로 특정 사용자의 정보를 조회합니다.',
+    }),
     ApiParam({
       name: 'id',
       description: '사용자 ID',
@@ -44,6 +49,10 @@ export const ApiGetUserById = () =>
 export const ApiUpdateUser = () =>
   applyDecorators(
     ApiBearerAuth(SwaggerAuthName),
+    ApiOperation({
+      summary: '사용자 정보 수정',
+      description: '사용자의 프로필 정보를 수정합니다.',
+    }),
     ApiParam({
       name: 'id',
       description: '사용자 ID',
@@ -79,6 +88,10 @@ export const ApiUpdateUser = () =>
 export const ApiDeleteUser = () =>
   applyDecorators(
     ApiBearerAuth(SwaggerAuthName),
+    ApiOperation({
+      summary: '사용자 삭제',
+      description: '사용자 계정을 삭제합니다.',
+    }),
     ApiParam({
       name: 'id',
       description: '사용자 ID',

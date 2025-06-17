@@ -2,6 +2,7 @@ import { JwtAuthGuard } from '@/auth/guard/jwt.guard';
 import app from '@/config/app.config';
 import jwt from '@/config/jwt.config';
 import swagger from '@/config/swagger.config';
+import { HealthModule } from '@/health/health.module';
 import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD, APP_PIPE } from '@nestjs/core';
@@ -23,6 +24,7 @@ import { UserModule } from './user/user.module';
     CommentModule,
     FollowModule,
     AuthModule,
+    HealthModule,
   ],
   providers: [
     {

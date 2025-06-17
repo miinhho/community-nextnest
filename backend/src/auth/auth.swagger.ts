@@ -9,12 +9,17 @@ import {
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 
 export const ApiRegister = () =>
   applyDecorators(
+    ApiOperation({
+      summary: '회원가입',
+      description: '새로운 사용자 계정을 생성합니다.',
+    }),
     ApiBody({
       description: '회원가입 정보',
       type: RegisterUserDto,
@@ -50,6 +55,10 @@ export const ApiRegister = () =>
 
 export const ApiLogin = () =>
   applyDecorators(
+    ApiOperation({
+      summary: '로그인',
+      description: '이메일과 비밀번호로 로그인합니다.',
+    }),
     ApiBody({
       description: '로그인 정보',
       type: LoginUserDto,
@@ -87,6 +96,10 @@ export const ApiLogin = () =>
 export const ApiLogout = () =>
   applyDecorators(
     ApiBearerAuth(SwaggerAuthName),
+    ApiOperation({
+      summary: '로그아웃',
+      description: '현재 세션을 종료하고 로그아웃합니다.',
+    }),
     ApiOkResponse({
       description: '로그아웃 성공',
       schema: {
@@ -104,6 +117,10 @@ export const ApiLogout = () =>
 export const ApiRefresh = () =>
   applyDecorators(
     ApiBearerAuth(SwaggerAuthName),
+    ApiOperation({
+      summary: '토큰 갱신',
+      description: '만료된 액세스 토큰을 갱신합니다.',
+    }),
     ApiOkResponse({
       description: '토큰 갱신 성공',
       schema: {

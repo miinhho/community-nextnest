@@ -8,6 +8,7 @@ import {
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
@@ -16,6 +17,10 @@ export const ApiToggleFollowUser = () =>
   applyDecorators(
     ApiTags('follow'),
     ApiBearerAuth(SwaggerAuthName),
+    ApiOperation({
+      summary: '팔로우 토글',
+      description: '사용자의 팔로우 상태를 토글합니다.',
+    }),
     ApiParam({
       name: 'id',
       description: '팔로우할 사용자 ID',
@@ -48,6 +53,10 @@ export const ApiToggleFollowUser = () =>
 export const ApiGetUserFollowers = () =>
   applyDecorators(
     ApiTags('user'),
+    ApiOperation({
+      summary: '팔로워 목록 조회',
+      description: '특정 사용자의 팔로워 목록을 페이지네이션으로 조회합니다.',
+    }),
     ApiParam({
       name: 'id',
       description: '사용자 ID',
@@ -75,6 +84,10 @@ export const ApiGetUserFollowers = () =>
 export const ApiGetUserFollowing = () =>
   applyDecorators(
     ApiTags('user'),
+    ApiOperation({
+      summary: '팔로잉 목록 조회',
+      description: '특정 사용자가 팔로우하는 사용자 목록을 페이지네이션으로 조회합니다.',
+    }),
     ApiParam({
       name: 'id',
       description: '사용자 ID',
@@ -102,6 +115,10 @@ export const ApiGetUserFollowing = () =>
 export const ApiGetUserFollowersCount = () =>
   applyDecorators(
     ApiTags('user'),
+    ApiOperation({
+      summary: '팔로워 수 조회',
+      description: '특정 사용자의 팔로워 수를 조회합니다.',
+    }),
     ApiParam({
       name: 'id',
       description: '사용자 ID',
@@ -129,6 +146,10 @@ export const ApiGetUserFollowersCount = () =>
 export const ApiGetUserFollowingCount = () =>
   applyDecorators(
     ApiTags('user'),
+    ApiOperation({
+      summary: '팔로잉 수 조회',
+      description: '특정 사용자가 팔로우하는 사용자 수를 조회합니다.',
+    }),
     ApiParam({
       name: 'id',
       description: '사용자 ID',

@@ -17,6 +17,7 @@ import {
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
@@ -25,6 +26,10 @@ export const ApiCreateComment = () =>
   applyDecorators(
     ApiBearerAuth(SwaggerAuthName),
     ApiTags('comment'),
+    ApiOperation({
+      summary: '댓글 생성',
+      description: '게시글에 새로운 댓글을 작성합니다.',
+    }),
     ApiBody({
       description: '댓글 생성 요청 데이터',
       type: CreateCommentDto,
@@ -71,6 +76,10 @@ export const ApiCreateCommentReply = () =>
   applyDecorators(
     ApiBearerAuth(SwaggerAuthName),
     ApiTags('comment'),
+    ApiOperation({
+      summary: '답글 생성',
+      description: '댓글에 답글을 작성합니다.',
+    }),
     ApiBody({
       description: '답글 생성 요청 데이터',
       type: ReplyContentDto,
@@ -122,6 +131,10 @@ export const ApiUpdateComment = () =>
   applyDecorators(
     ApiBearerAuth(SwaggerAuthName),
     ApiTags('comment'),
+    ApiOperation({
+      summary: '댓글 수정',
+      description: '기존 댓글의 내용을 수정합니다.',
+    }),
     ApiBody({
       description: '댓글 수정 요청 데이터',
       type: UpdateCommentDto,
@@ -166,6 +179,10 @@ export const ApiDeleteComment = () =>
   applyDecorators(
     ApiBearerAuth(SwaggerAuthName),
     ApiTags('comment'),
+    ApiOperation({
+      summary: '댓글 삭제',
+      description: '댓글을 삭제합니다.',
+    }),
     ApiParam({
       name: 'id',
       description: '삭제할 댓글의 ID',
@@ -190,6 +207,10 @@ export const ApiToggleCommentLike = () =>
   applyDecorators(
     ApiBearerAuth(SwaggerAuthName),
     ApiTags('comment'),
+    ApiOperation({
+      summary: '댓글 좋아요 토글',
+      description: '댓글의 좋아요 상태를 토글합니다.',
+    }),
     ApiParam({
       name: 'id',
       description: '좋아요/싫어요를 토글할 댓글의 ID',
@@ -220,6 +241,10 @@ export const ApiToggleCommentLike = () =>
 export const ApiGetCommentById = () =>
   applyDecorators(
     ApiTags('comment'),
+    ApiOperation({
+      summary: '댓글 조회',
+      description: 'ID로 특정 댓글의 상세 정보를 조회합니다.',
+    }),
     ApiParam({
       name: 'id',
       description: '조회할 댓글의 ID',
@@ -274,6 +299,10 @@ export const ApiGetCommentById = () =>
 export const ApiGetCommentReplies = () =>
   applyDecorators(
     ApiTags('comment'),
+    ApiOperation({
+      summary: '댓글 답글 목록 조회',
+      description: '특정 댓글의 답글 목록을 페이지네이션으로 조회합니다.',
+    }),
     ApiParam({
       name: 'id',
       description: '조회할 댓글의 ID',
@@ -312,6 +341,10 @@ export const ApiGetCommentReplies = () =>
 export const ApiGetCommentsByPostId = () =>
   applyDecorators(
     ApiTags('post'),
+    ApiOperation({
+      summary: '게시글 댓글 목록 조회',
+      description: '특정 게시글의 댓글 목록을 페이지네이션으로 조회합니다.',
+    }),
     ApiParam({
       name: 'id',
       description: '댓글을 조회할 게시물의 ID',
@@ -363,6 +396,10 @@ export const ApiGetCommentsByPostId = () =>
 export const ApiGetCommentsByUserId = () =>
   applyDecorators(
     ApiTags('user'),
+    ApiOperation({
+      summary: '사용자 댓글 목록 조회',
+      description: '특정 사용자가 작성한 댓글 목록을 페이지네이션으로 조회합니다.',
+    }),
     ApiParam({
       name: 'id',
       description: '댓글을 조회할 사용자의 ID',

@@ -40,6 +40,8 @@ async function bootstrap() {
     });
   SwaggerModule.setup('api', app, documentFactory());
 
+  app.enableShutdownHooks();
+
   await app.listen(config.get('app.port')!);
 }
 
