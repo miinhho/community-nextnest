@@ -1,14 +1,19 @@
-const MIN_CONTENT_LENGTH = 5;
-const MAX_CONTENT_LENGTH = 1_000_000;
-
+/**
+ * 게시글 내용의 길이 제한을 정의하는 상수 객체
+ */
 export const CONTENT_LEN = {
-  MIN: MIN_CONTENT_LENGTH,
-  MAX: MAX_CONTENT_LENGTH,
-};
+  /** 게시글 내용 최소 길이 (5자) */
+  MIN: 5,
+  /** 게시글 내용 최대 길이 (1,000,000자) */
+  MAX: 1_000_000,
+} as const;
 
-const MIN_COMMENT_LENGTH = 5;
-const MAX_COMMENT_LENGTH = 10000;
+/**
+ * 댓글 내용의 길이 제한을 정의하는 상수 객체
+ */
 export const COMMENT_LEN = {
-  MIN: MIN_COMMENT_LENGTH,
-  MAX: MAX_COMMENT_LENGTH,
-};
+  /** 댓글 내용 최소 길이 (5자) */
+  MIN: 5,
+  /** 댓글 내용 최대 길이 (10,000자) */
+  MAX: 10_000,
+} as const;

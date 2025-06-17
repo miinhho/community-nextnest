@@ -28,8 +28,8 @@ export class UserController {
   @UserOwner()
   @Patch(':id')
   @ApiUpdateUser()
-  async updateUser(@IdParam() id: string, @Body() updateUserDto: UpdateUserDto) {
-    await this.userService.updateUserById(id, updateUserDto);
+  async updateUser(@IdParam() id: string, @Body() { name, image }: UpdateUserDto) {
+    await this.userService.updateUserById(id, { name, image });
     return {
       success: true,
     };

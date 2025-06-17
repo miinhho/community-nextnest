@@ -13,6 +13,7 @@ export class ValidateService {
     if (!comment) {
       throw new NotFoundException('존재하지 않는 댓글입니다.');
     }
+    return comment;
   }
 
   async validatePostExists(id: string) {
@@ -23,6 +24,7 @@ export class ValidateService {
     if (!post) {
       throw new NotFoundException('존재하지 않는 게시글입니다.');
     }
+    return post;
   }
 
   async validateUserExists(id: string) {
@@ -33,5 +35,6 @@ export class ValidateService {
     if (!user) {
       throw new NotFoundException('존재하지 않는 사용자입니다.');
     }
+    return user;
   }
 }

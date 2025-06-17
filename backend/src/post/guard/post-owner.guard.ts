@@ -57,15 +57,13 @@ export class PostOwnerGuard implements CanActivate {
  * 컨트롤러 메서드에 적용하여 게시글 작성자 또는 관리자만 접근할 수 있도록 제한합니다.
  *
  * @example
- * ```typescript
- * @PostOwner()
- * @Put('post/:id')
- * async updatePost(@IdParam() postId: string) {
- *   // 게시글 작성자 또는 관리자만 접근 가능
+ *```
+ * ＠PostOwner()
+ * ＠Put('post/:id')
+ * async updatePost(＠IdParam() postId: string) {
+ *    게시글 작성자 또는 관리자만 접근 가능
  * }
- * ```
- *
- * @returns UseGuards 데코레이터가 적용된 함수
+ *```
  */
 export function PostOwner() {
   return UseGuards(PostOwnerGuard);

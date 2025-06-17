@@ -14,6 +14,14 @@ export class TokenService {
     private readonly userService: UserService,
   ) {}
 
+  /**
+   * 사용자 ID를 기반으로 Access Token을 생성합니다.
+   *
+   * @param userId - 토큰을 생성할 사용자 ID
+   * @returns 생성된 Access Token
+   * @throws {NotFoundException} 사용자를 찾을 수 없는 경우
+   * @throws {InternalServerErrorException} 토큰 생성 실패 시
+   */
   async generateAccessToken(userId: string) {
     const user = await this.userService.findUserById(userId);
     return this.jwtService.sign(
@@ -28,6 +36,12 @@ export class TokenService {
     );
   }
 
+  /**
+   * 사용자 ID를 기반으로 Refresh Token을 생성합니다.
+   *
+   * @param userId - 토큰을 생성할 사용자 ID
+   * @returns 생성된 Refresh Token
+   */
   generateRefreshToken(userId: string): string {
     return this.jwtService.sign(
       { sub: userId },
@@ -38,12 +52,28 @@ export class TokenService {
     );
   }
 
+  /**
+   * Access Token을 검증하고 페이로드를 반환합니다.
+   *
+   * @param token - 검증할 Access Token
+   * @returns 토큰의 페이로드 정보
+   * @throws {JsonWebTokenError} 토큰이 유효하지 않은 경우
+   * @throws {TokenExpiredError} 토큰이 만료된 경우
+   */
   verifyAccessToken(token: string): any {
     return this.jwtService.verify(token, {
       secret: this.jwtConfig.accessSecret,
     });
   }
 
+  /**
+   * Refresh Token을 검증하고 페이로드를 반환합니다.
+   *
+   * @param token - 검증할 Refresh Token
+   * @returns 토큰의 페이로드 정보
+   * @throws {JsonWebTokenError} 토큰이 유효하지 않은 경우
+   * @throws {TokenExpiredError} 토큰이 만료된 경우
+   */
   verifyRefreshToken(token: string): any {
     return this.jwtService.verify(token, {
       secret: this.jwtConfig.refreshSecret,

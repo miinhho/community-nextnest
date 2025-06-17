@@ -24,6 +24,15 @@ export class CommentRepository {
     private readonly validateService: ValidateService,
   ) {}
 
+  /**
+   * 새 댓글을 생성합니다.
+   * @param params.postId - 게시글 ID
+   * @param params.authorId - 작성자 ID
+   * @param params.content - 댓글 내용
+   * @returns 생성된 댓글의 ID
+   * @throws {NotFoundException} 게시글을 찾을 수 없는 경우
+   * @throws {InternalServerErrorException} 댓글 작성 실패 시
+   */
   async createComment({
     postId,
     authorId,
@@ -67,6 +76,16 @@ export class CommentRepository {
     }
   }
 
+  /**
+   * 댓글에 대한 답글을 생성합니다.
+   * @param params.authorId - 작성자 ID
+   * @param params.postId - 게시글 ID
+   * @param params.commentId - 부모 댓글 ID
+   * @param params.content - 답글 내용
+   * @returns 생성된 답글의 ID
+   * @throws {NotFoundException} 게시글 또는 댓글을 찾을 수 없는 경우
+   * @throws {InternalServerErrorException} 답글 작성 실패 시
+   */
   async createCommentReply({
     authorId,
     postId,
@@ -114,6 +133,13 @@ export class CommentRepository {
     }
   }
 
+  /**
+   * 댓글 내용을 수정합니다.
+   * @param params.commentId - 댓글 ID
+   * @param params.content - 수정할 내용
+   * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
+   * @throws {InternalServerErrorException} 댓글 수정 실패 시
+   */
   async updateComment({ commentId, content }: { commentId: string; content: string }) {
     try {
       await this.prisma.comment.update({
@@ -135,6 +161,13 @@ export class CommentRepository {
     }
   }
 
+  /**
+   * ID로 댓글을 조회합니다.
+   * @param id - 댓글 ID
+   * @returns 댓글 정보 (작성자, 부모 댓글, 답글 포함)
+   * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
+   * @throws {InternalServerErrorException} 댓글 조회 실패 시
+   */
   async findCommentById(id: string) {
     const selections = {
       ...commentSelections,
@@ -177,6 +210,15 @@ export class CommentRepository {
     }
   }
 
+  /**
+   * 특정 사용자가 작성한 댓글 목록을 페이지네이션으로 조회합니다.
+   * @param userId - 사용자 ID
+   * @param params.page - 페이지 번호 (기본값: 1)
+   * @param params.size - 페이지 크기 (기본값: 10)
+   * @returns 페이지네이션된 댓글 목록
+   * @throws {NotFoundException} 사용자를 찾을 수 없는 경우
+   * @throws {InternalServerErrorException} 댓글 조회 실패 시
+   */
   async findCommentsByUserId(userId: string, { page = 1, size = 10 }: PageParams) {
     try {
       await this.validateService.validateUserExists(userId);
@@ -221,6 +263,15 @@ export class CommentRepository {
     }
   }
 
+  /**
+   * 특정 게시글의 최상위 댓글 목록을 페이지네이션으로 조회합니다.
+   * @param postId - 게시글 ID
+   * @param params.page - 페이지 번호 (기본값: 1)
+   * @param params.size - 페이지 크기 (기본값: 10)
+   * @returns 페이지네이션된 댓글 목록
+   * @throws {NotFoundException} 게시글을 찾을 수 없는 경우
+   * @throws {InternalServerErrorException} 댓글 조회 실패 시
+   */
   async findCommentsByPostId(postId: string, { page = 1, size = 10 }: PageParams) {
     try {
       await this.validateService.validatePostExists(postId);
@@ -267,6 +318,15 @@ export class CommentRepository {
     }
   }
 
+  /**
+   * 특정 댓글의 답글 목록을 페이지네이션으로 조회합니다.
+   * @param commentId - 댓글 ID
+   * @param params.page - 페이지 번호 (기본값: 1)
+   * @param params.size - 페이지 크기 (기본값: 10)
+   * @returns 답글 목록
+   * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
+   * @throws {InternalServerErrorException} 답글 조회 실패 시
+   */
   async findRepliesByCommentId(commentId: string, { page = 1, size = 10 }: PageParams) {
     try {
       await this.validateService.validateCommentExists(commentId);
@@ -298,6 +358,13 @@ export class CommentRepository {
     }
   }
 
+  /**
+   * 댓글 ID로 해당 댓글이 속한 게시글의 ID를 조회합니다.
+   * @param commentId - 댓글 ID
+   * @returns 게시글 ID
+   * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
+   * @throws {InternalServerErrorException} 게시글 ID 조회 실패 시
+   */
   async findPostIdByCommentId(commentId: string) {
     try {
       const comment = await this.prisma.comment.findUnique({
@@ -316,6 +383,14 @@ export class CommentRepository {
     }
   }
 
+  /**
+   * 댓글을 삭제합니다.
+   * @param params.commentId - 댓글 ID
+   * @param params.postId - 게시글 ID
+   * @returns 삭제된 댓글 정보
+   * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
+   * @throws {InternalServerErrorException} 댓글 삭제 실패 시
+   */
   async deleteCommentById({ commentId, postId }: { commentId: string; postId: string }) {
     try {
       const result = await this.prisma.$transaction([
@@ -349,6 +424,14 @@ export class CommentRepository {
     }
   }
 
+  /**
+   * 댓글에 좋아요를 추가합니다.
+   * @param params.userId - 사용자 ID
+   * @param params.commentId - 댓글 ID
+   * @throws {AlreadyLikeError} 이미 좋아요를 누른 경우
+   * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
+   * @throws {InternalServerErrorException} 좋아요 추가 실패 시
+   */
   async addCommentLike({ userId, commentId }: { userId: string; commentId: string }) {
     try {
       await this.prisma.$transaction([
@@ -384,6 +467,13 @@ export class CommentRepository {
     }
   }
 
+  /**
+   * 댓글의 좋아요를 취소합니다.
+   * @param params.userId - 사용자 ID
+   * @param params.commentId - 댓글 ID
+   * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
+   * @throws {InternalServerErrorException} 좋아요 취소 실패 시
+   */
   async minusCommentLike({ userId, commentId }: { userId: string; commentId: string }) {
     try {
       await this.prisma.$transaction([

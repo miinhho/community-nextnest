@@ -15,6 +15,14 @@ export class UserRepository {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * 새로운 사용자를 생성합니다.
+   * @param params.email - 사용자 이메일
+   * @param params.password - 사용자 비밀번호
+   * @param params.name - 사용자 이름
+   * @returns 생성된 사용자 정보
+   * @throws {InternalServerErrorException} 사용자 생성 중 오류 발생 시
+   */
   async createUser({
     email,
     password,
@@ -39,6 +47,14 @@ export class UserRepository {
     }
   }
 
+  /**
+   * 사용자 정보를 업데이트합니다.
+   * @param id - 업데이트할 사용자 ID
+   * @param dataToUpdate.name - 사용자 이름 (선택사항)
+   * @param dataToUpdate.image - 사용자 프로필 이미지 (선택사항)
+   * @throws {NotFoundException} 존재하지 않는 사용자인 경우
+   * @throws {InternalServerErrorException} 업데이트 중 오류 발생 시
+   */
   async updateUserById(id: string, dataToUpdate: { name?: string; image?: string }) {
     try {
       await this.prisma.user.update({
@@ -60,6 +76,13 @@ export class UserRepository {
     }
   }
 
+  /**
+   * ID를 통해 사용자 상세 정보를 조회합니다.
+   * @param id - 조회할 사용자 ID
+   * @returns 사용자 정보 (팔로워/팔로잉/게시글 수 포함)
+   * @throws {NotFoundException} 존재하지 않는 사용자인 경우
+   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
+   */
   async findUserById(id: string) {
     try {
       const [user, followingCount, followerCount, postCount] =
@@ -103,6 +126,14 @@ export class UserRepository {
     }
   }
 
+  /**
+   * 이메일을 통해 사용자를 조회합니다.
+   * @param email - 조회할 사용자 이메일
+   * @param password - 비밀번호 포함 여부 (기본값: false)
+   * @returns 사용자 정보
+   * @throws {NotFoundException} 존재하지 않는 사용자인 경우
+   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
+   */
   async findUserByEmail(email: string, password: boolean = false) {
     try {
       const user = await this.prisma.user.findUnique({
@@ -130,6 +161,12 @@ export class UserRepository {
     }
   }
 
+  /**
+   * 이메일로 사용자 존재 여부를 확인합니다.
+   * @param email - 확인할 사용자 이메일
+   * @returns 사용자 존재 여부 (true/false)
+   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
+   */
   async findUserExistsByEmail(email: string) {
     try {
       const user = await this.prisma.user.findUnique({
@@ -145,6 +182,14 @@ export class UserRepository {
     }
   }
 
+  /**
+   * 이름으로 사용자를 검색합니다 (페이지네이션 적용).
+   * @param name - 검색할 사용자 이름 (부분 매칭)
+   * @param params.page - 페이지 번호 (기본값: 1)
+   * @param params.size - 페이지 크기 (기본값: 10)
+   * @returns 페이지네이션이 적용된 사용자 목록과 총 개수 정보
+   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
+   */
   async findUsersByName(name: string, { page = 1, size = 10 }: PageParams) {
     try {
       const [user, totalCount] = await this.prisma.$transaction([
@@ -180,6 +225,13 @@ export class UserRepository {
     }
   }
 
+  /**
+   * ID를 통해 사용자를 삭제합니다.
+   * @param id - 삭제할 사용자 ID
+   * @returns 삭제된 사용자 정보 (ID, 이메일, 이름, 이미지)
+   * @throws {NotFoundException} 존재하지 않는 사용자인 경우
+   * @throws {InternalServerErrorException} 삭제 중 오류 발생 시
+   */
   async deleteUserById(id: string) {
     try {
       const user = await this.prisma.user.delete({
@@ -202,6 +254,13 @@ export class UserRepository {
     }
   }
 
+  /**
+   * 이메일을 통해 사용자를 삭제합니다.
+   * @param email - 삭제할 사용자 이메일
+   * @returns 삭제된 사용자 정보 (ID, 이메일, 이름, 이미지)
+   * @throws {NotFoundException} 존재하지 않는 사용자인 경우
+   * @throws {InternalServerErrorException} 삭제 중 오류 발생 시
+   */
   async deleteUserByEmail(email: string) {
     try {
       const user = await this.prisma.user.delete({

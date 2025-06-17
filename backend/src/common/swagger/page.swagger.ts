@@ -1,6 +1,11 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiQuery } from '@nestjs/swagger';
 
+/**
+ * 페이지네이션 메타데이터의 Swagger 스키마 정의
+ *
+ * API 응답에서 페이지네이션 정보를 문서화할 때 사용됩니다.
+ */
 export const pageMetaSchema = {
   type: 'object',
   properties: {
@@ -12,6 +17,22 @@ export const pageMetaSchema = {
   required: ['totalCount', 'pageCount', 'currentPage', 'pageSize'],
 };
 
+/**
+ * 페이지네이션 쿼리 파라미터를 위한 Swagger 데코레이터
+ *
+ * 컨트롤러 메서드에 적용하여 페이지네이션 관련 쿼리 파라미터를 문서화합니다.
+ *
+ * @returns 조합된 데코레이터
+ *
+ * @example
+ * ```typescript
+ * ＠PageSwaggerQuery()
+ * ＠Get()
+ * async getPosts(＠Query() pageQuery: PageQuery) {
+ *   // 페이지네이션 파라미터가 Swagger에 문서화됨
+ * }
+ * ```
+ */
 export const PageSwaggerQuery = () =>
   applyDecorators(
     ApiQuery({
