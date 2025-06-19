@@ -1,6 +1,6 @@
 import { CreateCommentDto, UpdateCommentDto } from '@/comment/dto/comment.dto';
 import { ReplyContentDto } from '@/comment/dto/reply.dto';
-import { LikeStatus } from '@/common/status/like-status';
+import { LikeStatus } from '@/common/status';
 import { PageSwaggerQuery, pageMetaSchema } from '@/common/swagger/page.swagger';
 import {
   commentCommonSchema,

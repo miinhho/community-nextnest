@@ -81,11 +81,11 @@ export class PostRepository {
           content: true,
           createdAt: true,
           updatedAt: true,
-          authorId: true,
           likeCount: true,
           commentCount: true,
           author: {
             select: {
+              id: true,
               name: true,
               image: true,
             },

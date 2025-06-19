@@ -39,12 +39,6 @@ export const ApiCreatePost = () =>
       summary: '게시글 생성',
       description: '새로운 게시글을 작성합니다.',
     }),
-    ApiParam({
-      name: 'id',
-      description: '게시글 ID',
-      type: String,
-      required: true,
-    }),
     ApiBody(postContentDtoSwagger),
     ApiOkResponse({
       description: '게시글 생성 성공',
@@ -56,7 +50,6 @@ export const ApiCreatePost = () =>
             properties: {
               postId: { type: 'string' },
               authorId: { type: 'string' },
-              content: { type: 'string' },
             },
           },
         },
@@ -192,7 +185,8 @@ export const ApiFindPostById = () =>
             type: 'object',
             properties: {
               ...postCommonSchema.properties,
-              authorId: { type: 'string' },
+              author: userCommonSchema,
+              commentCount: { type: 'number' },
               createdAt: { type: 'string' },
               updatedAt: { type: 'string' },
             },

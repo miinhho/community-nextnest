@@ -1,5 +1,5 @@
 import { AlreadyLikeError } from '@/common/error/already-like.error';
-import { LikeStatus } from '@/common/status/like-status';
+import { LikeStatus } from '@/common/status';
 import { PageParams } from '@/common/utils/page';
 import { ValidateService } from '@/common/validate/validate.service';
 import { PostRepository } from '@/post/post.repository';

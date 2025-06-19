@@ -2,7 +2,7 @@ import { IdParam } from '@/common/decorator/id.decorator';
 import { PageQuery } from '@/common/decorator/page-query.decorator';
 import { Public } from '@/common/decorator/public.decorator';
 import { User } from '@/common/decorator/user.decorator';
-import { LikeStatus } from '@/common/status/like-status';
+import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
 import { PostOwner } from '@/post/guard/post-owner.guard';
 import {
@@ -31,7 +31,7 @@ export class PostController {
     });
     return {
       success: true,
-      data: { postId, authorId: user.id, content },
+      data: { postId, authorId: user.id },
     };
   }
 

@@ -16,7 +16,7 @@ import { IdParam } from '@/common/decorator/id.decorator';
 import { PageQuery } from '@/common/decorator/page-query.decorator';
 import { Public } from '@/common/decorator/public.decorator';
 import { User } from '@/common/decorator/user.decorator';
-import { LikeStatus } from '@/common/status/like-status';
+import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
 import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
 import { CommentService } from './comment.service';

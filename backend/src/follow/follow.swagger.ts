@@ -1,4 +1,4 @@
-import { FollowStatus } from '@/common/status/follow-status';
+import { FollowStatus } from '@/common/status';
 import { pageMetaSchema, PageSwaggerQuery } from '@/common/swagger/page.swagger';
 import { userCommonSchema } from '@/common/swagger/select.swagger';
 import { SwaggerAuthName } from '@/config/swagger.config';

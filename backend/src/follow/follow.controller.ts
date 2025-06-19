@@ -2,7 +2,7 @@ import { IdParam } from '@/common/decorator/id.decorator';
 import { PageQuery } from '@/common/decorator/page-query.decorator';
 import { Public } from '@/common/decorator/public.decorator';
 import { User } from '@/common/decorator/user.decorator';
-import { FollowStatus } from '@/common/status/follow-status';
+import { FollowStatus } from '@/common/status';
 import { UserData } from '@/common/user';
 import {
   ApiGetUserFollowers,

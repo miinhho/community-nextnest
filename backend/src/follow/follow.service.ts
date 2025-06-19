@@ -1,4 +1,4 @@
-import { FollowStatus } from '@/common/status/follow-status';
+import { FollowStatus } from '@/common/status';
 import { PageParams } from '@/common/utils/page';
 import { ValidateService } from '@/common/validate/validate.service';
 import { AlreadyFollowError } from '@/follow/error/already-follow.error';

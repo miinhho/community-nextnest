@@ -1,6 +1,6 @@
 import { CommentRepository } from '@/comment/comment.repository';
 import { AlreadyLikeError } from '@/common/error/already-like.error';
-import { LikeStatus } from '@/common/status/like-status';
+import { LikeStatus } from '@/common/status';
 import { PageParams } from '@/common/utils/page';
 import { Injectable } from '@nestjs/common';
 
