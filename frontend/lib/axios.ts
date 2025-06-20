@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { PageMeta } from '@/lib/types/page.types';
 import { recursiveDateParse } from '@/lib/utils';
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosResponse, HttpStatusCode } from 'axios';
 
 interface ApiResponse<T = any, D = any> extends AxiosResponse<T, D> {
   success: boolean;
@@ -20,10 +20,42 @@ export const fetcher = axios.create({
   withCredentials: true,
 });
 
-fetcher.interceptors.response.use((response) => {
-  response.data = recursiveDateParse(response.data);
-  return response;
-});
+fetcher.interceptors.response.use(
+  (response) => {
+    response.data = recursiveDateParse(response.data);
+    return response;
+  },
+  (error) => {
+    const status = error.response.status;
+    const message = error.response.message || 'An error occurred';
+
+    // TODO : Handle different HTTP status codes
+    switch (status) {
+      case HttpStatusCode.Unauthorized: {
+        console.error('Unauthorized access:', message);
+        break;
+      }
+      case HttpStatusCode.Forbidden: {
+        console.error('Forbidden access:', message);
+        break;
+      }
+      case HttpStatusCode.NotFound: {
+        console.error('Resource not found:', message);
+        break;
+      }
+      case HttpStatusCode.InternalServerError: {
+        console.error('Internal server error:', message);
+        break;
+      }
+      default: {
+        console.error('An error occurred:', message);
+        break;
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);
 
 export const apiGet = <T>(url: string) => fetcher.get<T, ApiResponse<T>>(url);
 export const apiPost = <T>(url: string, data?: any) => fetcher.post<T, ApiResponse<T>>(url, data);

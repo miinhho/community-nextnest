@@ -322,23 +322,35 @@ export class CommentRepository {
     try {
       await this.validateService.validateCommentExists(commentId);
 
-      return this.prisma.comment.findMany({
-        where: { id: commentId },
-        select: {
-          replies: {
-            select: {
-              ...commentSelections,
-              author: {
-                select: {
-                  ...userSelections,
+      const [replies, totalCount] = await this.prisma.$transaction([
+        this.prisma.comment.findMany({
+          where: { id: commentId },
+          select: {
+            replies: {
+              select: {
+                ...commentSelections,
+                author: {
+                  select: {
+                    ...userSelections,
+                  },
                 },
               },
+              orderBy: { createdAt: 'desc' },
             },
-            orderBy: { createdAt: 'desc' },
           },
-        },
-        skip: (page - 1) * size,
-        take: size,
+          skip: (page - 1) * size,
+          take: size,
+        }),
+        this.prisma.comment.count({
+          where: { parentId: commentId },
+        }),
+      ]);
+
+      return toPageData<typeof replies>({
+        data: replies,
+        totalCount,
+        page,
+        size,
       });
     } catch (err) {
       if (err instanceof NotFoundException) {

@@ -38,7 +38,7 @@ export class CommentController {
     });
     return {
       success: true,
-      data: { commentId, postId, authorId: user.id, content },
+      data: { commentId, postId, authorId: user.id },
     };
   }
 
@@ -57,7 +57,7 @@ export class CommentController {
 
     return {
       success: true,
-      data: { replyId, postId, authorId: user.id, content },
+      data: { replyId, postId, authorId: user.id },
     };
   }
 
