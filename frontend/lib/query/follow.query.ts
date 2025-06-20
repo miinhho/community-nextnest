@@ -2,6 +2,7 @@ import { apiPost } from '@/lib/axios';
 import { FollowStatus } from '@/lib/types/status.types';
 import { useMutation } from '@tanstack/react-query';
 
+// Follow Toggle Query
 interface FollowData {
   status: FollowStatus;
   targetId: string;

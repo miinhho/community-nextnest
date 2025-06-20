@@ -42,7 +42,7 @@ export const useRepliesQuery = (commentId: string, params: PageParams) =>
   });
 
 // Comment Create Query
-interface CommentCreateParams {
+interface CommentCreateBody {
   postId: string;
   content: string;
 }
@@ -51,17 +51,17 @@ interface CommentCreateData {
   postId: string;
   authorId: string;
 }
-export const commentCreateQueryFn = async (params: CommentCreateParams) => {
+export const commentCreateQueryFn = async (params: CommentCreateBody) => {
   const response = await apiPost<CommentCreateData>('comment', params);
   return response.data;
 };
 export const useCommentCreateQuery = () =>
   useMutation({
-    mutationFn: (params: CommentCreateParams) => commentCreateQueryFn(params),
+    mutationFn: (params: CommentCreateBody) => commentCreateQueryFn(params),
   });
 
 // Reply Create Query
-interface ReplyCreateParams {
+interface ReplyCreateBody {
   postId: string;
   content: string;
   commentId: string;
@@ -71,30 +71,35 @@ interface ReplyCreateData {
   postId: string;
   authorId: string;
 }
-export const replyCreateQueryFn = async (params: ReplyCreateParams) => {
+export const replyCreateQueryFn = async (params: ReplyCreateBody) => {
   const response = await apiPost<ReplyCreateData>('reply', params);
   return response.data;
 };
 export const useReplyCreateQuery = () =>
   useMutation({
-    mutationFn: (params: ReplyCreateParams) => replyCreateQueryFn(params),
+    mutationFn: (params: ReplyCreateBody) => replyCreateQueryFn(params),
   });
 
 // Comment Update Query
 interface CommentPutParams {
   commentId: string;
+}
+interface CommentPutBody {
   content: string;
 }
 interface CommentPutData {
   commentId: string;
 }
-export const commentPutQueryFn = async ({ commentId, content }: CommentPutParams) => {
+export const commentPutQueryFn = async ({
+  commentId,
+  content,
+}: CommentPutParams & CommentPutBody) => {
   const response = await apiPut<CommentPutData>(`comment/${commentId}`, { content });
   return response.data;
 };
 export const useCommentPutQuery = () =>
   useMutation({
-    mutationFn: (params: CommentPutParams) => commentPutQueryFn(params),
+    mutationFn: (params: CommentPutParams & CommentPutBody) => commentPutQueryFn(params),
   });
 
 // Comment Delete Query

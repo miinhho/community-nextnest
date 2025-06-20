@@ -38,12 +38,13 @@ interface PostPutData {
   authorId: string;
   content: string;
 }
-
 interface PostPutParams {
   postId: string;
+}
+interface PostPutBody {
   content: string;
 }
-export const postPutQueryFn = async ({ postId, content }: PostPutParams) => {
+export const postPutQueryFn = async ({ postId, content }: PostPutParams & PostPutBody) => {
   const response = await apiPost<PostPutData>(`post/${postId}`, {
     content,
   });
@@ -51,7 +52,7 @@ export const postPutQueryFn = async ({ postId, content }: PostPutParams) => {
 };
 export const usePostPutQuery = () =>
   useMutation({
-    mutationFn: (params: PostPutParams) => postPutQueryFn(params),
+    mutationFn: (params: PostPutParams & PostPutBody) => postPutQueryFn(params),
   });
 
 // Post Create Query
