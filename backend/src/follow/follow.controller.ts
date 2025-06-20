@@ -30,13 +30,11 @@ export class FollowController {
       case FollowStatus.FOLLOW:
         return {
           success: true,
-          message: '팔로우 성공',
           data: { targetId, status: FollowStatus.FOLLOW },
         };
       case FollowStatus.UNFOLLOW:
         return {
           success: true,
-          message: '언팔로우 성공',
           data: { targetId, status: FollowStatus.UNFOLLOW },
         };
     }

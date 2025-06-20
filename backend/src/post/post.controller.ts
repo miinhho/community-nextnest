@@ -123,7 +123,6 @@ export class PostController {
       case LikeStatus.MINUS:
         return {
           success: true,
-          message: '게시글 좋아요가 취소되었습니다.',
           data: {
             status: LikeStatus.MINUS,
             id: postId,
@@ -132,7 +131,6 @@ export class PostController {
       case LikeStatus.PLUS:
         return {
           success: true,
-          message: '게시글 좋아요가 추가되었습니다.',
           data: {
             status: LikeStatus.PLUS,
             id: postId,

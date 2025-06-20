@@ -69,7 +69,6 @@ export class CommentController {
     return {
       success: true,
       data: { commentId },
-      message: '댓글이 성공적으로 수정되었습니다.',
     };
   }
 
@@ -153,7 +152,6 @@ export class CommentController {
       case LikeStatus.PLUS:
         return {
           success: true,
-          message: '댓글 좋아요가 추가되었습니다.',
           data: {
             status: LikeStatus.PLUS,
             commentId,
@@ -162,7 +160,6 @@ export class CommentController {
       case LikeStatus.MINUS:
         return {
           success: true,
-          message: '댓글 좋아요가 취소되었습니다.',
           data: {
             status: LikeStatus.MINUS,
             commentId,
