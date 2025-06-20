@@ -1,10 +1,11 @@
+import { CONTENT_LEN } from '@/lib/validation/constant';
 import { z } from 'zod/v4';
 
 export const postContentDto = z.object({
   content: z
     .string()
-    .min(5, '5글자 이상의 내용을 적어주세요.')
-    .max(1_000_000, '1,000,000 글자 이상의 내용을 적을 수 없습니다.'),
+    .min(CONTENT_LEN.MIN, '내용을 더 적어주세요.')
+    .max(CONTENT_LEN.MAX, '더이상 내용을 적을 수 없습니다.'),
 });
 
 export type PostContentDto = z.infer<typeof postContentDto>;
