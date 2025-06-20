@@ -142,8 +142,6 @@ export class PostRepository {
         this.prisma.post.findMany({
           select: {
             ...postSelections,
-            createdAt: true,
-            updatedAt: true,
             commentCount: true,
             author: {
               select: {
@@ -182,8 +180,6 @@ export class PostRepository {
           where: { authorId: userId },
           select: {
             ...postSelections,
-            createdAt: true,
-            updatedAt: true,
             commentCount: true,
           },
           skip: (page - 1) * size,

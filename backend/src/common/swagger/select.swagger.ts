@@ -9,6 +9,8 @@ export const commentCommonSchema = {
     id: { type: 'string' },
     content: { type: 'string' },
     likesCount: { type: 'number' },
+    createdAt: { type: 'string', format: 'date-time' },
+    updatedAt: { type: 'string', format: 'date-time' },
   },
 };
 
@@ -38,5 +40,7 @@ export const postCommonSchema = {
     id: { type: 'string' },
     content: { type: 'string' },
     likeCount: { type: 'number' },
+    createdAt: { type: 'string', format: 'date-time' },
+    updatedAt: { type: 'string', format: 'date-time' },
   },
 };

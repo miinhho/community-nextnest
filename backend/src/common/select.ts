@@ -7,6 +7,8 @@ export const commentSelections = {
   id: true,
   content: true,
   likesCount: true,
+  createdAt: true,
+  updatedAt: true,
 };
 
 /**
@@ -18,6 +20,8 @@ export const postSelections = {
   id: true,
   content: true,
   likeCount: true,
+  createdAt: true,
+  updatedAt: true,
 };
 
 /**

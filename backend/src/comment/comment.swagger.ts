@@ -262,20 +262,14 @@ export const ApiGetCommentById = () =>
             properties: {
               ...commentCommonSchema.properties,
               postId: { type: 'string' },
-              createdAt: { type: 'string', format: 'date-time' },
-              updatedAt: { type: 'string', format: 'date-time' },
-              author: {
-                ...userCommonSchema,
-              },
+              author: userCommonSchema,
               replies: {
                 type: 'array',
                 items: {
                   type: 'object',
                   properties: {
                     ...commentCommonSchema.properties,
-                    author: {
-                      ...userCommonSchema,
-                    },
+                    author: userCommonSchema,
                   },
                 },
               },
@@ -284,9 +278,7 @@ export const ApiGetCommentById = () =>
                 nullable: true,
                 properties: {
                   ...commentCommonSchema.properties,
-                  author: {
-                    ...userCommonSchema,
-                  },
+                  author: userCommonSchema,
                 },
               },
             },
@@ -422,11 +414,7 @@ export const ApiGetCommentsByUserId = () =>
                   type: 'object',
                   properties: {
                     ...commentCommonSchema.properties,
-                    createdAt: { type: 'string', format: 'date-time' },
-                    updatedAt: { type: 'string', format: 'date-time' },
-                    post: {
-                      ...postCommonSchema,
-                    },
+                    post: postCommonSchema,
                   },
                 },
               },
