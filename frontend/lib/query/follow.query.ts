@@ -7,7 +7,7 @@ interface FollowData {
   targetId: string;
 }
 export const followQueryFn = async (targetId: string) => {
-  const response = await apiPost<FollowData>(`follow/${targetId}`);
+  const response = await apiPost<FollowData>(`follow-toggle/${targetId}`);
   return response.data;
 };
 export const useFollowQuery = () =>
