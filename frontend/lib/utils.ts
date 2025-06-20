@@ -1,4 +1,4 @@
-import { BaseTimestamp, TimeStampKey } from '@/lib/types/schema.types';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -6,14 +6,23 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const parseDates = <T extends BaseTimestamp>(obj: T) => {
-  return {
-    ...obj,
-    [TimeStampKey.CreatedAt]: new Date(obj[TimeStampKey.CreatedAt]),
-    [TimeStampKey.UpdatedAt]: new Date(obj[TimeStampKey.UpdatedAt]),
-  };
-};
+const dateFields = ['createdAt', 'updatedAt', 'emailVerified'];
+export const recursiveDateParse = (obj: any): any => {
+  if (!obj || typeof obj !== 'object') return obj;
 
-export const parseDatesArray = <T extends BaseTimestamp>(arr: T[]) => {
-  return arr.map((item) => parseDates(item));
+  if (Array.isArray(obj)) {
+    return obj.map(recursiveDateParse);
+  }
+
+  const result = { ...obj };
+
+  for (const key in result) {
+    if (dateFields.includes(key) && typeof result[key] === 'string') {
+      result[key] = new Date(result[key]);
+    } else if (typeof result[key] === 'object') {
+      result[key] = recursiveDateParse(result[key]);
+    }
+  }
+
+  return result;
 };

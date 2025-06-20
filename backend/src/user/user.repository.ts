@@ -92,6 +92,7 @@ export class UserRepository {
             select: {
               ...userSelections,
               role: true,
+              email: true,
               emailVerified: true,
               createdAt: true,
               updatedAt: true,

@@ -184,7 +184,6 @@ export class PostRepository {
             ...postSelections,
             createdAt: true,
             updatedAt: true,
-            authorId: true,
             commentCount: true,
           },
           skip: (page - 1) * size,

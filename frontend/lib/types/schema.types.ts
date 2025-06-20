@@ -1,11 +1,7 @@
-export enum TimeStampKey {
-  CreatedAt = 'createdAt',
-  UpdatedAt = 'updatedAt',
+export interface BaseTimestamp {
+  updatedAt: Date;
+  createdAt: Date;
 }
-
-export type BaseTimestamp = {
-  [key in TimeStampKey]: Date;
-};
 
 export interface User {
   id: string;

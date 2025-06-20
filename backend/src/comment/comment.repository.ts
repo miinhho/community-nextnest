@@ -224,7 +224,6 @@ export class CommentRepository {
           where: { authorId: userId },
           select: {
             ...commentSelections,
-            postId: true,
             post: {
               select: {
                 ...postSelections,

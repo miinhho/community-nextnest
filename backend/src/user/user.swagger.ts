@@ -12,6 +12,7 @@ import {
   ApiParam,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 
 export const ApiGetUserById = () =>
   applyDecorators(
@@ -35,6 +36,12 @@ export const ApiGetUserById = () =>
             type: 'object',
             properties: {
               ...userCommonSchema.properties,
+              email: { type: 'string', format: 'email' },
+              emailVerified: { type: 'string', format: 'date-time', nullable: true },
+              followingCount: { type: 'number' },
+              followerCount: { type: 'number' },
+              postCount: { type: 'number' },
+              role: { type: 'string', enum: [Role.ADMIN, Role.USER] },
               createdAt: { type: 'string', format: 'date-time' },
               updatedAt: { type: 'string', format: 'date-time' },
             },
@@ -66,7 +73,7 @@ export const ApiUpdateUser = () =>
         type: 'object',
         properties: {
           name: { type: 'string', nullable: true },
-          image: { type: 'string', description: '사용자 이미지 URL', nullable: true },
+          image: { type: 'string', nullable: true },
         },
       },
       required: true,
@@ -108,7 +115,7 @@ export const ApiDeleteUser = () =>
             type: 'object',
             properties: {
               ...userCommonSchema.properties,
-              image: { type: 'string', description: '사용자 이미지 URL', nullable: true },
+              email: { type: 'string', format: 'email' },
             },
           },
         },

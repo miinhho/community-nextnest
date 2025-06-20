@@ -422,7 +422,6 @@ export const ApiGetCommentsByUserId = () =>
                   type: 'object',
                   properties: {
                     ...commentCommonSchema.properties,
-                    postId: { type: 'string' },
                     createdAt: { type: 'string', format: 'date-time' },
                     updatedAt: { type: 'string', format: 'date-time' },
                     post: {

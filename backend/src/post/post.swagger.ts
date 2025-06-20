@@ -227,7 +227,6 @@ export const ApiGetUserPosts = () =>
                   type: 'object',
                   properties: {
                     ...postCommonSchema.properties,
-                    authorId: { type: 'string' },
                     createdAt: { type: 'string' },
                     updatedAt: { type: 'string' },
                     commentCount: { type: 'number' },

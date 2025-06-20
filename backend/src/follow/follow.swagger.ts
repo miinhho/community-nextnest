@@ -70,8 +70,13 @@ export const ApiGetUserFollowers = () =>
         properties: {
           success: { type: 'boolean' },
           data: {
-            type: 'array',
-            items: userCommonSchema,
+            type: 'object',
+            properties: {
+              followers: {
+                type: 'array',
+                items: userCommonSchema,
+              },
+            },
           },
           meta: pageMetaSchema,
         },
@@ -101,8 +106,13 @@ export const ApiGetUserFollowing = () =>
         properties: {
           success: { type: 'boolean' },
           data: {
-            type: 'array',
-            items: userCommonSchema,
+            type: 'object',
+            properties: {
+              following: {
+                type: 'array',
+                items: userCommonSchema,
+              },
+            },
           },
           meta: pageMetaSchema,
         },
@@ -164,7 +174,7 @@ export const ApiGetUserFollowingCount = () =>
           data: {
             type: 'object',
             properties: {
-              followersCount: { type: 'number' },
+              followingCount: { type: 'number' },
             },
           },
         },

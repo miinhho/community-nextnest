@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ApiPageResponse, ApiResponse } from '@/lib/types/api.types';
+import { recursiveDateParse } from '@/lib/utils';
 import axios from 'axios';
 
 export const fetcher = axios.create({
@@ -9,6 +11,11 @@ export const fetcher = axios.create({
   },
   timeout: 5000,
   withCredentials: true,
+});
+
+fetcher.interceptors.response.use((response) => {
+  response.data = recursiveDateParse(response.data);
+  return response;
 });
 
 export const apiGet = <T>(url: string) => fetcher.get<T, ApiResponse<T>>(url);
