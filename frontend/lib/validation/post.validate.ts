@@ -1,4 +1,4 @@
-import { CONTENT_LEN } from '@/lib/validation/constant';
+import { CONTENT_LEN } from '@/lib/constant';
 import { z } from 'zod/v4';
 
 export const postContentDto = z.object({

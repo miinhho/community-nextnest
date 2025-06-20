@@ -1,4 +1,4 @@
-import { COMMENT_LEN } from '@/lib/validation/constant';
+import { COMMENT_LEN } from '@/lib/constant';
 import { z } from 'zod/v4';
 
 export const commentContentDto = z.object({
