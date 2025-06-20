@@ -1,32 +1,26 @@
+'use client';
+
+import { usePostCreateQuery } from "@/lib/query/post.query";
 import { cn } from "@/lib/utils";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import status from "http-status";
 
 export function JsonSavePlugin() {
   const [editor] = useLexicalComposerContext();
+  const { mutate: postSaveMutation } = usePostCreateQuery();
 
-  // TODO : 확인 Modal 추가하기
+  // TODO : Use modal to show success or error message
   const handlePost = async () => {
     const lexicalJson = JSON.stringify(editor.toJSON);
-    console.log(lexicalJson);
 
-    const res = await fetch("/api/post", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: lexicalJson,
+    postSaveMutation(lexicalJson, {
+      onSuccess: () => {
+        alert("게시글이 성공적으로 저장되었습니다!");
+      },
+      onError: (error) => {
+        console.error("게시글 저장 중 오류 발생:", error);
+        alert("게시글 저장 중 오류가 발생했습니다. 다시 시도해주세요.");
+      },
     });
-
-    // TODO : status 분기별 처리
-    switch (res.status) {
-      case status.CREATED:
-        break;
-      case status.BAD_REQUEST:
-        break;
-      case status.UNAUTHORIZED:
-        break;
-      case status.INTERNAL_SERVER_ERROR:
-        break;
-    }
   }
 
   return (

@@ -1,3 +1,5 @@
+'use client';
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { PageMeta } from '@/lib/types/page.types';
 import { recursiveDateParse } from '@/lib/utils';
@@ -18,6 +20,14 @@ export const fetcher = axios.create({
   },
   timeout: 5000,
   withCredentials: true,
+});
+
+fetcher.interceptors.request.use((config) => {
+  const token = localStorage.getItem('access-token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 fetcher.interceptors.response.use(

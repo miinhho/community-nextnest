@@ -1,7 +1,10 @@
 'use client';
 
-import { fetchPostData } from "@/lib/fetch/post.fetch";
+import { usePostLikeQuery, usePostQuery } from "@/lib/query/post.query";
+import { LikeStatus } from "@/lib/types/status.types";
+import { cn } from "@/lib/utils";
 import { Heart, MessageCircle, Share } from "lucide-react";
+import { useCallback, useState } from "react";
 import { LexicalViewer } from "./editor/LexicalViewer";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
@@ -12,35 +15,40 @@ interface Props {
   postId: string;
 }
 
-export const Post = async ({ postId }: Props) => {
-  const { author, post } = await fetchPostData(postId);
+export const Post = ({ postId }: Props) => {
+  const { data } = usePostQuery(postId);
+  const { author, content } = data!;
+  const { mutate: postLikeMutation } = usePostLikeQuery();
+  const [liked, setLiked] = useState(false);
 
-  // TODO : Like Fetch 를 fetch helper 로 만들기 (많이 쓰일 것 같음)
-  const handleLike = async () => {
-    const likeData = await fetch(
-      `${process.env.URL}/api/post/${postId}:${process.env.PORT}`,
-      {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json",
-        },
+  const handleLike = useCallback(() => {
+    postLikeMutation(postId, {
+      onSuccess: (data) => {
+        if (data.status === LikeStatus.PLUS) {
+          alert("좋아요를 눌렀습니다!");
+        } else if (data.status === LikeStatus.MINUS) {
+          alert("좋아요를 취소했습니다!");
+        }
+        setLiked(true);
       },
-    );
-  };
+      onError: (error) => {
+        console.error("좋아요 처리 중 오류 발생:", error);
+        alert("좋아요 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
+      },
+    });
+  }, [postId, postLikeMutation]);
 
-  // TODO : 댓글 달 수 있는 에디터 띄우기
-  // shadcn/ui 의 Alert Dialog
+  // TODO : show comment editor
   const handleComment = () => {
 
   };
 
-  // TODO : alert 대신 Modal 처리
-  // shadcn/ui 의 Sonner
-  const handleShare = async () => {
+  // TODO : use sonner to show success modal
+  const handleShare = useCallback(async () => {
     const postUrl = `${process.env.URL}/post/${postId}`;
     await navigator.clipboard.writeText(postUrl);
     alert("링크가 성공적으로 복사되었습니다!");
-  };
+  }, [postId]);
 
   return (
     <Card className="max-w-xl mx-auto my-6 shadow-sm border">
@@ -51,17 +59,17 @@ export const Post = async ({ postId }: Props) => {
             {author.name.split(' ').map((n) => n[0]).join('')}
           </AvatarFallback>
         </Avatar>
-        <div>
+        <>
           <div className="font-semibold text-neutral-900">{author.name}</div>
           <div className="text-xs text-neutral-500 flex gap-1">
             <span>@{author.name}</span>
             <span>.</span>
           </div>
-        </div>
+        </>
       </CardHeader>
       <Separator />
       <CardContent className="py-4">
-        <LexicalViewer json={post.content} />
+        <LexicalViewer json={content} />
       </CardContent>
       <Separator />
       <div className="flex items-center gap-4 px-6 py-2 text-neutral-500">
@@ -80,7 +88,10 @@ export const Post = async ({ postId }: Props) => {
           className="flex items-center gap-1"
           onClick={handleLike}
         >
-          <Heart className="w-4 h-4" />
+          <Heart className={cn(
+            "w-4 h-4",
+            liked ? "bg-red-500" : "bg-accent",
+          )} />
           <span className="sr-only">좋아요</span>
         </Button>
         <Button
@@ -93,6 +104,6 @@ export const Post = async ({ postId }: Props) => {
           <span className="sr-only">공유</span>
         </Button>
       </div>
-    </Card>
+    </Card >
   );
 };
