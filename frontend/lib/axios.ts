@@ -1,7 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ApiPageResponse, ApiResponse } from '@/lib/types/api.types';
+import { PageMeta } from '@/lib/types/page.types';
 import { recursiveDateParse } from '@/lib/utils';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
+
+interface ApiResponse<T = any, D = any> extends AxiosResponse<T, D> {
+  success: boolean;
+  message?: string;
+  error?: string;
+  meta?: PageMeta;
+}
 
 export const fetcher = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000',
@@ -19,7 +26,6 @@ fetcher.interceptors.response.use((response) => {
 });
 
 export const apiGet = <T>(url: string) => fetcher.get<T, ApiResponse<T>>(url);
-export const apiPageGet = <T>(url: string) => fetcher.get<T, ApiPageResponse<T>>(url);
 export const apiPost = <T>(url: string, data?: any) => fetcher.post<T, ApiResponse<T>>(url, data);
 export const apiDelete = <T>(url: string) => fetcher.delete<T, ApiResponse<T>>(url);
 export const apiPut = <T>(url: string, data?: any) => fetcher.put<T, ApiResponse<T>>(url, data);

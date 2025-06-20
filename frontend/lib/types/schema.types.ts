@@ -3,23 +3,23 @@ export interface BaseTimestamp {
   createdAt: Date;
 }
 
-export interface User {
+export interface UserSchema {
   id: string;
   name: string;
   image: string;
 }
 
-export interface Post extends BaseTimestamp {
+export interface PostSchema extends BaseTimestamp {
   id: string;
   content: string;
   likeCount: number;
   commentCount: number;
-  author: User;
+  author: UserSchema;
 }
 
-export interface Comment extends BaseTimestamp {
+export interface CommentSchema extends BaseTimestamp {
   id: string;
   content: string;
   likeCount: number;
-  author: User;
+  author: UserSchema;
 }
