@@ -143,7 +143,7 @@ export class CommentController {
   @Post('comment/:id/like')
   @ApiToggleCommentLike()
   async toggleCommentLike(@IdParam() commentId: string, @User() user: UserData) {
-    const likeStatus: LikeStatus = await this.commentService.addCommentLikes({
+    const likeStatus = await this.commentService.addCommentLikes({
       commentId,
       userId: user.id,
     });

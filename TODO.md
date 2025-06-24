@@ -15,7 +15,7 @@ Backend:
 
 
 Frontend:
-  - [ ] 서버 fetch 용 쿼리 함수 구현
+  - [x] React Query 용 쿼리 함수 구현
   - [ ] Zustand 를 통해 유저 Auth 정보를 저장 및 사용
   - [ ] 글 컴포넌트 구현
   - [ ] 유저 페이지 구현

@@ -3,12 +3,12 @@ import { Role } from '@/lib/types/role.types';
 import { useMutation } from '@tanstack/react-query';
 
 // Auth Register Query
-interface AuthRegisterBody {
+export interface AuthRegisterBody {
   email: string;
   password: string;
   name: string;
 }
-interface AuthRegisterData {
+export interface AuthRegisterData {
   id: string;
   role: Role;
   accessToken: string;
@@ -23,11 +23,11 @@ export const useAuthRegisterQuery = () =>
   });
 
 // Auth Login Query
-interface AuthLoginBody {
+export interface AuthLoginBody {
   email: string;
   password: string;
 }
-interface AuthLoginData {
+export interface AuthLoginData {
   id: string;
   role: Role;
   accessToken: string;

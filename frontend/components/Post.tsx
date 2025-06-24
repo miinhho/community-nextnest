@@ -15,6 +15,7 @@ interface Props {
   postId: string;
 }
 
+// TODO : use sonner to show success modal
 export const Post = ({ postId }: Props) => {
   const { data } = usePostQuery(postId);
   const { author, content } = data!;
@@ -43,7 +44,6 @@ export const Post = ({ postId }: Props) => {
 
   };
 
-  // TODO : use sonner to show success modal
   const handleShare = useCallback(async () => {
     const postUrl = `${process.env.URL}/post/${postId}`;
     await navigator.clipboard.writeText(postUrl);
