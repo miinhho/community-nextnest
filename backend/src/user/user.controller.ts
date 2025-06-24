@@ -1,15 +1,15 @@
 import { IdParam } from '@/common/decorator/id.decorator';
 import { OptionalAuth } from '@/common/decorator/optional-auth.decorator';
 import { User } from '@/common/decorator/user.decorator';
+import { ApiUserTags } from '@/common/swagger/tags.swagger';
 import { UserData } from '@/common/user';
 import { UpdateUserDto } from '@/user/dto/user.dto';
 import { UserOwner } from '@/user/guard/user-owner.guard';
 import { ApiDeleteUser, ApiGetUserById, ApiUpdateUser } from '@/user/user.swagger';
 import { Body, Controller, Delete, Get, Patch } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 
-@ApiTags('user')
+@ApiUserTags()
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}

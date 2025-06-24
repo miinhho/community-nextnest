@@ -17,6 +17,7 @@ export class UserService {
    * @param props.password - 사용자 비밀번호
    * @param props.name - 사용자 이름
    * @returns 생성된 사용자 정보
+   * @throws {BadRequestException} 이미 사용 중인 이메일인 경우
    * @throws {InternalServerErrorException} 사용자 생성 중 오류 발생 시
    */
   async createUser(props: { email: string; password: string; name: string }) {

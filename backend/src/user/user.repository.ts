@@ -2,6 +2,7 @@ import { userSelections } from '@/common/select';
 import { PageParams, toPageData } from '@/common/utils/page';
 import { PrismaService } from '@/prisma/prisma.service';
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -21,6 +22,7 @@ export class UserRepository {
    * @param params.password - 사용자 비밀번호
    * @param params.name - 사용자 이름
    * @returns 생성된 사용자 정보
+   * @throws {BadRequestException} 이미 사용 중인 이메일인 경우
    * @throws {InternalServerErrorException} 사용자 생성 중 오류 발생 시
    */
   async createUser({
@@ -42,6 +44,9 @@ export class UserRepository {
       });
       return user;
     } catch (err) {
+      if (err.code === PrismaError.UniqueConstraintViolation) {
+        throw new BadRequestException('이미 사용 중인 이메일입니다.');
+      }
       this.logger.error('유저 생성 중 오류 발생', err.stack, { email, name });
       throw new InternalServerErrorException('유저 생성에 실패했습니다');
     }
@@ -67,7 +72,6 @@ export class UserRepository {
       if (err.code === PrismaError.RecordsNotFound) {
         throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
       }
-
       this.logger.error('사용자 정보 업데이트 중 오류 발생', err.stack, {
         userId: id,
         dataToUpdate,
@@ -122,7 +126,6 @@ export class UserRepository {
       if (err instanceof NotFoundException) {
         throw err;
       }
-
       this.logger.error('사용자 조회 중 오류 발생', err.stack, { userId: id });
       throw new InternalServerErrorException('사용자 조회에 실패했습니다.');
     }
@@ -157,7 +160,6 @@ export class UserRepository {
       if (err instanceof NotFoundException) {
         throw err;
       }
-
       this.logger.error('사용자 조회 중 오류 발생', err.stack, { email });
       throw new InternalServerErrorException('사용자 조회에 실패했습니다.');
     }
@@ -250,7 +252,6 @@ export class UserRepository {
       if (err.code === PrismaError.RecordsNotFound) {
         throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
       }
-
       this.logger.error('사용자 삭제 중 오류 발생', err.stack, { userId: id });
       throw new InternalServerErrorException('사용자 삭제에 실패했습니다.');
     }
@@ -279,7 +280,6 @@ export class UserRepository {
       if (err.code === PrismaError.RecordsNotFound) {
         throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
       }
-
       this.logger.error('사용자 삭제 중 오류 발생', err.stack, { email });
       throw new InternalServerErrorException('사용자 삭제에 실패했습니다.');
     }

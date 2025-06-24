@@ -6,3 +6,4 @@ export const ApiPostTags = () => ApiTags('post');
 export const ApiCommentTags = () => ApiTags('comment');
 export const ApiAuthTags = () => ApiTags('auth');
 export const ApiHealthCheckTags = () => ApiTags('health-check');
+export const ApiBlockTags = () => ApiTags('block');

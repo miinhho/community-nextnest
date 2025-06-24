@@ -98,11 +98,6 @@ export class AuthService {
    * @throws {InternalServerErrorException} 사용자 생성 또는 로그인 실패 시
    */
   async register(userDto: RegisterUserDto) {
-    const userExists = await this.userService.findUserExistsByEmail(userDto.email);
-    if (userExists) {
-      throw new BadRequestException('이미 사용 중인 이메일입니다');
-    }
-
     const hashedPassword = await this.hashPassword(userDto.password);
     const user = await this.userService.createUser({
       email: userDto.email,
