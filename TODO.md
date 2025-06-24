@@ -8,6 +8,8 @@ Backend:
   - [x] Logger 추가
   - [x] Repository 패턴 확장
   - [x] Swagger Docs
+  - [x] 유저 비공개 기능 추가
+  - [ ] 유저 차단 기능 추가
   - [ ] 알림 Schema 및 서비스 만들기
   - [ ] WebSocket 을 사용한 채팅, 알림 시스템
   - [ ] Web push 를 이용한 백그라운드 알림
@@ -25,7 +27,6 @@ Frontend:
 
 Feature:
   - [ ] 알람 기능
-  - [ ] 차단 기능
   - [ ] 유저 간 채팅 기능
 
 + React Native 로 모바일 앱까지 구현이 가능하다면 해도 좋다고 생각함 (추후 다른 포트폴리오를 개발하며 사이드로 할 듯)

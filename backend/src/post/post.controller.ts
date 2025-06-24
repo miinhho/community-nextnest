@@ -1,4 +1,5 @@
 import { IdParam } from '@/common/decorator/id.decorator';
+import { OptionalAuth } from '@/common/decorator/optional-auth.decorator';
 import { PageQuery } from '@/common/decorator/page-query.decorator';
 import { Public } from '@/common/decorator/public.decorator';
 import { User } from '@/common/decorator/user.decorator';
@@ -35,11 +36,11 @@ export class PostController {
     };
   }
 
-  @Public()
+  @OptionalAuth()
   @Get('post/:id')
   @ApiFindPostById()
-  async findPostById(@IdParam() id: string) {
-    const post = await this.postService.findPostById(id);
+  async findPostById(@IdParam() id: string, @User() user: UserData) {
+    const post = await this.postService.findPostById(id, user);
     return {
       success: true,
       data: {
@@ -48,11 +49,19 @@ export class PostController {
     };
   }
 
-  @Public()
+  @OptionalAuth()
   @Get('user/:id/posts')
   @ApiGetUserPosts()
-  async getUserPosts(@IdParam() id: string, @PageQuery() pageQuery: PageQuery) {
-    const { data: posts, meta } = await this.postService.findPostsByUserId(id, pageQuery);
+  async getUserPosts(
+    @IdParam() id: string,
+    @User() user: UserData,
+    @PageQuery() pageQuery: PageQuery,
+  ) {
+    const { data: posts, meta } = await this.postService.findPostsByUserId(
+      id,
+      pageQuery,
+      user,
+    );
     return {
       success: true,
       data: {
@@ -115,7 +124,7 @@ export class PostController {
   @ApiTogglePostLike()
   async toggleLike(@IdParam() postId: string, @User() user: UserData) {
     const status = await this.postService.addPostLikes({
-      userId: user.id,
+      user,
       postId,
     });
 

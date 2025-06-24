@@ -134,7 +134,8 @@ export const ApiTogglePostLike = () =>
     ApiBearerAuth(SwaggerAuthName),
     ApiOperation({
       summary: '게시글 좋아요 토글',
-      description: '게시글의 좋아요 상태를 토글합니다.',
+      description:
+        '게시글의 좋아요 상태를 토글합니다. 비공개 게시글은 작성자와 팔로워만 좋아요를 토글할 수 있습니다.',
     }),
     ApiParam({
       name: 'id',
@@ -166,9 +167,11 @@ export const ApiTogglePostLike = () =>
 export const ApiFindPostById = () =>
   applyDecorators(
     ApiTags('post'),
+    ApiBearerAuth(SwaggerAuthName),
     ApiOperation({
       summary: '게시글 조회',
-      description: 'ID로 특정 게시글의 상세 정보를 조회합니다.',
+      description:
+        'ID로 특정 게시글의 상세 정보를 조회합니다. 게시글이 비공개인 경우, 해당 게시글의 작성자와 팔로워인 사용자만 조회할 수 있습니다.',
     }),
     ApiParam({
       name: 'id',
@@ -202,9 +205,11 @@ export const ApiFindPostById = () =>
 export const ApiGetUserPosts = () =>
   applyDecorators(
     ApiTags('user'),
+    ApiBearerAuth(SwaggerAuthName),
     ApiOperation({
       summary: '사용자 게시글 목록 조회',
-      description: '특정 사용자가 작성한 게시글 목록을 페이지네이션으로 조회합니다.',
+      description:
+        '특정 사용자가 작성한 게시글 목록을 페이지네이션으로 조회합니다. 비공개 사용자인 경우, 해당 사용자의 팔로워만 조회할 수 있습니다.',
     }),
     ApiParam({
       name: 'id',
@@ -248,7 +253,8 @@ export const ApiFindPosts = () =>
     ApiTags('post'),
     ApiOperation({
       summary: '게시글 목록 조회',
-      description: '모든 게시글 목록을 페이지네이션으로 조회합니다.',
+      description:
+        '모든 게시글 목록을 페이지네이션으로 조회합니다. 비공개 게시글은 작성자와 팔로워만 조회할 수 있습니다.',
     }),
     PageSwaggerQuery(),
     ApiOkResponse({

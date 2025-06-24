@@ -1,10 +1,15 @@
 import { PageParams } from '@/common/utils/page';
+import { PrivateService } from '@/private/private.service';
 import { UserRepository } from '@/user/user.repository';
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly privateService: PrivateService,
+  ) {}
 
   /**
    * 새로운 사용자를 생성합니다.
@@ -37,8 +42,39 @@ export class UserService {
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
    * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
-  async findUserById(id: string) {
-    return this.userRepository.findUserById(id);
+  async findUserById(
+    id: string,
+    {
+      requesterId,
+      role,
+    }: {
+      requesterId?: string | null;
+      role?: Role;
+    },
+  ) {
+    const { isPrivate, ...user } = await this.userRepository.findUserById(id);
+    // 공개이거나, 관리자 권한을 가진 사용자이거나, 요청자가 본인인 경우
+    if (!isPrivate || role === Role.ADMIN || requesterId === id) {
+      return user;
+    }
+
+    if (!requesterId) {
+      throw new UnauthorizedException(
+        '사용자 정보에 접근할 수 없습니다. 인증이 필요합니다.',
+      );
+    }
+
+    const isAvailable = await this.privateService.isUserAvailable({
+      userId: requesterId,
+      targetId: id,
+    });
+
+    if (!isAvailable) {
+      throw new ForbiddenException('사용자 정보에 접근할 수 없습니다.');
+    }
+
+    // 팔로워인 경우에만 비공개 사용자 정보 반환
+    return user;
   }
 
   /**

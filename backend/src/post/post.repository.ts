@@ -88,6 +88,7 @@ export class PostRepository {
               id: true,
               name: true,
               image: true,
+              isPrivate: true,
             },
           },
         },
@@ -140,6 +141,11 @@ export class PostRepository {
     try {
       const [posts, totalCount] = await this.prisma.$transaction([
         this.prisma.post.findMany({
+          where: {
+            author: {
+              isPrivate: false,
+            },
+          },
           select: {
             ...postSelections,
             commentCount: true,
@@ -202,6 +208,43 @@ export class PostRepository {
     } catch (err) {
       this.logger.error('사용자 게시글 조회 중 오류 발생', err.stack, { userId });
       throw new InternalServerErrorException('사용자 게시글 조회에 실패했습니다.');
+    }
+  }
+
+  /**
+   * 게시글의 비공개 여부를 조회합니다.
+   * @param postId - 게시글 ID
+   * @returns 게시글 작성자의 비공개 설정 여부 (true/false)
+   * @throws {NotFoundException} 존재하지 않는 게시글인 경우
+   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
+   */
+  async isPostPrivate(postId: string) {
+    try {
+      const post = await this.prisma.post.findUnique({
+        where: { id: postId },
+        select: {
+          author: {
+            select: {
+              id: true,
+              isPrivate: true,
+            },
+          },
+        },
+      });
+      if (!post) {
+        throw new NotFoundException('존재하지 않는 게시글입니다.');
+      }
+      return {
+        authorId: post.author.id,
+        isPrivate: post.author.isPrivate,
+      };
+    } catch (err) {
+      if (err instanceof NotFoundException) {
+        throw err;
+      }
+
+      this.logger.error('게시글 비공개 여부 조회 중 오류 발생', err.stack, { postId });
+      throw new InternalServerErrorException('게시글 비공개 여부 조회에 실패했습니다.');
     }
   }
 

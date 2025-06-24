@@ -5,6 +5,7 @@ import { applyDecorators } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -18,7 +19,8 @@ export const ApiGetUserById = () =>
   applyDecorators(
     ApiOperation({
       summary: '사용자 조회',
-      description: 'ID로 특정 사용자의 정보를 조회합니다.',
+      description:
+        'ID로 특정 사용자의 정보를 조회합니다. 비공개 사용자의 경우, 요청자가 팔로우한 사용자만 조회할 수 있습니다.',
     }),
     ApiParam({
       name: 'id',
@@ -50,6 +52,10 @@ export const ApiGetUserById = () =>
       },
     }),
     ApiNotFoundResponse({ description: '사용자를 찾을 수 없음' }),
+    ApiUnauthorizedResponse({ description: '비공개 사용자 조회는 인증이 요구됨' }),
+    ApiForbiddenResponse({
+      description: '비공개 사용자의 경우, 팔로우한 사용자만 조회 가능',
+    }),
     ApiInternalServerErrorResponse({ description: '서버 오류' }),
   );
 

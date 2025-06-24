@@ -1,5 +1,7 @@
 import { IdParam } from '@/common/decorator/id.decorator';
-import { Public } from '@/common/decorator/public.decorator';
+import { OptionalAuth } from '@/common/decorator/optional-auth.decorator';
+import { User } from '@/common/decorator/user.decorator';
+import { UserData } from '@/common/user';
 import { UpdateUserDto } from '@/user/dto/user.dto';
 import { UserOwner } from '@/user/guard/user-owner.guard';
 import { ApiDeleteUser, ApiGetUserById, ApiUpdateUser } from '@/user/user.swagger';
@@ -12,11 +14,14 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Public()
+  @OptionalAuth()
   @Get(':id')
   @ApiGetUserById()
-  async getUserById(@IdParam() id: string) {
-    const user = await this.userService.findUserById(id);
+  async getUserById(@IdParam() id: string, @User() { id: userId, role }: UserData) {
+    const user = await this.userService.findUserById(id, {
+      requesterId: userId || null,
+      role: role || null,
+    });
     return {
       success: true,
       data: {

@@ -1,15 +1,17 @@
 import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { LikeStatus } from '@/common/status';
+import { UserData } from '@/common/user';
 import { PageParams } from '@/common/utils/page';
-import { ValidateService } from '@/common/validate/validate.service';
 import { PostRepository } from '@/post/post.repository';
-import { Injectable } from '@nestjs/common';
+import { PrivateService } from '@/private/private.service';
+import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class PostService {
   constructor(
     private readonly postRepository: PostRepository,
-    private readonly validateService: ValidateService,
+    private readonly privateService: PrivateService,
   ) {}
 
   /**
@@ -41,8 +43,29 @@ export class PostService {
    * @throws {NotFoundException} 게시글을 찾을 수 없는 경우
    * @throws {InternalServerErrorException} 게시글 조회 중 오류 발생 시
    */
-  async findPostById(id: string) {
-    return this.postRepository.findPostById(id);
+  async findPostById(id: string, user?: UserData) {
+    const post = await this.postRepository.findPostById(id);
+    if (!post.author.isPrivate) {
+      return post;
+    }
+    if (!user) {
+      throw new UnauthorizedException('비공개 게시글입니다, 로그인이 필요합니다.');
+    }
+
+    const { id: userId, role } = user;
+    if (role === Role.ADMIN || userId === post.author.id) {
+      return post;
+    }
+
+    const isAvailable = await this.privateService.isUserAvailable({
+      userId: userId,
+      targetId: post.author.id,
+    });
+    if (!isAvailable) {
+      throw new ForbiddenException('해당 게시글에 접근할 수 없습니다.');
+    }
+
+    return post;
   }
 
   /**
@@ -63,10 +86,24 @@ export class PostService {
    * @param pageParams.size - 페이지 크기 (기본값: 10)
    * @returns 해당 사용자의 게시글 목록과 총 개수 정보
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
+   * @throws {UnauthorizedException} 비공개 게시글에 접근하려는 경우
+   * @throws {ForbiddenException} 해당 사용자의 게시글에 접근할 수 없는 경우
    * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
-  async findPostsByUserId(userId: string, pageParams: PageParams) {
-    await this.validateService.validateUserExists(userId);
+  async findPostsByUserId(userId: string, pageParams: PageParams, user?: UserData) {
+    const isPrivate = await this.privateService.isUserPrivate(userId);
+    if (isPrivate) {
+      if (!user) {
+        throw new UnauthorizedException('비공개 게시글입니다, 로그인이 필요합니다.');
+      }
+      const isAvailable = await this.privateService.isUserAvailable({
+        userId: user?.id,
+        targetId: userId,
+      });
+      if (!isAvailable) {
+        throw new ForbiddenException('해당 사용자의 게시글에 접근할 수 없습니다.');
+      }
+    }
     return this.postRepository.findPostsByUserId(userId, pageParams);
   }
 
@@ -92,16 +129,29 @@ export class PostService {
    * @throws {InternalServerErrorException} 좋아요 처리 중 오류 발생 시
    */
   async addPostLikes({
-    userId,
+    user,
     postId,
     toggle = true,
   }: {
-    userId: string;
+    user: UserData;
     postId: string;
     toggle?: boolean;
   }) {
     try {
-      await this.validateService.validateUserExists(userId);
+      const { id: userId, role } = user;
+
+      // 사용자 유효성 및 게시글 비공개 여부 검증
+      const { isPrivate, authorId } = await this.postRepository.isPostPrivate(postId);
+      if (isPrivate || role !== Role.ADMIN) {
+        const isAvailable = await this.privateService.isUserAvailable({
+          userId,
+          targetId: authorId,
+        });
+        if (!isAvailable) {
+          throw new ForbiddenException('해당 사용자의 게시글에 접근할 수 없습니다.');
+        }
+      }
+
       await this.postRepository.addPostLikes({
         userId,
         postId,
@@ -111,7 +161,7 @@ export class PostService {
       // 이미 좋아요를 누른 경우 toggle 이 true 이면 좋아요를 취소
       if (toggle && err instanceof AlreadyLikeError) {
         return this.minusPostLikes({
-          userId,
+          userId: user.id,
           postId,
         });
       }

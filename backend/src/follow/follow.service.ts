@@ -3,13 +3,15 @@ import { PageParams } from '@/common/utils/page';
 import { ValidateService } from '@/common/validate/validate.service';
 import { AlreadyFollowError } from '@/follow/error/already-follow.error';
 import { FollowRepository } from '@/follow/follow.repository';
-import { Injectable } from '@nestjs/common';
+import { PrivateService } from '@/private/private.service';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class FollowService {
   constructor(
     private readonly followRepository: FollowRepository,
     private readonly validateService: ValidateService,
+    private readonly privateService: PrivateService,
   ) {}
 
   /**
@@ -32,7 +34,10 @@ export class FollowService {
     toggle?: boolean;
   }) {
     try {
-      await this.validateService.validateUserExists(targetId);
+      const isPrivate = await this.privateService.isUserPrivate(targetId);
+      if (isPrivate) {
+        // TODO : 팔로우 대상이 비공개 사용자일 경우, 팔로우 신청 알림 전송
+      }
       await this.followRepository.followUser({
         userId,
         targetId,

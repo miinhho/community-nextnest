@@ -96,6 +96,7 @@ export class UserRepository {
               emailVerified: true,
               createdAt: true,
               updatedAt: true,
+              isPrivate: true,
             },
           }),
           this.prisma.follow.count({
