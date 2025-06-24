@@ -16,7 +16,7 @@ Backend:
 
 Frontend:
   - [x] React Query 용 쿼리 함수 구현
-  - [ ] Zustand 를 통해 유저 Auth 정보를 저장 및 사용
+  - [x] Zustand 를 통해 유저 Auth 정보를 저장 및 사용
   - [ ] 글 컴포넌트 구현
   - [ ] 유저 페이지 구현
   - [ ] 댓글 컴포넌트 구현
@@ -24,9 +24,9 @@ Frontend:
   - [ ] 댓글 에디터 구현
 
 Feature:
+  - [ ] 알람 기능
   - [ ] 차단 기능
   - [ ] 유저 간 채팅 기능
-  - [ ] 알람 기능
 
 + React Native 로 모바일 앱까지 구현이 가능하다면 해도 좋다고 생각함 (추후 다른 포트폴리오를 개발하며 사이드로 할 듯)
 + React Native 로 개발할 시 Webhook 으로 하던지, 아니면 Lexical 에디터 구현을 좀 고생해서 스타일 리펙토링을 할 듯
