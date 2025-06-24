@@ -1,10 +1,9 @@
 import { FollowStatus } from '@/common/status';
+import { ApiJwtAuth } from '@/common/swagger/auth-info.swagger';
 import { pageMetaSchema, PageSwaggerQuery } from '@/common/swagger/page.swagger';
 import { userCommonSchema } from '@/common/swagger/select.swagger';
-import { SwaggerAuthName } from '@/config/swagger.config';
 import { applyDecorators } from '@nestjs/common';
 import {
-  ApiBearerAuth,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -16,7 +15,7 @@ import {
 export const ApiToggleFollowUser = () =>
   applyDecorators(
     ApiTags('follow'),
-    ApiBearerAuth(SwaggerAuthName),
+    ApiJwtAuth(),
     ApiOperation({
       summary: '팔로우 토글',
       description: '사용자의 팔로우 상태를 토글합니다.',

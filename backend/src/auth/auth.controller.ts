@@ -4,6 +4,7 @@ import { RegisterUserDto } from '@/auth/dto/register.dto';
 import { LocalAuthGuard } from '@/auth/guard/local.guard';
 import { Public } from '@/common/decorator/public.decorator';
 import { User } from '@/common/decorator/user.decorator';
+import { ApiAuthTags } from '@/common/swagger/tags.swagger';
 import { UserData } from '@/common/user';
 import app from '@/config/app.config';
 import jwt from '@/config/jwt.config';
@@ -18,10 +19,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import { ApiTags } from '@nestjs/swagger';
 import { CookieOptions, Request, Response } from 'express';
 
-@ApiTags('auth')
+@ApiAuthTags()
 @Controller('auth')
 export class AuthController {
   private readonly COOKIE_OPTIONS: CookieOptions;

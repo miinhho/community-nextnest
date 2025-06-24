@@ -1,9 +1,8 @@
+import { ApiJwtAuth } from '@/common/swagger/auth-info.swagger';
 import { userCommonSchema } from '@/common/swagger/select.swagger';
-import { SwaggerAuthName } from '@/config/swagger.config';
 import { UpdateUserDto } from '@/user/dto/user.dto';
 import { applyDecorators } from '@nestjs/common';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
@@ -61,7 +60,7 @@ export const ApiGetUserById = () =>
 
 export const ApiUpdateUser = () =>
   applyDecorators(
-    ApiBearerAuth(SwaggerAuthName),
+    ApiJwtAuth(),
     ApiOperation({
       summary: '사용자 정보 수정',
       description: '사용자의 프로필 정보를 수정합니다.',
@@ -100,7 +99,7 @@ export const ApiUpdateUser = () =>
 
 export const ApiDeleteUser = () =>
   applyDecorators(
-    ApiBearerAuth(SwaggerAuthName),
+    ApiJwtAuth(),
     ApiOperation({
       summary: '사용자 삭제',
       description: '사용자 계정을 삭제합니다.',

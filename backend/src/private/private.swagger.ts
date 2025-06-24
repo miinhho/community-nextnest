@@ -1,7 +1,7 @@
-import { SwaggerAuthName } from '@/config/swagger.config';
+import { ApiJwtAuth } from '@/common/swagger/auth-info.swagger';
+import { ApiUserTags } from '@/common/swagger/tags.swagger';
 import { applyDecorators } from '@nestjs/common';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
@@ -13,7 +13,8 @@ import {
 
 export const ApiUpdateUserPrivacy = () =>
   applyDecorators(
-    ApiBearerAuth(SwaggerAuthName),
+    ApiUserTags(),
+    ApiJwtAuth(),
     ApiOperation({
       summary: '사용자 공개 여부 수정',
       description: '사용자의 공개 여부를 수정합니다.',
@@ -51,6 +52,7 @@ export const ApiUpdateUserPrivacy = () =>
 
 export const ApiGetUserIsPrivate = () =>
   applyDecorators(
+    ApiUserTags(),
     ApiOperation({
       summary: '사용자 공개 여부 조회',
       description: '사용자의 공개 여부를 조회합니다.',

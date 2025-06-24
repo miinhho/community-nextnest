@@ -1,31 +1,30 @@
 import { CreateCommentDto, UpdateCommentDto } from '@/comment/dto/comment.dto';
 import { ReplyContentDto } from '@/comment/dto/reply.dto';
 import { LikeStatus } from '@/common/status';
+import { ApiJwtAuth } from '@/common/swagger/auth-info.swagger';
 import { PageSwaggerQuery, pageMetaSchema } from '@/common/swagger/page.swagger';
 import {
   commentCommonSchema,
   postCommonSchema,
   userCommonSchema,
 } from '@/common/swagger/select.swagger';
+import { ApiCommentTags, ApiPostTags, ApiUserTags } from '@/common/swagger/tags.swagger';
 import { COMMENT_LEN } from '@/common/utils/content';
-import { SwaggerAuthName } from '@/config/swagger.config';
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
-  ApiBearerAuth,
   ApiBody,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiTags,
 } from '@nestjs/swagger';
 
 export const ApiCreateComment = () =>
   applyDecorators(
-    ApiBearerAuth(SwaggerAuthName),
-    ApiTags('comment'),
+    ApiJwtAuth(),
+    ApiCommentTags(),
     ApiOperation({
       summary: '댓글 생성',
       description: '게시글에 새로운 댓글을 작성합니다.',
@@ -73,8 +72,8 @@ export const ApiCreateComment = () =>
 
 export const ApiCreateCommentReply = () =>
   applyDecorators(
-    ApiBearerAuth(SwaggerAuthName),
-    ApiTags('comment'),
+    ApiJwtAuth(),
+    ApiCommentTags(),
     ApiOperation({
       summary: '답글 생성',
       description: '댓글에 답글을 작성합니다.',
@@ -127,8 +126,8 @@ export const ApiCreateCommentReply = () =>
 
 export const ApiUpdateComment = () =>
   applyDecorators(
-    ApiBearerAuth(SwaggerAuthName),
-    ApiTags('comment'),
+    ApiJwtAuth(),
+    ApiCommentTags(),
     ApiOperation({
       summary: '댓글 수정',
       description: '기존 댓글의 내용을 수정합니다.',
@@ -175,8 +174,8 @@ export const ApiUpdateComment = () =>
 
 export const ApiDeleteComment = () =>
   applyDecorators(
-    ApiBearerAuth(SwaggerAuthName),
-    ApiTags('comment'),
+    ApiJwtAuth(),
+    ApiCommentTags(),
     ApiOperation({
       summary: '댓글 삭제',
       description: '댓글을 삭제합니다.',
@@ -203,8 +202,8 @@ export const ApiDeleteComment = () =>
 
 export const ApiToggleCommentLike = () =>
   applyDecorators(
-    ApiBearerAuth(SwaggerAuthName),
-    ApiTags('comment'),
+    ApiJwtAuth(),
+    ApiCommentTags(),
     ApiOperation({
       summary: '댓글 좋아요 토글',
       description: '댓글의 좋아요 상태를 토글합니다.',
@@ -238,7 +237,7 @@ export const ApiToggleCommentLike = () =>
 
 export const ApiGetCommentById = () =>
   applyDecorators(
-    ApiTags('comment'),
+    ApiCommentTags(),
     ApiOperation({
       summary: '댓글 조회',
       description: 'ID로 특정 댓글의 상세 정보를 조회합니다.',
@@ -288,7 +287,7 @@ export const ApiGetCommentById = () =>
 
 export const ApiGetCommentReplies = () =>
   applyDecorators(
-    ApiTags('comment'),
+    ApiCommentTags(),
     ApiOperation({
       summary: '댓글 답글 목록 조회',
       description: '특정 댓글의 답글 목록을 페이지네이션으로 조회합니다.',
@@ -330,7 +329,7 @@ export const ApiGetCommentReplies = () =>
 
 export const ApiGetCommentsByPostId = () =>
   applyDecorators(
-    ApiTags('post'),
+    ApiPostTags(),
     ApiOperation({
       summary: '게시글 댓글 목록 조회',
       description: '특정 게시글의 댓글 목록을 페이지네이션으로 조회합니다.',
@@ -385,7 +384,7 @@ export const ApiGetCommentsByPostId = () =>
 
 export const ApiGetCommentsByUserId = () =>
   applyDecorators(
-    ApiTags('user'),
+    ApiUserTags(),
     ApiOperation({
       summary: '사용자 댓글 목록 조회',
       description: '특정 사용자가 작성한 댓글 목록을 페이지네이션으로 조회합니다.',

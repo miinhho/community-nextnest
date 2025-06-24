@@ -1,10 +1,8 @@
 import { LoginUserDto } from '@/auth/dto/login.dto';
 import { RegisterUserDto } from '@/auth/dto/register.dto';
-import { SwaggerAuthName } from '@/config/swagger.config';
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
-  ApiBearerAuth,
   ApiBody,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
@@ -95,7 +93,7 @@ export const ApiLogin = () =>
 
 export const ApiLogout = () =>
   applyDecorators(
-    ApiBearerAuth(SwaggerAuthName),
+    ApiJwtAuth(),
     ApiOperation({
       summary: '로그아웃',
       description: '현재 세션을 종료하고 로그아웃합니다.',
@@ -116,7 +114,7 @@ export const ApiLogout = () =>
 
 export const ApiRefresh = () =>
   applyDecorators(
-    ApiBearerAuth(SwaggerAuthName),
+    ApiJwtAuth(),
     ApiOperation({
       summary: '토큰 갱신',
       description: '만료된 액세스 토큰을 갱신합니다.',

@@ -23,7 +23,7 @@ export class TokenService {
    * @throws {InternalServerErrorException} 토큰 생성 실패 시
    */
   async generateAccessToken(userId: string) {
-    const user = await this.userService.findUserById(userId);
+    const user = await this.userService.findUserByIdAsAdmin(userId);
     return this.jwtService.sign(
       {
         sub: userId,

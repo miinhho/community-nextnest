@@ -36,6 +36,17 @@ export class UserService {
   }
 
   /**
+   * ID를 통해 사용자 상세 정보를 조회합니다 (관리자 권한).
+   * @param id - 조회할 사용자 ID
+   * @returns 사용자 정보
+   * @throws {NotFoundException} 존재하지 않는 사용자인 경우
+   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
+   */
+  async findUserByIdAsAdmin(id: string) {
+    return this.userRepository.findUserById(id);
+  }
+
+  /**
    * ID를 통해 사용자 상세 정보를 조회합니다.
    * @param id - 조회할 사용자 ID
    * @returns 사용자 정보 (팔로워/팔로잉/게시글 수 포함)
@@ -49,7 +60,7 @@ export class UserService {
       role,
     }: {
       requesterId?: string | null;
-      role?: Role;
+      role?: Role | null;
     },
   ) {
     const { isPrivate, ...user } = await this.userRepository.findUserById(id);

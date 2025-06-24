@@ -1,11 +1,10 @@
+import { ApiJwtAuth } from '@/common/swagger/auth-info.swagger';
 import { PageSwaggerQuery, pageMetaSchema } from '@/common/swagger/page.swagger';
 import { postCommonSchema, userCommonSchema } from '@/common/swagger/select.swagger';
 import { CONTENT_LEN } from '@/common/utils/content';
-import { SwaggerAuthName } from '@/config/swagger.config';
 import { PostContentDto } from '@/post/dto/post.dto';
 import { applyDecorators } from '@nestjs/common';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
@@ -34,7 +33,7 @@ const postContentDtoSwagger = {
 export const ApiCreatePost = () =>
   applyDecorators(
     ApiTags('post'),
-    ApiBearerAuth(SwaggerAuthName),
+    ApiJwtAuth(),
     ApiOperation({
       summary: '게시글 생성',
       description: '새로운 게시글을 작성합니다.',
@@ -60,7 +59,7 @@ export const ApiCreatePost = () =>
 export const ApiUpdatePost = () =>
   applyDecorators(
     ApiTags('post'),
-    ApiBearerAuth(SwaggerAuthName),
+    ApiJwtAuth(),
     ApiOperation({
       summary: '게시글 수정',
       description: '기존 게시글의 내용을 수정합니다.',
@@ -96,7 +95,7 @@ export const ApiUpdatePost = () =>
 export const ApiDeletePost = () =>
   applyDecorators(
     ApiTags('post'),
-    ApiBearerAuth(SwaggerAuthName),
+    ApiJwtAuth(),
     ApiOperation({
       summary: '게시글 삭제',
       description: '게시글을 삭제합니다.',
@@ -131,7 +130,7 @@ export const ApiDeletePost = () =>
 export const ApiTogglePostLike = () =>
   applyDecorators(
     ApiTags('post'),
-    ApiBearerAuth(SwaggerAuthName),
+    ApiJwtAuth(),
     ApiOperation({
       summary: '게시글 좋아요 토글',
       description:
@@ -167,7 +166,7 @@ export const ApiTogglePostLike = () =>
 export const ApiFindPostById = () =>
   applyDecorators(
     ApiTags('post'),
-    ApiBearerAuth(SwaggerAuthName),
+    ApiJwtAuth(),
     ApiOperation({
       summary: '게시글 조회',
       description:
@@ -205,7 +204,7 @@ export const ApiFindPostById = () =>
 export const ApiGetUserPosts = () =>
   applyDecorators(
     ApiTags('user'),
-    ApiBearerAuth(SwaggerAuthName),
+    ApiJwtAuth(),
     ApiOperation({
       summary: '사용자 게시글 목록 조회',
       description:
