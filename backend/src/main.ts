@@ -3,6 +3,7 @@ import { ConsoleLogger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
@@ -27,6 +28,8 @@ async function bootstrap() {
   });
 
   app.use(helmet());
+  // * Production 에서는 Nginx 에서 gzip 압축 사용하기
+  app.use(compression());
 
   const swaggerDocument = new DocumentBuilder()
     .setTitle(config.get('swagger.title')!)

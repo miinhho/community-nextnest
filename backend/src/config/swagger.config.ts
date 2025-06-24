@@ -1,6 +1,16 @@
 import { registerAs } from '@nestjs/config';
 
 /**
+ * Swagger 인증 스키마 이름
+ *
+ * Swagger UI에서 JWT 인증을 위해 사용되는 보안 스키마의 이름입니다.
+ * API 엔드포인트에서 @ApiBearerAuth(SwaggerAuthName)으로 참조됩니다.
+ *
+ * @constant {string} SwaggerAuthName
+ */
+export const SwaggerAuthName = 'JWT-auth';
+
+/**
  * Swagger API 문서화 설정
  *
  * API 문서 자동 생성을 위한 Swagger 설정값들을 정의하는 모듈입니다.
