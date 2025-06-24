@@ -2,10 +2,9 @@
 
 트위터나 스레드와 같은 SNS 플랫폼에서 영감을 얻어 제작한 커뮤니티 플랫폼입니다.  
 
-
+<br>
 
 ## FrontEnd
-
 ### Next.js  
 - Caching & Fetching: Tanstack Query (React Query), Axios
 - Store: Zustand
@@ -15,7 +14,6 @@
 
 
 ## BackEnd
-
 ### Nest.js  
 - Database: PostgreSQL
 - ORM: Prisma
@@ -24,6 +22,11 @@
 - Security: Helmet
 - Health Check: nestjs/terminus
 - API Docs: Swagger
+
+## Cross Platform App
+
+### Expo
+- TODO...
 
 <br>
 
