@@ -6,7 +6,6 @@ import {
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiParam,
 } from '@nestjs/swagger';
 
 export const ApiBlockUser = () =>
@@ -69,36 +68,5 @@ export const ApiUnblockUser = () =>
       },
     }),
     ApiBadRequestResponse({ description: '차단되지 않은 사용자' }),
-    ApiInternalServerErrorResponse({ description: '서버 오류' }),
-  );
-
-export const ApiIsUserBlocked = () =>
-  applyDecorators(
-    ApiJwtAuth(),
-    ApiOperation({
-      summary: '사용자 차단 여부 확인',
-      description: '특정 사용자가 다른 사용자를 차단했는지 확인합니다.',
-    }),
-    ApiParam({
-      name: 'id',
-      description: '차단 여부를 확인할 대상 사용자 ID',
-      type: String,
-      required: true,
-    }),
-    ApiOkResponse({
-      description: '차단 여부 확인 성공',
-      schema: {
-        type: 'object',
-        properties: {
-          success: { type: 'boolean' },
-          data: {
-            type: 'object',
-            properties: {
-              isBlocked: { type: 'boolean', description: '차단 여부' },
-            },
-          },
-        },
-      },
-    }),
     ApiInternalServerErrorResponse({ description: '서버 오류' }),
   );

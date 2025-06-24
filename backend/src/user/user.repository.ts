@@ -67,6 +67,7 @@ export class UserRepository {
         data: {
           ...dataToUpdate,
         },
+        select: {},
       });
     } catch (err) {
       if (err.code === PrismaError.RecordsNotFound) {

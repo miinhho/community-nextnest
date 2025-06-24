@@ -13,8 +13,8 @@ import { CreateCommentDto, UpdateCommentDto } from '@/comment/dto/comment.dto';
 import { ReplyContentDto } from '@/comment/dto/reply.dto';
 import { CommentOwner } from '@/comment/guard/comment-owner.guard';
 import { IdParam } from '@/common/decorator/id.decorator';
+import { OptionalAuth } from '@/common/decorator/optional-auth.decorator';
 import { PageQuery } from '@/common/decorator/page-query.decorator';
-import { Public } from '@/common/decorator/public.decorator';
 import { User } from '@/common/decorator/user.decorator';
 import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
@@ -72,10 +72,10 @@ export class CommentController {
     };
   }
 
-  @Public()
+  @OptionalAuth()
   @Get('comment/:id')
   @ApiGetCommentById()
-  async getCommentById(@IdParam() id: string) {
+  async getCommentById(@IdParam() id: string, @User() user?: UserData) {
     const comment = await this.commentService.findCommentById(id);
     return {
       success: true,
@@ -83,10 +83,14 @@ export class CommentController {
     };
   }
 
-  @Public()
+  @OptionalAuth()
   @Get('post/:id/comments')
   @ApiGetCommentsByPostId()
-  async getCommentsByPostId(@IdParam() id: string, @PageQuery() pageQuery: PageQuery) {
+  async getCommentsByPostId(
+    @IdParam() id: string,
+    @PageQuery() pageQuery: PageQuery,
+    @User() user?: UserData,
+  ) {
     const { data: comments, meta } = await this.commentService.findCommentsByPostId(
       id,
       pageQuery,
@@ -101,10 +105,14 @@ export class CommentController {
     };
   }
 
-  @Public()
+  @OptionalAuth()
   @Get('user/:id/comments')
   @ApiGetCommentsByUserId()
-  async getCommentsByUserId(@IdParam() id: string, @PageQuery() pageQuery: PageQuery) {
+  async getCommentsByUserId(
+    @IdParam() id: string,
+    @PageQuery() pageQuery: PageQuery,
+    @User() user?: UserData,
+  ) {
     const { data: comments, meta } = await this.commentService.findCommentsByUserId(
       id,
       pageQuery,
@@ -118,10 +126,14 @@ export class CommentController {
     };
   }
 
-  @Public()
+  @OptionalAuth()
   @Get('comment/:id/replies')
   @ApiGetCommentReplies()
-  async getCommentReplies(@IdParam() id: string, @PageQuery() pageQuery: PageQuery) {
+  async getCommentReplies(
+    @IdParam() id: string,
+    @PageQuery() pageQuery: PageQuery,
+    @User() user?: UserData,
+  ) {
     const replies = await this.commentService.findRepliesByCommentId(id, pageQuery);
     return {
       success: true,

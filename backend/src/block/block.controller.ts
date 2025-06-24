@@ -1,10 +1,9 @@
 import { BlockService } from '@/block/block.service';
-import { ApiBlockUser, ApiIsUserBlocked, ApiUnblockUser } from '@/block/block.swagger';
-import { IdParam } from '@/common/decorator/id.decorator';
+import { ApiBlockUser, ApiUnblockUser } from '@/block/block.swagger';
 import { User } from '@/common/decorator/user.decorator';
 import { ApiBlockTags } from '@/common/swagger/tags.swagger';
 import { UserData } from '@/common/user';
-import { Body, Controller, Delete, Get, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Post } from '@nestjs/common';
 
 @ApiBlockTags()
 @Controller('block')
@@ -29,21 +28,6 @@ export class BlockController {
     await this.blockService.unblockUser({ userId, targetId });
     return {
       success: true,
-    };
-  }
-
-  @Get(':id')
-  @ApiIsUserBlocked()
-  async isUserBlocked(@IdParam() targetId: string, @User() { id: userId }: UserData) {
-    const isBlocked = await this.blockService.isUserBlocked({
-      userId,
-      targetId,
-    });
-    return {
-      success: true,
-      data: {
-        isBlocked,
-      },
     };
   }
 }

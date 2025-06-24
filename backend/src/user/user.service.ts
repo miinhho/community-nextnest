@@ -1,3 +1,4 @@
+import { UserData } from '@/common/user';
 import { PageParams } from '@/common/utils/page';
 import { PrivateService } from '@/private/private.service';
 import { UserRepository } from '@/user/user.repository';
@@ -54,30 +55,21 @@ export class UserService {
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
    * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
-  async findUserById(
-    id: string,
-    {
-      requesterId,
-      role,
-    }: {
-      requesterId?: string | null;
-      role?: Role | null;
-    },
-  ) {
-    const { isPrivate, ...user } = await this.userRepository.findUserById(id);
+  async findUserById(id: string, user?: UserData) {
+    const { isPrivate, ...restUserData } = await this.userRepository.findUserById(id);
     // 공개이거나, 관리자 권한을 가진 사용자이거나, 요청자가 본인인 경우
-    if (!isPrivate || role === Role.ADMIN || requesterId === id) {
-      return user;
+    if (!isPrivate || user?.role === Role.ADMIN || user?.id === id) {
+      return restUserData;
     }
 
-    if (!requesterId) {
+    if (!user) {
       throw new UnauthorizedException(
         '사용자 정보에 접근할 수 없습니다. 인증이 필요합니다.',
       );
     }
 
     const isAvailable = await this.privateService.isUserAvailable({
-      userId: requesterId,
+      userId: user.id,
       targetId: id,
     });
 

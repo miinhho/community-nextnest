@@ -1,12 +1,17 @@
+import { BlockService } from '@/block/block.service';
 import { CommentRepository } from '@/comment/comment.repository';
 import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { LikeStatus } from '@/common/status';
+import { UserData } from '@/common/user';
 import { PageParams } from '@/common/utils/page';
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CommentService {
-  constructor(private readonly commentRepository: CommentRepository) {}
+  constructor(
+    private readonly commentRepository: CommentRepository,
+    private readonly blockService: BlockService,
+  ) {}
 
   /**
    * 새 댓글을 생성합니다.
@@ -58,8 +63,10 @@ export class CommentService {
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
    * @throws {InternalServerErrorException} 댓글 조회 실패 시
    */
-  async findCommentById(id: string) {
-    return this.commentRepository.findCommentById(id);
+  async findCommentById(id: string, user?: UserData) {
+    // TODO : 차단된 사용자 & 차단한 사용자의 댓글은 조회하지 않도록 처리
+    const comment = await this.commentRepository.findCommentById(id);
+    return comment;
   }
 
   /**
@@ -70,7 +77,16 @@ export class CommentService {
    * @throws {NotFoundException} 사용자를 찾을 수 없는 경우
    * @throws {InternalServerErrorException} 댓글 조회 실패 시
    */
-  async findCommentsByUserId(userId: string, pageParams: PageParams) {
+  async findCommentsByUserId(userId: string, pageParams: PageParams, user?: UserData) {
+    if (user) {
+      const isBlocked = await this.blockService.eachUserBlocked({
+        userId: user.id,
+        otherUserId: userId,
+      });
+      if (isBlocked) {
+        throw new ForbiddenException('차단된 사용자의 댓글은 조회할 수 없습니다.');
+      }
+    }
     return this.commentRepository.findCommentsByUserId(userId, pageParams);
   }
 

@@ -238,9 +238,11 @@ export const ApiToggleCommentLike = () =>
 export const ApiGetCommentById = () =>
   applyDecorators(
     ApiCommentTags(),
+    ApiJwtAuth(),
     ApiOperation({
       summary: '댓글 조회',
-      description: 'ID로 특정 댓글의 상세 정보를 조회합니다.',
+      description:
+        'ID로 특정 댓글의 상세 정보를 조회합니다. 차단된 사용자의 댓글은 제외됩니다.',
     }),
     ApiParam({
       name: 'id',
@@ -260,16 +262,6 @@ export const ApiGetCommentById = () =>
               ...commentCommonSchema.properties,
               postId: { type: 'string' },
               author: userCommonSchema,
-              replies: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    ...commentCommonSchema.properties,
-                    author: userCommonSchema,
-                  },
-                },
-              },
               parent: {
                 type: 'object',
                 nullable: true,
@@ -288,9 +280,11 @@ export const ApiGetCommentById = () =>
 export const ApiGetCommentReplies = () =>
   applyDecorators(
     ApiCommentTags(),
+    ApiJwtAuth(),
     ApiOperation({
       summary: '댓글 답글 목록 조회',
-      description: '특정 댓글의 답글 목록을 페이지네이션으로 조회합니다.',
+      description:
+        '특정 댓글의 답글 목록을 페이지네이션으로 조회합니다. 차단된 사용자의 댓글은 제외됩니다.',
     }),
     ApiParam({
       name: 'id',
@@ -330,9 +324,11 @@ export const ApiGetCommentReplies = () =>
 export const ApiGetCommentsByPostId = () =>
   applyDecorators(
     ApiPostTags(),
+    ApiJwtAuth(),
     ApiOperation({
       summary: '게시글 댓글 목록 조회',
-      description: '특정 게시글의 댓글 목록을 페이지네이션으로 조회합니다.',
+      description:
+        '특정 게시글의 댓글 목록을 페이지네이션으로 조회합니다. 차단된 사용자의 댓글은 제외됩니다.',
     }),
     ApiParam({
       name: 'id',
@@ -385,9 +381,11 @@ export const ApiGetCommentsByPostId = () =>
 export const ApiGetCommentsByUserId = () =>
   applyDecorators(
     ApiUserTags(),
+    ApiJwtAuth(),
     ApiOperation({
       summary: '사용자 댓글 목록 조회',
-      description: '특정 사용자가 작성한 댓글 목록을 페이지네이션으로 조회합니다.',
+      description:
+        '특정 사용자가 작성한 댓글 목록을 페이지네이션으로 조회합니다. 차단된 사용자의 댓글은 제외됩니다.',
     }),
     ApiParam({
       name: 'id',

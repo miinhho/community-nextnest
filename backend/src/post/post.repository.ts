@@ -331,12 +331,14 @@ export class PostRepository {
               postId,
             },
           },
+          select: {},
         }),
         this.prisma.post.update({
           where: { id: postId },
           data: {
             likeCount: { decrement: 1 },
           },
+          select: {},
         }),
       ]);
     } catch (err) {

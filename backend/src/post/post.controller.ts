@@ -39,7 +39,7 @@ export class PostController {
   @OptionalAuth()
   @Get('post/:id')
   @ApiFindPostById()
-  async findPostById(@IdParam() id: string, @User() user: UserData) {
+  async findPostById(@IdParam() id: string, @User() user?: UserData) {
     const post = await this.postService.findPostById(id, user);
     return {
       success: true,
@@ -54,8 +54,8 @@ export class PostController {
   @ApiGetUserPosts()
   async getUserPosts(
     @IdParam() id: string,
-    @User() user: UserData,
     @PageQuery() pageQuery: PageQuery,
+    @User() user?: UserData,
   ) {
     const { data: posts, meta } = await this.postService.findPostsByUserId(
       id,

@@ -53,6 +53,7 @@ export class RefreshTokenService {
     try {
       await this.prismaService.refreshToken.delete({
         where: { id: tokenId },
+        select: {},
       });
     } catch (err) {
       if (err.code === PrismaError.RecordsNotFound) {

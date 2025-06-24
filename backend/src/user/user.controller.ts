@@ -17,15 +17,12 @@ export class UserController {
   @OptionalAuth()
   @Get(':id')
   @ApiGetUserById()
-  async getUserById(@IdParam() id: string, @User() { id: userId, role }: UserData) {
-    const user = await this.userService.findUserById(id, {
-      requesterId: userId || null,
-      role: role || null,
-    });
+  async getUserById(@IdParam() id: string, @User() user: UserData) {
+    const userData = await this.userService.findUserById(id, user);
     return {
       success: true,
       data: {
-        ...user,
+        ...userData,
       },
     };
   }
@@ -33,8 +30,8 @@ export class UserController {
   @UserOwner()
   @Patch(':id')
   @ApiUpdateUser()
-  async updateUser(@IdParam() id: string, @Body() { name, image }: UpdateUserDto) {
-    await this.userService.updateUserById(id, { name, image });
+  async updateUser(@IdParam() id: string, @Body() updateUserDto: UpdateUserDto) {
+    await this.userService.updateUserById(id, updateUserDto);
     return {
       success: true,
     };

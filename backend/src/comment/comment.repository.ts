@@ -160,7 +160,7 @@ export class CommentRepository {
   /**
    * ID로 댓글을 조회합니다.
    * @param id - 댓글 ID
-   * @returns 댓글 정보 (작성자, 부모 댓글, 답글 포함)
+   * @returns 댓글 정보
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
    * @throws {InternalServerErrorException} 댓글 조회 실패 시
    */
@@ -183,12 +183,6 @@ export class CommentRepository {
             select: {
               ...selections,
             },
-          },
-          replies: {
-            select: {
-              ...selections,
-            },
-            orderBy: { createdAt: 'desc' },
           },
           postId: true,
           createdAt: true,
@@ -487,12 +481,14 @@ export class CommentRepository {
               commentId,
             },
           },
+          select: {},
         }),
         this.prisma.comment.update({
           where: { id: commentId },
           data: {
             likesCount: { decrement: 1 },
           },
+          select: {},
         }),
       ]);
     } catch (err) {

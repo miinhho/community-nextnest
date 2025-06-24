@@ -52,6 +52,7 @@ export class FollowRepository {
             followingId: targetId,
           },
         },
+        select: {},
       });
     } catch (err) {
       if (err.code === PrismaError.RecordsNotFound) {
@@ -82,6 +83,7 @@ export class FollowRepository {
             followingId: targetId,
           },
         },
+        select: {},
       });
       return !!follow;
     } catch (err) {
@@ -101,7 +103,7 @@ export class FollowRepository {
    */
   async getFollowersCount(userId: string) {
     try {
-      return await this.prisma.follow.count({
+      return this.prisma.follow.count({
         where: { followingId: userId },
       });
     } catch (err) {
@@ -120,7 +122,7 @@ export class FollowRepository {
    */
   async getFollowingCount(userId: string) {
     try {
-      return await this.prisma.follow.count({
+      return this.prisma.follow.count({
         where: { followerId: userId },
       });
     } catch (err) {

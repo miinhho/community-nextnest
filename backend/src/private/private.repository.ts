@@ -27,6 +27,7 @@ export class PrivateRepository {
         data: {
           isPrivate,
         },
+        select: {},
       });
     } catch (err) {
       if (err.code === PrismaError.RecordsNotFound) {

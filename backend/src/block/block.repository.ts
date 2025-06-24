@@ -18,24 +18,79 @@ export class BlockRepository {
    * 특정 사용자가 다른 사용자를 차단했는지 확인합니다.
    * @param props.userId - 차단 여부를 확인할 사용자 ID
    * @param props.targetId - 차단된 사용자의 ID
-   * @returns 차단 여부 (true: 차단됨, false: 차단되지 않음)
+   * @returns 특정 사용자와 다른 사용자의 차단 관계 (true: 차단됨, false: 차단되지 않음)
    * @throws {InternalServerErrorException} 차단 여부 확인 중 오류 발생 시
    */
   async isUserBlocked({ userId, targetId }: { userId: string; targetId: string }) {
     try {
-      const block = await this.prisma.blocking.findUnique({
-        where: {
-          blockerId_blockedId: {
-            blockerId: userId,
-            blockedId: targetId,
+      const [userBlocked, targetBlocked] = await this.prisma.$transaction([
+        this.prisma.blocking.findUnique({
+          where: {
+            blockerId_blockedId: {
+              blockerId: userId,
+              blockedId: targetId,
+            },
           },
+          select: { id: true },
+        }),
+        this.prisma.blocking.findUnique({
+          where: {
+            blockerId_blockedId: {
+              blockerId: targetId,
+              blockedId: userId,
+            },
+          },
+          select: { id: true },
+        }),
+      ]);
+      return {
+        userBlocked: userBlocked !== null,
+        targetBlocked: targetBlocked !== null,
+      };
+    } catch (err) {
+      this.logger.error('차단 여부 확인 중 오류 발생', err.stack, {
+        userId,
+        targetId,
+      });
+      throw new InternalServerErrorException('차단 여부 확인 실패');
+    }
+  }
+
+  /**
+   * 두 사용자가 한 명이라도 차단했는지 확인합니다.
+   * @param props.userId - 첫 번째 사용자 ID
+   * @param props.otherUserId - 두 번째 사용자 ID
+   * @returns 두 사용자가 서로 차단했는지 여부 (true: 차단됨, false: 차단되지 않음)
+   * @throws {InternalServerErrorException} 차단 여부 확인 중 오류 발생 시
+   */
+  async eachUserBlocked({
+    userId,
+    otherUserId,
+  }: {
+    userId: string;
+    otherUserId: string;
+  }) {
+    try {
+      const block = await this.prisma.blocking.findFirst({
+        where: {
+          OR: [
+            {
+              blockerId: userId,
+              blockedId: otherUserId,
+            },
+            {
+              blockerId: otherUserId,
+              blockedId: userId,
+            },
+          ],
         },
+        select: { id: true },
       });
       return !(block === null);
     } catch (err) {
       this.logger.error('차단 여부 확인 중 오류 발생', err.stack, {
         userId,
-        targetId,
+        otherUserId,
       });
       throw new InternalServerErrorException('차단 여부 확인 실패');
     }
@@ -84,6 +139,7 @@ export class BlockRepository {
             blockedId: targetId,
           },
         },
+        select: {},
       });
     } catch (err) {
       if (err.code === PrismaError.RecordsNotFound) {
