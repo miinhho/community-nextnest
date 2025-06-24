@@ -53,6 +53,7 @@ export const Post = ({ postId }: Props) => {
   return (
     <Card className="max-w-xl mx-auto my-6 shadow-sm border">
       <CardHeader className="flex flex-row items-center gap-3 pb-2">
+        {/* 유저 아바타 표시 */}
         <Avatar>
           <AvatarImage src={author.image || ''} alt={author.name || ''} />
           <AvatarFallback>
@@ -68,10 +69,12 @@ export const Post = ({ postId }: Props) => {
         </>
       </CardHeader>
       <Separator />
+      {/* 글 컨텐츠 */}
       <CardContent className="py-4">
         <LexicalViewer json={content} />
       </CardContent>
       <Separator />
+      {/* 댓글, 좋아요, 공유 섹션 */}
       <div className="flex items-center gap-4 px-6 py-2 text-neutral-500">
         <Button
           variant="ghost"
