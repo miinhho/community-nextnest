@@ -94,6 +94,7 @@ export class CommentController {
     const { data: comments, meta } = await this.commentService.findCommentsByPostId(
       id,
       pageQuery,
+      user,
     );
     return {
       success: true,
@@ -116,6 +117,7 @@ export class CommentController {
     const { data: comments, meta } = await this.commentService.findCommentsByUserId(
       id,
       pageQuery,
+      user,
     );
     return {
       success: true,
@@ -134,7 +136,7 @@ export class CommentController {
     @PageQuery() pageQuery: PageQuery,
     @User() user?: UserData,
   ) {
-    const replies = await this.commentService.findRepliesByCommentId(id, pageQuery);
+    const replies = await this.commentService.findRepliesByCommentId(id, pageQuery, user);
     return {
       success: true,
       data: replies,

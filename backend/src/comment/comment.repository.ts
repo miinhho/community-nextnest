@@ -1,3 +1,4 @@
+import { getBlockFilter } from '@/block/utils/block-filter';
 import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { commentSelections, postSelections, userSelections } from '@/common/select';
 import { PageParams, toPageData } from '@/common/utils/page';
@@ -164,7 +165,7 @@ export class CommentRepository {
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
    * @throws {InternalServerErrorException} 댓글 조회 실패 시
    */
-  async findCommentById(id: string) {
+  async findCommentById(id: string, viewerId?: string) {
     const selections = {
       ...commentSelections,
       author: {
@@ -173,10 +174,12 @@ export class CommentRepository {
         },
       },
     };
-
     try {
       const comment = await this.prisma.comment.findUnique({
-        where: { id },
+        where: {
+          id,
+          ...getBlockFilter(viewerId),
+        },
         select: {
           ...selections,
           parent: {
@@ -206,16 +209,24 @@ export class CommentRepository {
    * @param params.page - 페이지 번호 (기본값: 1)
    * @param params.size - 페이지 크기 (기본값: 10)
    * @returns 페이지네이션된 댓글 목록
-   * @throws {NotFoundException} 사용자를 찾을 수 없는 경우
+   * @throws {NotFoundException} 사용자를 찾을 수 없거나 차단된 경우
    * @throws {InternalServerErrorException} 댓글 조회 실패 시
    */
-  async findCommentsByUserId(userId: string, { page = 1, size = 10 }: PageParams) {
+  async findCommentsByUserId(
+    userId: string,
+    { page = 1, size = 10 }: PageParams,
+    viewerId?: string,
+  ) {
     try {
       await this.validateService.validateUserExists(userId);
 
+      const filter = {
+        authorId: userId,
+        ...getBlockFilter(viewerId),
+      };
       const [comments, totalCount] = await this.prisma.$transaction([
         this.prisma.comment.findMany({
-          where: { authorId: userId },
+          where: filter,
           select: {
             ...commentSelections,
             post: {
@@ -231,7 +242,7 @@ export class CommentRepository {
           },
         }),
         this.prisma.comment.count({
-          where: { authorId: userId },
+          where: filter,
         }),
       ]);
 
@@ -256,16 +267,25 @@ export class CommentRepository {
    * @param params.page - 페이지 번호 (기본값: 1)
    * @param params.size - 페이지 크기 (기본값: 10)
    * @returns 페이지네이션된 댓글 목록
-   * @throws {NotFoundException} 게시글을 찾을 수 없는 경우
+   * @throws {NotFoundException} 게시글을 찾을 수 없거나 차단된 경우
    * @throws {InternalServerErrorException} 댓글 조회 실패 시
    */
-  async findCommentsByPostId(postId: string, { page = 1, size = 10 }: PageParams) {
+  async findCommentsByPostId(
+    postId: string,
+    { page = 1, size = 10 }: PageParams,
+    viewerId?: string,
+  ) {
     try {
       await this.validateService.validatePostExists(postId);
 
+      const filter = {
+        postId,
+        parentId: null,
+        ...getBlockFilter(viewerId),
+      };
       const [comments, totalCount] = await this.prisma.$transaction([
         this.prisma.comment.findMany({
-          where: { postId, parentId: null },
+          where: filter,
           select: {
             ...commentSelections,
             author: {
@@ -279,7 +299,7 @@ export class CommentRepository {
           orderBy: { createdAt: 'desc' },
         }),
         this.prisma.comment.count({
-          where: { postId, parentId: null },
+          where: filter,
         }),
       ]);
 
@@ -309,16 +329,24 @@ export class CommentRepository {
    * @param params.page - 페이지 번호 (기본값: 1)
    * @param params.size - 페이지 크기 (기본값: 10)
    * @returns 답글 목록
-   * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
+   * @throws {NotFoundException} 댓글을 찾을 수 없거나 차단된 경우
    * @throws {InternalServerErrorException} 답글 조회 실패 시
    */
-  async findRepliesByCommentId(commentId: string, { page = 1, size = 10 }: PageParams) {
+  async findRepliesByCommentId(
+    commentId: string,
+    { page = 1, size = 10 }: PageParams,
+    viewerId?: string,
+  ) {
     try {
       await this.validateService.validateCommentExists(commentId);
 
+      const filter = {
+        parentId: commentId,
+        ...getBlockFilter(viewerId),
+      };
       const [replies, totalCount] = await this.prisma.$transaction([
         this.prisma.comment.findMany({
-          where: { id: commentId },
+          where: filter,
           select: {
             replies: {
               select: {
@@ -336,7 +364,7 @@ export class CommentRepository {
           take: size,
         }),
         this.prisma.comment.count({
-          where: { parentId: commentId },
+          where: filter,
         }),
       ]);
 
@@ -426,11 +454,24 @@ export class CommentRepository {
    * @param params.userId - 사용자 ID
    * @param params.commentId - 댓글 ID
    * @throws {AlreadyLikeError} 이미 좋아요를 누른 경우
-   * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
+   * @throws {NotFoundException} 댓글을 찾을 수 없거나 차단된 경우
    * @throws {InternalServerErrorException} 좋아요 추가 실패 시
    */
   async addCommentLike({ userId, commentId }: { userId: string; commentId: string }) {
     try {
+      const comment = await this.prisma.comment.findUnique({
+        where: {
+          id: commentId,
+          ...getBlockFilter(userId),
+        },
+        select: {
+          id: true,
+        },
+      });
+      if (!comment) {
+        throw new NotFoundException('댓글을 찾을 수 없습니다.');
+      }
+
       await this.prisma.$transaction([
         this.prisma.commentLikes.create({
           data: {

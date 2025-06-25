@@ -152,4 +152,57 @@ export class BlockRepository {
       throw new InternalServerErrorException('사용자 차단 해제 실패');
     }
   }
+
+  /**
+   * 사용자가 차단한 사용자 목록을 조회합니다.
+   * @param userId - 차단한 사용자 ID
+   * @returns 차단된 사용자 목록
+   * @throws {InternalServerErrorException} 차단 목록 조회 중 오류 발생 시
+   */
+  async getBlockedUsers(userId: string) {
+    try {
+      return this.prisma.blocking.findMany({
+        where: { blockerId: userId },
+        select: {
+          blocked: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
+        },
+      });
+    } catch (err) {
+      this.logger.error('차단 목록 조회 중 오류 발생', err.stack, { userId });
+      throw new InternalServerErrorException('차단 목록 조회 실패');
+    }
+  }
+
+  /**
+   * 사용자를 차단한 사용자의 목록을 조회합니다.
+   * @param userId - 차단된 사용자 ID
+   * @returns 차단한 사용자 목록
+   * @throws {InternalServerErrorException} 차단된 사용자 목록 조회 중 오류 발생 시
+   */
+  async getBlockedByUsers(userId: string) {
+    try {
+      return this.prisma.blocking.findMany({
+        where: { blockedId: userId },
+        select: {
+          blocker: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+    } catch (err) {
+      this.logger.error('사용자를 차단한 사용자 목록 조회 중 오류 발생', err.stack, {
+        userId,
+      });
+      throw new InternalServerErrorException('사용자를 차단한 사용자 목록 조회 실패');
+    }
+  }
 }
