@@ -5,7 +5,6 @@ import { UserData } from '@/common/user';
 import jwt from '@/config/jwt.config';
 import { UserService } from '@/user/user.service';
 import {
-  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,

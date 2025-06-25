@@ -56,10 +56,10 @@ export class UserService {
    * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
   async findUserById(id: string, user?: UserData) {
-    const { isPrivate, ...restUserData } = await this.userRepository.findUserById(id);
+    const { isPrivate, ...userData } = await this.userRepository.findUserById(id);
     // 공개이거나, 관리자 권한을 가진 사용자이거나, 요청자가 본인인 경우
     if (!isPrivate || user?.role === Role.ADMIN || user?.id === id) {
-      return restUserData;
+      return userData;
     }
 
     if (!user) {
@@ -78,7 +78,7 @@ export class UserService {
     }
 
     // 팔로워인 경우에만 비공개 사용자 정보 반환
-    return user;
+    return userData;
   }
 
   /**

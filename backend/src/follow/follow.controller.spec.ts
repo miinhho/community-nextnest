@@ -1,3 +1,4 @@
+import { FollowModule } from '@/follow/follow.module';
 import { Test, TestingModule } from '@nestjs/testing';
 import { FollowController } from './follow.controller';
 
@@ -6,7 +7,7 @@ describe('FollowController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [FollowController],
+      imports: [FollowModule],
     }).compile();
 
     controller = module.get<FollowController>(FollowController);

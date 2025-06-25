@@ -1,3 +1,6 @@
+import { RefreshTokenService } from '@/auth/token/refresh-token.service';
+import { TokenService } from '@/auth/token/token.service';
+import { UserModule } from '@/user/user.module';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 
@@ -6,7 +9,8 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AuthService],
+      imports: [UserModule],
+      providers: [AuthService, TokenService, RefreshTokenService],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
