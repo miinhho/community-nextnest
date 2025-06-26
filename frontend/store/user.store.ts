@@ -1,4 +1,5 @@
 import { createStore } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 export type UserState = {
   id: string;
@@ -31,21 +32,28 @@ const initialState: UserState = {
 };
 
 export const createUserStore = () => {
-  return createStore<UserStore>()((set) => ({
-    ...initialState,
+  return createStore<UserStore>()(
+    persist(
+      (set) => ({
+        ...initialState,
 
-    setUser: (user) => set(() => ({ ...user })),
-    updateUserData: (data) => set((state) => ({ ...state, ...data })),
-    logout: () =>
-      set(() => ({
-        id: '',
-        name: '',
-        email: '',
-        image: undefined,
-        followersCount: 0,
-        followingCount: 0,
-        postsCount: 0,
-        isVerified: false,
-      })),
-  }));
+        setUser: (user) => set(() => ({ ...user })),
+        updateUserData: (data) => set((state) => ({ ...state, ...data })),
+        logout: () =>
+          set(() => ({
+            id: '',
+            name: '',
+            email: '',
+            image: undefined,
+            followersCount: 0,
+            followingCount: 0,
+            postsCount: 0,
+            isVerified: false,
+          })),
+      }),
+      {
+        name: 'user-storage',
+      },
+    ),
+  );
 };

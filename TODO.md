@@ -4,7 +4,6 @@ Backend:
   - [ ] Web push 를 이용한 백그라운드 알림
   - [ ] AWS S3 나 Cloudflare CDN 을 활용한 이미지 파일 저장
 
-
 Frontend:
   - [ ] 글 컴포넌트 구현
   - [ ] 유저 페이지 구현
