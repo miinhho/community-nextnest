@@ -61,4 +61,6 @@
   - Nest.js Logger
   - Health check
 
+TODO...프론트엔드 쪽 개발 특징은 작성하기 어려워서 나중에...
+
 <br>
