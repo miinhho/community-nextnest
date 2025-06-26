@@ -1,10 +1,6 @@
+import { PrismaDBError } from '@/prisma/error/prisma-db.error';
 import { PrismaService } from '@/prisma/prisma.service';
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';
 
 @Injectable()
@@ -18,7 +14,7 @@ export class PrivateRepository {
    * @param id - 업데이트할 사용자 ID
    * @param isPrivate - 공개 여부 (true: 비공개, false: 공개)
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
-   * @throws {InternalServerErrorException} 업데이트 중 오류 발생 시
+   * @throws {PrismaDBError} 업데이트 중 오류 발생 시
    */
   async updateUserPrivacyById(id: string, isPrivate: boolean) {
     try {
@@ -37,7 +33,7 @@ export class PrivateRepository {
       this.logger.error('사용자 공개 여부 업데이트 중 오류 발생', err.stack, {
         userId: id,
       });
-      throw new InternalServerErrorException('사용자 공개 여부 업데이트에 실패했습니다.');
+      throw new PrismaDBError('사용자 공개 여부 업데이트에 실패했습니다.', err.code);
     }
   }
 
@@ -46,7 +42,7 @@ export class PrivateRepository {
    * @param id - 조회할 사용자 ID
    * @returns 사용자 공개 여부 (true: 비공개, false: 공개)
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
-   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
+   * @throws {PrismaDBError} 조회 중 오류 발생 시
    */
   async isUserPrivate(id: string) {
     try {
@@ -63,7 +59,7 @@ export class PrivateRepository {
       return !user.isPrivate;
     } catch (err) {
       this.logger.error('사용자 공개 여부 조회 중 오류 발생', err.stack, { userId: id });
-      throw new InternalServerErrorException('사용자 공개 여부 조회에 실패했습니다.');
+      throw new PrismaDBError('사용자 공개 여부 조회에 실패했습니다.', err.code);
     }
   }
 
@@ -74,7 +70,7 @@ export class PrivateRepository {
    * @param props.targetId - 확인할 대상 사용자 ID
    * @returns 대상 사용자가 공개 상태이면 true, 비공개 상태이면서 팔로워인 경우에도 true, 그 외에는 false
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
-   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
+   * @throws {PrismaDBError} 조회 중 오류 발생 시
    */
   async isUserAvailable({ userId, targetId }: { userId: string; targetId: string }) {
     try {
@@ -97,7 +93,7 @@ export class PrivateRepository {
         userId,
         targetId,
       });
-      throw new InternalServerErrorException('사용자 공개 여부 확인에 실패했습니다.');
+      throw new PrismaDBError('사용자 공개 여부 확인에 실패했습니다.', err.code);
     }
   }
 }

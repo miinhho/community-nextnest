@@ -6,6 +6,7 @@ import { PostContentDto } from '@/post/dto/post.dto';
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiBody,
+  ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -244,6 +245,10 @@ export const ApiGetUserPosts = () =>
       },
     }),
     ApiNotFoundResponse({ description: '존재하지 않는 사용자' }),
+    ApiUnauthorizedResponse({
+      description: '비공개 사용자의 게시글에 접근하기 위해 인증이 필요함',
+    }),
+    ApiForbiddenResponse({ description: '비공개 사용자의 게시글에 접근할 수 없음' }),
     ApiInternalServerErrorResponse({ description: '서버 오류' }),
   );
 

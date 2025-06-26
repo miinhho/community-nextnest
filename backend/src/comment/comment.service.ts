@@ -16,7 +16,7 @@ export class CommentService {
    * @param props.content - 댓글 내용
    * @returns 생성된 댓글의 ID
    * @throws {NotFoundException} 게시글을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 댓글 작성 실패 시
+   * @throws {PrismaDBError} 댓글 작성 실패 시
    */
   async createComment(props: { postId: string; authorId: string; content: string }) {
     return this.commentRepository.createComment(props);
@@ -30,7 +30,7 @@ export class CommentService {
    * @param props.content - 답글 내용
    * @returns 생성된 답글의 ID
    * @throws {NotFoundException} 게시글 또는 댓글을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 답글 작성 실패 시
+   * @throws {PrismaDBError} 답글 작성 실패 시
    */
   async createCommentReply(props: {
     authorId: string;
@@ -46,7 +46,7 @@ export class CommentService {
    * @param props.commentId - 댓글 ID
    * @param props.content - 수정할 내용
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 댓글 수정 실패 시
+   * @throws {PrismaDBError} 댓글 수정 실패 시
    */
   async updateComment(props: { commentId: string; content: string }) {
     await this.commentRepository.updateComment(props);
@@ -57,7 +57,7 @@ export class CommentService {
    * @param id - 댓글 ID
    * @returns 댓글 정보 (작성자, 부모 댓글, 답글 포함)
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 댓글 조회 실패 시
+   * @throws {PrismaDBError} 댓글 조회 실패 시
    */
   async findCommentById(id: string, user?: UserData) {
     return this.commentRepository.findCommentById(id, user?.id);
@@ -69,7 +69,7 @@ export class CommentService {
    * @param pageParams - 페이지네이션 파라미터
    * @returns 페이지네이션된 댓글 목록
    * @throws {NotFoundException} 사용자를 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 댓글 조회 실패 시
+   * @throws {PrismaDBError} 댓글 조회 실패 시
    */
   async findCommentsByUserId(userId: string, pageParams: PageParams, user?: UserData) {
     return this.commentRepository.findCommentsByUserId(userId, pageParams, user?.id);
@@ -81,7 +81,7 @@ export class CommentService {
    * @param pageParams - 페이지네이션 파라미터
    * @returns 페이지네이션된 댓글 목록
    * @throws {NotFoundException} 게시글을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 댓글 조회 실패 시
+   * @throws {PrismaDBError} 댓글 조회 실패 시
    */
   async findCommentsByPostId(postId: string, pageParams: PageParams, user?: UserData) {
     return this.commentRepository.findCommentsByPostId(postId, pageParams, user?.id);
@@ -93,7 +93,7 @@ export class CommentService {
    * @param pageParams - 페이지네이션 파라미터
    * @returns 답글 목록
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 답글 조회 실패 시
+   * @throws {PrismaDBError} 답글 조회 실패 시
    */
   async findRepliesByCommentId(
     commentId: string,
@@ -108,7 +108,7 @@ export class CommentService {
    * @param commentId - 삭제할 댓글 ID
    * @returns 삭제된 댓글 정보
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 댓글 삭제 실패 시
+   * @throws {PrismaDBError} 댓글 삭제 실패 시
    */
   async deleteCommentById(commentId: string) {
     const postId = await this.commentRepository.findPostIdByCommentId(commentId);
@@ -126,7 +126,7 @@ export class CommentService {
    * @returns 좋아요 상태 (PLUS 또는 MINUS)
    * @throws {AlreadyLikeError} 이미 좋아요를 누른 경우 (toggle이 false일 때)
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 좋아요 추가 실패 시
+   * @throws {PrismaDBError} 좋아요 추가 실패 시
    */
   async addCommentLikes({
     userId,
@@ -161,7 +161,7 @@ export class CommentService {
    * @param props.commentId - 댓글 ID
    * @returns 좋아요 상태 (MINUS)
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 좋아요 취소 실패 시
+   * @throws {PrismaDBError} 좋아요 취소 실패 시
    */
   async minusCommentLikes(props: { userId: string; commentId: string }) {
     await this.commentRepository.minusCommentLike(props);

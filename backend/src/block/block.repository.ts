@@ -1,8 +1,8 @@
+import { PrismaDBError } from '@/prisma/error/prisma-db.error';
 import { PrismaService } from '@/prisma/prisma.service';
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
@@ -18,41 +18,51 @@ export class BlockRepository {
    * 특정 사용자가 다른 사용자를 차단했는지 확인합니다.
    * @param props.userId - 차단 여부를 확인할 사용자 ID
    * @param props.targetId - 차단된 사용자의 ID
-   * @returns 특정 사용자와 다른 사용자의 차단 관계 (true: 차단됨, false: 차단되지 않음)
-   * @throws {InternalServerErrorException} 차단 여부 확인 중 오류 발생 시
+   * @returns 특정 사용자와 다른 사용자의 차단 관계
+   * - `userBlocked`: 내가 차단했는지 여부
+   * - `targetBlocked`: 상대방이 나를 차단했는지 여부
+   * @throws {NotFoundException} 존재하지 않는 사용자인 경우
+   * @throws {PrismaDBError} 차단 여부 확인 중 오류 발생 시
    */
   async isUserBlocked({ userId, targetId }: { userId: string; targetId: string }) {
     try {
-      const [userBlocked, targetBlocked] = await this.prisma.$transaction([
-        this.prisma.blocking.findUnique({
-          where: {
-            blockerId_blockedId: {
-              blockerId: userId,
-              blockedId: targetId,
+      const [userInfo, targetInfo] = await this.prisma.$transaction([
+        this.prisma.user.findUnique({
+          where: { id: userId },
+          select: {
+            blocked: {
+              where: { id: targetId },
+              select: { id: true },
             },
+            id: true,
           },
-          select: { id: true },
         }),
-        this.prisma.blocking.findUnique({
-          where: {
-            blockerId_blockedId: {
-              blockerId: targetId,
-              blockedId: userId,
+        this.prisma.user.findUnique({
+          where: { id: targetId },
+          select: {
+            blocked: {
+              where: { id: userId },
+              select: { id: true },
             },
+            id: true,
           },
-          select: { id: true },
         }),
       ]);
+
+      if (userInfo === null || targetInfo === null) {
+        throw new NotFoundException('존재하지 않는 사용자입니다.');
+      }
+
       return {
-        userBlocked: userBlocked !== null,
-        targetBlocked: targetBlocked !== null,
+        userBlocked: userInfo.blocked !== null,
+        targetBlocked: targetInfo.blocked !== null,
       };
     } catch (err) {
       this.logger.error('차단 여부 확인 중 오류 발생', err.stack, {
         userId,
         targetId,
       });
-      throw new InternalServerErrorException('차단 여부 확인 실패');
+      throw new PrismaDBError('차단 여부 확인 실패', err.code);
     }
   }
 
@@ -61,7 +71,7 @@ export class BlockRepository {
    * @param props.userId - 첫 번째 사용자 ID
    * @param props.otherUserId - 두 번째 사용자 ID
    * @returns 두 사용자가 서로 차단했는지 여부 (true: 차단됨, false: 차단되지 않음)
-   * @throws {InternalServerErrorException} 차단 여부 확인 중 오류 발생 시
+   * @throws {PrismaDBError} 차단 여부 확인 중 오류 발생 시
    */
   async eachUserBlocked({
     userId,
@@ -92,7 +102,7 @@ export class BlockRepository {
         userId,
         otherUserId,
       });
-      throw new InternalServerErrorException('차단 여부 확인 실패');
+      throw new PrismaDBError('차단 여부 확인 실패', err.code);
     }
   }
 
@@ -101,7 +111,7 @@ export class BlockRepository {
    * @param props.userId - 차단하는 사용자 ID
    * @param props.targetId - 차단되는 사용자 ID
    * @throws {BadRequestException} 이미 차단된 사용자인 경우
-   * @throws {InternalServerErrorException} 차단 중 오류 발생 시
+   * @throws {PrismaDBError} 차단 중 오류 발생 시
    */
   async blockUser({ userId, targetId }: { userId: string; targetId: string }) {
     try {
@@ -111,6 +121,12 @@ export class BlockRepository {
           blockedId: targetId,
         },
       });
+
+      // 차단 시 관계 정리
+      await this.cleanUpRelation({
+        userId,
+        targetId,
+      });
     } catch (err) {
       if (err.code === PrismaError.UniqueConstraintViolation) {
         throw new BadRequestException('이미 차단된 사용자입니다.');
@@ -119,7 +135,7 @@ export class BlockRepository {
         userId,
         targetId,
       });
-      throw new InternalServerErrorException('사용자 차단 실패');
+      throw new PrismaDBError('사용자 차단 실패', err.code);
     }
   }
 
@@ -128,7 +144,7 @@ export class BlockRepository {
    * @param props.userId - 차단 해제하는 사용자 ID
    * @param props.targetId - 차단 해제되는 사용자 ID
    * @throws {NotFoundException} 차단되지 않은 사용자인 경우
-   * @throws {InternalServerErrorException} 차단 해제 중 오류 발생 시
+   * @throws {PrismaDBError} 차단 해제 중 오류 발생 시
    */
   async unblockUser({ userId, targetId }: { userId: string; targetId: string }) {
     try {
@@ -149,7 +165,7 @@ export class BlockRepository {
         userId,
         targetId,
       });
-      throw new InternalServerErrorException('사용자 차단 해제 실패');
+      throw new PrismaDBError('사용자 차단 해제 실패', err.code);
     }
   }
 
@@ -157,7 +173,7 @@ export class BlockRepository {
    * 사용자가 차단한 사용자 목록을 조회합니다.
    * @param userId - 차단한 사용자 ID
    * @returns 차단된 사용자 목록
-   * @throws {InternalServerErrorException} 차단 목록 조회 중 오류 발생 시
+   * @throws {PrismaDBError} 차단 목록 조회 중 오류 발생 시
    */
   async getBlockedUsers(userId: string) {
     try {
@@ -175,7 +191,7 @@ export class BlockRepository {
       });
     } catch (err) {
       this.logger.error('차단 목록 조회 중 오류 발생', err.stack, { userId });
-      throw new InternalServerErrorException('차단 목록 조회 실패');
+      throw new PrismaDBError('차단 목록 조회 실패', err.code);
     }
   }
 
@@ -183,7 +199,7 @@ export class BlockRepository {
    * 사용자를 차단한 사용자의 목록을 조회합니다.
    * @param userId - 차단된 사용자 ID
    * @returns 차단한 사용자 목록
-   * @throws {InternalServerErrorException} 차단된 사용자 목록 조회 중 오류 발생 시
+   * @throws {PrismaDBError} 차단된 사용자 목록 조회 중 오류 발생 시
    */
   async getBlockedByUsers(userId: string) {
     try {
@@ -202,7 +218,46 @@ export class BlockRepository {
       this.logger.error('사용자를 차단한 사용자 목록 조회 중 오류 발생', err.stack, {
         userId,
       });
-      throw new InternalServerErrorException('사용자를 차단한 사용자 목록 조회 실패');
+      throw new PrismaDBError('사용자를 차단한 사용자 목록 조회 실패', err.code);
+    }
+  }
+
+  /**
+   * 유저 관계를 정리합니다.
+   * @param userId - 차단을 요청한 사용자 ID
+   * @param targetId - 차단 대상 사용자 ID
+   * @throws {PrismaDBError} 차단 관계 정리 중 오류 발생 시
+   */
+  private async cleanUpRelation({
+    userId,
+    targetId,
+  }: {
+    userId: string;
+    targetId: string;
+  }) {
+    try {
+      await this.prisma.$transaction([
+        this.prisma.follow.deleteMany({
+          where: {
+            OR: [
+              {
+                followerId: userId,
+                followingId: targetId,
+              },
+              {
+                followerId: targetId,
+                followingId: userId,
+              },
+            ],
+          },
+        }),
+      ]);
+    } catch (err) {
+      this.logger.error('차단 관계 정리 중 오류 발생', err.stack, {
+        userId,
+        targetId,
+      });
+      throw new PrismaDBError('차단 관계 정리 실패', err.code);
     }
   }
 }

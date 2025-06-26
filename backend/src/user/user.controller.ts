@@ -17,7 +17,7 @@ export class UserController {
   @OptionalAuth()
   @Get(':id')
   @ApiGetUserById()
-  async getUserById(@IdParam() id: string, @User() user: UserData) {
+  async getUserById(@IdParam() id: string, @User() user?: UserData) {
     const userData = await this.userService.findUserById(id, user);
     return {
       success: true,

@@ -1,5 +1,6 @@
 import { LoginUserDto } from '@/auth/dto/login.dto';
 import { RegisterUserDto } from '@/auth/dto/register.dto';
+import { ApiJwtAuth } from '@/common/swagger/auth-info.swagger';
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiBadRequestResponse,

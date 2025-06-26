@@ -1,10 +1,10 @@
 import { userSelections } from '@/common/select';
 import { PageParams, toPageData } from '@/common/utils/page';
+import { PrismaDBError } from '@/prisma/error/prisma-db.error';
 import { PrismaService } from '@/prisma/prisma.service';
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
@@ -23,7 +23,7 @@ export class UserRepository {
    * @param params.name - 사용자 이름
    * @returns 생성된 사용자 정보
    * @throws {BadRequestException} 이미 사용 중인 이메일인 경우
-   * @throws {InternalServerErrorException} 사용자 생성 중 오류 발생 시
+   * @throws {PrismaDBError} 사용자 생성 중 오류 발생 시
    */
   async createUser({
     email,
@@ -48,7 +48,7 @@ export class UserRepository {
         throw new BadRequestException('이미 사용 중인 이메일입니다.');
       }
       this.logger.error('유저 생성 중 오류 발생', err.stack, { email, name });
-      throw new InternalServerErrorException('유저 생성에 실패했습니다');
+      throw new PrismaDBError('유저 생성에 실패했습니다', err.code);
     }
   }
 
@@ -58,7 +58,7 @@ export class UserRepository {
    * @param dataToUpdate.name - 사용자 이름 (선택사항)
    * @param dataToUpdate.image - 사용자 프로필 이미지 (선택사항)
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
-   * @throws {InternalServerErrorException} 업데이트 중 오류 발생 시
+   * @throws {PrismaDBError} 업데이트 중 오류 발생 시
    */
   async updateUserById(id: string, dataToUpdate: { name?: string; image?: string }) {
     try {
@@ -77,7 +77,7 @@ export class UserRepository {
         userId: id,
         dataToUpdate,
       });
-      throw new InternalServerErrorException('사용자 정보 업데이트에 실패했습니다.');
+      throw new PrismaDBError('사용자 정보 업데이트에 실패했습니다.', err.code);
     }
   }
 
@@ -86,7 +86,7 @@ export class UserRepository {
    * @param id - 조회할 사용자 ID
    * @returns 사용자 정보 (팔로워/팔로잉/게시글 수 포함)
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
-   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
+   * @throws {PrismaDBError} 조회 중 오류 발생 시
    */
   async findUserById(id: string) {
     try {
@@ -128,7 +128,7 @@ export class UserRepository {
         throw err;
       }
       this.logger.error('사용자 조회 중 오류 발생', err.stack, { userId: id });
-      throw new InternalServerErrorException('사용자 조회에 실패했습니다.');
+      throw new PrismaDBError('사용자 조회에 실패했습니다.', err.code);
     }
   }
 
@@ -138,7 +138,7 @@ export class UserRepository {
    * @param password - 비밀번호 포함 여부 (기본값: false)
    * @returns 사용자 정보
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
-   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
+   * @throws {PrismaDBError} 조회 중 오류 발생 시
    */
   async findUserByEmail(email: string, password: boolean = false) {
     try {
@@ -162,7 +162,7 @@ export class UserRepository {
         throw err;
       }
       this.logger.error('사용자 조회 중 오류 발생', err.stack, { email });
-      throw new InternalServerErrorException('사용자 조회에 실패했습니다.');
+      throw new PrismaDBError('사용자 조회에 실패했습니다.', err.code);
     }
   }
 
@@ -170,7 +170,7 @@ export class UserRepository {
    * 이메일로 사용자 존재 여부를 확인합니다.
    * @param email - 확인할 사용자 이메일
    * @returns 사용자 존재 여부 (true/false)
-   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
+   * @throws {PrismaDBError} 조회 중 오류 발생 시
    */
   async findUserExistsByEmail(email: string) {
     try {
@@ -183,7 +183,7 @@ export class UserRepository {
       return !!user;
     } catch (err) {
       this.logger.error('사용자 존재 여부 조회 중 오류 발생', err.stack, { email });
-      throw new InternalServerErrorException('사용자 존재 여부 조회에 실패했습니다.');
+      throw new PrismaDBError('사용자 존재 여부 조회에 실패했습니다.', err.code);
     }
   }
 
@@ -193,7 +193,7 @@ export class UserRepository {
    * @param params.page - 페이지 번호 (기본값: 1)
    * @param params.size - 페이지 크기 (기본값: 10)
    * @returns 페이지네이션이 적용된 사용자 목록과 총 개수 정보
-   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
+   * @throws {PrismaDBError} 조회 중 오류 발생 시
    */
   async findUsersByName(name: string, { page = 1, size = 10 }: PageParams) {
     try {
@@ -226,7 +226,7 @@ export class UserRepository {
       });
     } catch (err) {
       this.logger.error('사용자 목록 조회 중 오류 발생', err.stack, { name });
-      throw new InternalServerErrorException('사용자 조회에 실패했습니다.');
+      throw new PrismaDBError('사용자 조회에 실패했습니다.', err.code);
     }
   }
 
@@ -235,7 +235,7 @@ export class UserRepository {
    * @param id - 삭제할 사용자 ID
    * @returns 삭제된 사용자 정보 (ID, 이메일, 이름, 이미지)
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
-   * @throws {InternalServerErrorException} 삭제 중 오류 발생 시
+   * @throws {PrismaDBError} 삭제 중 오류 발생 시
    */
   async deleteUserById(id: string) {
     try {
@@ -254,7 +254,7 @@ export class UserRepository {
         throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
       }
       this.logger.error('사용자 삭제 중 오류 발생', err.stack, { userId: id });
-      throw new InternalServerErrorException('사용자 삭제에 실패했습니다.');
+      throw new PrismaDBError('사용자 삭제에 실패했습니다.', err.code);
     }
   }
 
@@ -263,7 +263,7 @@ export class UserRepository {
    * @param email - 삭제할 사용자 이메일
    * @returns 삭제된 사용자 정보 (ID, 이메일, 이름, 이미지)
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
-   * @throws {InternalServerErrorException} 삭제 중 오류 발생 시
+   * @throws {PrismaDBError} 삭제 중 오류 발생 시
    */
   async deleteUserByEmail(email: string) {
     try {
@@ -282,7 +282,7 @@ export class UserRepository {
         throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
       }
       this.logger.error('사용자 삭제 중 오류 발생', err.stack, { email });
-      throw new InternalServerErrorException('사용자 삭제에 실패했습니다.');
+      throw new PrismaDBError('사용자 삭제에 실패했습니다.', err.code);
     }
   }
 }

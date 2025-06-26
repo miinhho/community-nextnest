@@ -3,13 +3,9 @@ import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { commentSelections, postSelections, userSelections } from '@/common/select';
 import { PageParams, toPageData } from '@/common/utils/page';
 import { ValidateService } from '@/common/validate/validate.service';
+import { PrismaDBError } from '@/prisma/error/prisma-db.error';
 import { PrismaService } from '@/prisma/prisma.service';
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';
 
 @Injectable()
@@ -28,7 +24,7 @@ export class CommentRepository {
    * @param params.content - 댓글 내용
    * @returns 생성된 댓글의 ID
    * @throws {NotFoundException} 게시글을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 댓글 작성 실패 시
+   * @throws {PrismaDBError} 댓글 작성 실패 시
    */
   async createComment({
     postId,
@@ -69,7 +65,7 @@ export class CommentRepository {
         postId,
         authorId,
       });
-      throw new InternalServerErrorException('댓글 작성에 실패했습니다.');
+      throw new PrismaDBError('댓글 작성에 실패했습니다.', err.code);
     }
   }
 
@@ -81,7 +77,7 @@ export class CommentRepository {
    * @param params.content - 답글 내용
    * @returns 생성된 답글의 ID
    * @throws {NotFoundException} 게시글 또는 댓글을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 답글 작성 실패 시
+   * @throws {PrismaDBError} 답글 작성 실패 시
    */
   async createCommentReply({
     authorId,
@@ -126,7 +122,7 @@ export class CommentRepository {
         postId,
         commentId,
       });
-      throw new InternalServerErrorException('댓글 답글 작성에 실패했습니다.');
+      throw new PrismaDBError('댓글 답글 작성에 실패했습니다.', err.code);
     }
   }
 
@@ -135,7 +131,7 @@ export class CommentRepository {
    * @param params.commentId - 댓글 ID
    * @param params.content - 수정할 내용
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 댓글 수정 실패 시
+   * @throws {PrismaDBError} 댓글 수정 실패 시
    */
   async updateComment({ commentId, content }: { commentId: string; content: string }) {
     try {
@@ -154,7 +150,7 @@ export class CommentRepository {
       this.logger.error('댓글 수정 중 오류 발생', err.stack, {
         commentId,
       });
-      throw new InternalServerErrorException('댓글 수정에 실패했습니다.');
+      throw new PrismaDBError('댓글 수정에 실패했습니다.', err.code);
     }
   }
 
@@ -163,7 +159,7 @@ export class CommentRepository {
    * @param id - 댓글 ID
    * @returns 댓글 정보
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 댓글 조회 실패 시
+   * @throws {PrismaDBError} 댓글 조회 실패 시
    */
   async findCommentById(id: string, viewerId?: string) {
     const selections = {
@@ -199,7 +195,7 @@ export class CommentRepository {
       return comment;
     } catch (err) {
       this.logger.error('댓글 조회 중 오류 발생', err.stack, { id });
-      throw new InternalServerErrorException('댓글 조회에 실패했습니다.');
+      throw new PrismaDBError('댓글 조회에 실패했습니다.', err.code);
     }
   }
 
@@ -210,7 +206,7 @@ export class CommentRepository {
    * @param params.size - 페이지 크기 (기본값: 10)
    * @returns 페이지네이션된 댓글 목록
    * @throws {NotFoundException} 사용자를 찾을 수 없거나 차단된 경우
-   * @throws {InternalServerErrorException} 댓글 조회 실패 시
+   * @throws {PrismaDBError} 댓글 조회 실패 시
    */
   async findCommentsByUserId(
     userId: string,
@@ -257,7 +253,7 @@ export class CommentRepository {
         throw err;
       }
       this.logger.error('사용자 댓글 조회 중 오류 발생', err.stack, { userId });
-      throw new InternalServerErrorException('댓글 조회에 실패했습니다.');
+      throw new PrismaDBError('댓글 조회에 실패했습니다.', err.code);
     }
   }
 
@@ -268,7 +264,7 @@ export class CommentRepository {
    * @param params.size - 페이지 크기 (기본값: 10)
    * @returns 페이지네이션된 댓글 목록
    * @throws {NotFoundException} 게시글을 찾을 수 없거나 차단된 경우
-   * @throws {InternalServerErrorException} 댓글 조회 실패 시
+   * @throws {PrismaDBError} 댓글 조회 실패 시
    */
   async findCommentsByPostId(
     postId: string,
@@ -319,7 +315,7 @@ export class CommentRepository {
       }
 
       this.logger.error('게시글 댓글 조회 중 오류 발생', err.stack, { postId });
-      throw new InternalServerErrorException('댓글 조회에 실패했습니다.');
+      throw new PrismaDBError('댓글 조회에 실패했습니다.', err.code);
     }
   }
 
@@ -330,7 +326,7 @@ export class CommentRepository {
    * @param params.size - 페이지 크기 (기본값: 10)
    * @returns 답글 목록
    * @throws {NotFoundException} 댓글을 찾을 수 없거나 차단된 경우
-   * @throws {InternalServerErrorException} 답글 조회 실패 시
+   * @throws {PrismaDBError} 답글 조회 실패 시
    */
   async findRepliesByCommentId(
     commentId: string,
@@ -379,7 +375,7 @@ export class CommentRepository {
         throw err;
       }
       this.logger.error('댓글 답글 조회 중 오류 발생', err.stack, { commentId });
-      throw new InternalServerErrorException('댓글 답글 조회에 실패했습니다.');
+      throw new PrismaDBError('댓글 답글 조회에 실패했습니다.', err.code);
     }
   }
 
@@ -388,7 +384,7 @@ export class CommentRepository {
    * @param commentId - 댓글 ID
    * @returns 게시글 ID
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 게시글 ID 조회 실패 시
+   * @throws {PrismaDBError} 게시글 ID 조회 실패 시
    */
   async findPostIdByCommentId(commentId: string) {
     try {
@@ -404,7 +400,7 @@ export class CommentRepository {
       return comment.postId;
     } catch (err) {
       this.logger.error('댓글의 게시글 ID 조회 중 오류 발생', err.stack, { commentId });
-      throw new InternalServerErrorException('게시글 ID 조회에 실패했습니다.');
+      throw new PrismaDBError('게시글 ID 조회에 실패했습니다.', err.code);
     }
   }
 
@@ -414,7 +410,7 @@ export class CommentRepository {
    * @param params.postId - 게시글 ID
    * @returns 삭제된 댓글 정보
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 댓글 삭제 실패 시
+   * @throws {PrismaDBError} 댓글 삭제 실패 시
    */
   async deleteCommentById({ commentId, postId }: { commentId: string; postId: string }) {
     try {
@@ -445,7 +441,7 @@ export class CommentRepository {
         commentId,
         postId,
       });
-      throw new InternalServerErrorException('댓글 삭제에 실패했습니다.');
+      throw new PrismaDBError('댓글 삭제에 실패했습니다.', err.code);
     }
   }
 
@@ -455,7 +451,7 @@ export class CommentRepository {
    * @param params.commentId - 댓글 ID
    * @throws {AlreadyLikeError} 이미 좋아요를 누른 경우
    * @throws {NotFoundException} 댓글을 찾을 수 없거나 차단된 경우
-   * @throws {InternalServerErrorException} 좋아요 추가 실패 시
+   * @throws {PrismaDBError} 좋아요 추가 실패 시
    */
   async addCommentLike({ userId, commentId }: { userId: string; commentId: string }) {
     try {
@@ -501,7 +497,7 @@ export class CommentRepository {
         userId,
         commentId,
       });
-      throw new InternalServerErrorException('댓글 좋아요 추가에 실패했습니다.');
+      throw new PrismaDBError('댓글 좋아요 추가에 실패했습니다.', err.code);
     }
   }
 
@@ -510,7 +506,7 @@ export class CommentRepository {
    * @param params.userId - 사용자 ID
    * @param params.commentId - 댓글 ID
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 좋아요 취소 실패 시
+   * @throws {PrismaDBError} 좋아요 취소 실패 시
    */
   async minusCommentLike({ userId, commentId }: { userId: string; commentId: string }) {
     try {
@@ -541,7 +537,7 @@ export class CommentRepository {
         userId,
         commentId,
       });
-      throw new InternalServerErrorException('댓글 좋아요 취소에 실패했습니다.');
+      throw new PrismaDBError('댓글 좋아요 취소에 실패했습니다.', err.code);
     }
   }
 }

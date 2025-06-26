@@ -4,14 +4,7 @@ import { TokenService } from '@/auth/token/token.service';
 import { UserData } from '@/common/user';
 import jwt from '@/config/jwt.config';
 import { UserService } from '@/user/user.service';
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { compare, genSalt, hash } from 'bcrypt';
 
@@ -19,7 +12,6 @@ const SALT_ROUND = 12;
 
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger(AuthService.name);
   constructor(
     @Inject(jwt.KEY)
     private readonly jwtConfig: ConfigType<typeof jwt>,
@@ -38,27 +30,16 @@ export class AuthService {
    * @returns 검증된 사용자 정보
    * @throws {NotFoundException} 사용자를 찾을 수 없는 경우
    * @throws {UnauthorizedException} 비밀번호가 일치하지 않는 경우
-   * @throws {InternalServerErrorException} 인증 과정에서 오류 발생 시
+   * @throws {PrismaDBError} 인증 과정에서 오류 발생 시
    */
   async validateUser(email: string, password: string) {
-    try {
-      const user = await this.userService.findUserByEmail(email, true);
-      await this.comparePassword(password, user.password);
+    const user = await this.userService.findUserByEmail(email, true);
+    await this.comparePassword(password, user.password);
 
-      return {
-        id: user.id,
-        role: user.role,
-      } as UserData;
-    } catch (err) {
-      if (err instanceof NotFoundException || err instanceof UnauthorizedException) {
-        throw err;
-      }
-      this.logger.error('사용자 인증 실패', err.stack, {
-        email,
-        passwordLength: password.length,
-      });
-      throw new InternalServerErrorException('사용자 인증에 실패했습니다');
-    }
+    return {
+      id: user.id,
+      role: user.role,
+    } as UserData;
   }
 
   /**
@@ -66,7 +47,7 @@ export class AuthService {
    *
    * @param user - 인증된 사용자 정보
    * @returns 로그인 결과 (Access Token, Refresh Token, 사용자 정보)
-   * @throws {InternalServerErrorException} 토큰 생성 실패 시
+   * @throws {PrismaDBError} 토큰 생성 실패 시
    */
   async login(user: UserData) {
     const accessToken = await this.tokenService.generateAccessToken(user.id);
@@ -94,7 +75,7 @@ export class AuthService {
    * @param userDto - 회원가입 정보 (이메일, 비밀번호, 이름)
    * @returns 회원가입 및 로그인 결과 (Access Token, Refresh Token, 사용자 정보)
    * @throws {BadRequestException} 이미 사용 중인 이메일인 경우
-   * @throws {InternalServerErrorException} 사용자 생성 또는 로그인 실패 시
+   * @throws {PrismaDBError} 사용자 생성 또는 로그인 실패 시
    */
   async register(userDto: RegisterUserDto) {
     const hashedPassword = await this.hashPassword(userDto.password);
@@ -121,41 +102,32 @@ export class AuthService {
    * @throws {NotFoundException} 토큰을 찾을 수 없는 경우
    */
   async refreshTokens(refreshToken: string) {
-    try {
-      const payload = this.tokenService.verifyRefreshToken(refreshToken);
-      const userId = payload.sub;
+    const payload = this.tokenService.verifyRefreshToken(refreshToken);
+    const userId = payload.sub;
 
-      const storedToken =
-        await this.refreshTokenService.findRefreshTokenByToken(refreshToken);
+    const storedToken =
+      await this.refreshTokenService.findRefreshTokenByToken(refreshToken);
 
-      if (new Date(storedToken.expiresAt) < new Date()) {
-        await this.refreshTokenService.revokeRefreshToken(storedToken.id);
-        throw new UnauthorizedException('토큰이 만료되었습니다');
-      }
-
-      const newAccessToken = this.tokenService.generateAccessToken(userId);
-      const newRefreshToken = this.tokenService.generateRefreshToken(userId);
-
+    if (new Date(storedToken.expiresAt) < new Date()) {
       await this.refreshTokenService.revokeRefreshToken(storedToken.id);
-
-      await this.refreshTokenService.createRefreshToken(
-        userId,
-        newRefreshToken,
-        this.jwtConfig.refreshExpiration,
-      );
-
-      return {
-        accessToken: newAccessToken,
-        refreshToken: newRefreshToken,
-      };
-    } catch (err) {
-      if (err instanceof UnauthorizedException) {
-        throw err;
-      }
-
-      this.logger.error('토큰 갱신 실패', err.stack, { refreshToken });
-      throw new UnauthorizedException('토큰 갱신에 실패했습니다');
+      throw new UnauthorizedException('토큰이 만료되었습니다');
     }
+
+    const newAccessToken = this.tokenService.generateAccessToken(userId);
+    const newRefreshToken = this.tokenService.generateRefreshToken(userId);
+
+    await this.refreshTokenService.revokeRefreshToken(storedToken.id);
+
+    await this.refreshTokenService.createRefreshToken(
+      userId,
+      newRefreshToken,
+      this.jwtConfig.refreshExpiration,
+    );
+
+    return {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    };
   }
 
   /**
@@ -165,7 +137,7 @@ export class AuthService {
    *
    * @param refreshToken - 무효화할 Refresh Token
    * @throws {NotFoundException} 토큰을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 토큰 삭제 실패 시
+   * @throws {PrismaDBError} 토큰 삭제 실패 시
    */
   async logout(refreshToken: string) {
     const token = await this.refreshTokenService.findRefreshTokenByToken(refreshToken);

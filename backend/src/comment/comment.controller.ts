@@ -76,7 +76,7 @@ export class CommentController {
   @Get('comment/:id')
   @ApiGetCommentById()
   async getCommentById(@IdParam() id: string, @User() user?: UserData) {
-    const comment = await this.commentService.findCommentById(id);
+    const comment = await this.commentService.findCommentById(id, user);
     return {
       success: true,
       data: comment,
