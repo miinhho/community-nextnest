@@ -11,12 +11,6 @@ export class AlreadyFollowError extends BadRequestException {
    *
    * @param userId - 팔로우를 요청한 사용자 ID
    * @param targetId - 이미 팔로우된 대상 사용자 ID
-   *
-   * @example
-   * ```typescript
-   * throw new AlreadyFollowError('user123', 'target456');
-   * // 결과: "이미 팔로우를 한 유저입니다. userId: user123, targetId: target456"
-   * ```
    */
   constructor(userId: string, targetId: string) {
     super(`이미 팔로우를 한 유저입니다. userId: ${userId}, targetId: ${targetId}`);
