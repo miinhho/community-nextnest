@@ -3,18 +3,18 @@ import { ConsoleLogger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
+  const isProduction = process.env.NODE_ENV === 'production';
   const app = await NestFactory.create(AppModule, {
     logger: new ConsoleLogger({
       prefix: 'Backend',
       logLevels: ['error', 'warn', 'log'],
       timestamp: true,
-      json: process.env.NODE_ENV === 'production',
+      json: isProduction,
     }),
   });
 
@@ -28,20 +28,20 @@ async function bootstrap() {
   });
 
   app.use(helmet());
-  // * Production 에서는 Nginx 에서 gzip 압축 사용하기
-  app.use(compression());
 
-  const swaggerDocument = new DocumentBuilder()
-    .setTitle(config.get('swagger.title')!)
-    .setDescription(config.get('swagger.description')!)
-    .setVersion(config.get('swagger.version')!)
-    .addBearerAuth(config.get('swagger.bearerAuth'), SwaggerAuthName)
-    .build();
-  const documentFactory = () =>
-    SwaggerModule.createDocument(app, swaggerDocument, {
-      autoTagControllers: false,
-    });
-  SwaggerModule.setup('api', app, documentFactory());
+  if (!isProduction) {
+    const swaggerDocument = new DocumentBuilder()
+      .setTitle(config.get('swagger.title')!)
+      .setDescription(config.get('swagger.description')!)
+      .setVersion(config.get('swagger.version')!)
+      .addBearerAuth(config.get('swagger.bearerAuth'), SwaggerAuthName)
+      .build();
+    const documentFactory = () =>
+      SwaggerModule.createDocument(app, swaggerDocument, {
+        autoTagControllers: false,
+      });
+    SwaggerModule.setup('api', app, documentFactory());
+  }
 
   app.enableShutdownHooks();
 
