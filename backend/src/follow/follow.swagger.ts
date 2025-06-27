@@ -2,6 +2,7 @@ import { FollowStatus } from '@/common/status';
 import { ApiJwtAuth } from '@/common/swagger/auth-info.swagger';
 import { ApiPageQuery, pageMetaSchema } from '@/common/swagger/page.swagger';
 import { userCommonSchema } from '@/common/swagger/select.swagger';
+import { ApiUserTags } from '@/common/swagger/tags.swagger';
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiInternalServerErrorResponse,
@@ -9,12 +10,11 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiTags,
 } from '@nestjs/swagger';
 
 export const ApiToggleFollowUser = () =>
   applyDecorators(
-    ApiTags('follow'),
+    ApiUserTags(),
     ApiJwtAuth(),
     ApiOperation({
       summary: '팔로우 토글',
@@ -31,7 +31,6 @@ export const ApiToggleFollowUser = () =>
       schema: {
         properties: {
           success: { type: 'boolean' },
-          message: { type: 'string' },
           data: {
             type: 'object',
             properties: {
@@ -51,7 +50,7 @@ export const ApiToggleFollowUser = () =>
 
 export const ApiGetUserFollowers = () =>
   applyDecorators(
-    ApiTags('user'),
+    ApiUserTags(),
     ApiOperation({
       summary: '팔로워 목록 조회',
       description: '특정 사용자의 팔로워 목록을 페이지네이션으로 조회합니다.',
@@ -87,7 +86,7 @@ export const ApiGetUserFollowers = () =>
 
 export const ApiGetUserFollowing = () =>
   applyDecorators(
-    ApiTags('user'),
+    ApiUserTags(),
     ApiOperation({
       summary: '팔로잉 목록 조회',
       description: '특정 사용자가 팔로우하는 사용자 목록을 페이지네이션으로 조회합니다.',
@@ -123,7 +122,7 @@ export const ApiGetUserFollowing = () =>
 
 export const ApiGetUserFollowersCount = () =>
   applyDecorators(
-    ApiTags('user'),
+    ApiUserTags(),
     ApiOperation({
       summary: '팔로워 수 조회',
       description: '특정 사용자의 팔로워 수를 조회합니다.',
@@ -154,7 +153,7 @@ export const ApiGetUserFollowersCount = () =>
 
 export const ApiGetUserFollowingCount = () =>
   applyDecorators(
-    ApiTags('user'),
+    ApiUserTags(),
     ApiOperation({
       summary: '팔로잉 수 조회',
       description: '특정 사용자가 팔로우하는 사용자 수를 조회합니다.',

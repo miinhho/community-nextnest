@@ -18,7 +18,7 @@ import { FollowService } from './follow.service';
 export class FollowController {
   constructor(private readonly followService: FollowService) {}
 
-  @Post('follow-toggle/:id')
+  @Post('user/:id/follow')
   @ApiToggleFollowUser()
   async toggleFollowUser(@IdParam() targetId: string, @User() user: UserData) {
     const status = await this.followService.followUser({

@@ -51,11 +51,13 @@
   - 댓글 좋아요
 
 **개발**:
+  - Nginx 를 이용한 요청 제한, 보안, 요청 최적화
   - Prisma 에서의 인덱싱, 트랜잭션 최적화
   - 보안 설정(Helmet)
   - 네트워크 속도 최적화(Compression)
   - 모듈 의존성 최적화
   - Repository / Service / Controller 패턴을 통한 모듈화
+  - Docker 와 배포 스크립트로 자동화된 배포 과정
   - JSDoc
   - Swagger API 문서
   - Nest.js Logger
