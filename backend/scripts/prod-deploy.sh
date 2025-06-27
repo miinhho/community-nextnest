@@ -9,8 +9,8 @@ if [ ! -f "$COMPOSE_FILE" ]; then
     exit 1
 fi
 
-if [ ! -f ".env" ]; then
-    echo "Error: .env file not found!"
+if [ ! -f ".env.production.local" ]; then
+    echo "Error: .env.production.local file not found!"
     exit 1
 fi
 

@@ -22,11 +22,6 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
-  app.enableCors({
-    origin: config.get('app.origin')!,
-    credentials: true,
-  });
-
   app.use(helmet());
 
   if (!isProduction) {

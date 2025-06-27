@@ -1,32 +1,16 @@
-# Build stage
-FROM node:22.14.0-alpine AS builder
+FROM node:22.14.0-alpine
 
 RUN corepack enable pnpm
 
 WORKDIR /app
-
-COPY package.json pnpm-lock.yaml ./
-
-RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-RUN pnpm run build
+RUN pnpm install --frozen-lockfile
 
-# Production stage
-FROM node:22.14.0-alpine AS production
+RUN pnpm exec prisma generate
 
-RUN corepack enable pnpm
-
-WORKDIR /app
-
-COPY package.json pnpm-lock.yaml ./
-
-RUN pnpm install --frozen-lockfile --prod
-
-COPY prisma ./prisma
-
-COPY --from=builder /app/dist ./dist
+RUN ls -la node_modules/.prisma/client/
 
 EXPOSE 4000
 

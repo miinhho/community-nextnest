@@ -9,15 +9,9 @@ if [ ! -f "$COMPOSE_FILE" ]; then
     exit 1
 fi
 
-if [ ! -f ".env" ]; then
-    echo "Warning: .env file not found!"
-    if [ -f ".env.example" ]; then
-        echo "Creating .env from .env.example..."
-        cp .env.example .env
-    else
-        echo "Error: .env.example also not found!"
-        exit 1
-    fi
+if [ ! -f ".env.development.local" ]; then
+    echo "Warning: .env.deployment.local file not found!"
+    exit 1
 fi
 
 echo "Stopping existing containers..."
