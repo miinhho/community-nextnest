@@ -59,3 +59,13 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Prisma
 prisma/migrations
+
+# Docker
+docker-compose.override.yml
+
+# Nginx
+nginx/ssl/*.pem
+nginx/ssl/*.key
+nginx/ssl/*.crt
+nginx/logs/
+
