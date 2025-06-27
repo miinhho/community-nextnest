@@ -1,5 +1,5 @@
 Backend:
-  - [ ] 알림 서비스 만들기
+  - [ ] Nest.js Event Emitter API 를 사용해서 알람 서비스 결합도 약화 및 확장성 강화
   - [ ] WebSocket 을 사용한 채팅, 알림 시스템
   - [ ] Web push 를 이용한 백그라운드 알림
   - [ ] AWS S3 나 Cloudflare CDN 을 활용한 이미지 파일 저장

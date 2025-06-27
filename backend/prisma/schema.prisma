@@ -171,6 +171,7 @@ model Notification {
   id      String           @id @default(uuid())
   userId  String
   type    NotificationType
+  image   String?
   title   String
   content String?
   isRead  Boolean          @default(false)
@@ -199,6 +200,6 @@ enum NotificationType {
   COMMENT_LIKE
   COMMENT_REPLY
   FOLLOW
-  MENTION
+  MESSAGE
   SYSTEM
 }

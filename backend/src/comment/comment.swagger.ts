@@ -2,7 +2,7 @@ import { CreateCommentDto, UpdateCommentDto } from '@/comment/dto/comment.dto';
 import { ReplyContentDto } from '@/comment/dto/reply.dto';
 import { LikeStatus } from '@/common/status';
 import { ApiJwtAuth } from '@/common/swagger/auth-info.swagger';
-import { PageSwaggerQuery, pageMetaSchema } from '@/common/swagger/page.swagger';
+import { ApiPageQuery, pageMetaSchema } from '@/common/swagger/page.swagger';
 import {
   commentCommonSchema,
   postCommonSchema,
@@ -292,7 +292,7 @@ export const ApiGetCommentReplies = () =>
       type: 'string',
       format: 'uuid',
     }),
-    PageSwaggerQuery(),
+    ApiPageQuery(),
     ApiOkResponse({
       description: '댓글 답글 조회 성공',
       schema: {
@@ -336,7 +336,7 @@ export const ApiGetCommentsByPostId = () =>
       type: 'string',
       format: 'uuid',
     }),
-    PageSwaggerQuery(),
+    ApiPageQuery(),
     ApiOkResponse({
       description: '댓글 조회 성공',
       schema: {
@@ -393,7 +393,7 @@ export const ApiGetCommentsByUserId = () =>
       type: 'string',
       format: 'uuid',
     }),
-    PageSwaggerQuery(),
+    ApiPageQuery(),
     ApiOkResponse({
       description: '사용자의 댓글 조회 성공',
       schema: {

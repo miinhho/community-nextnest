@@ -1,6 +1,7 @@
 import { ApiJwtAuth } from '@/common/swagger/auth-info.swagger';
-import { PageSwaggerQuery, pageMetaSchema } from '@/common/swagger/page.swagger';
+import { ApiPageQuery, pageMetaSchema } from '@/common/swagger/page.swagger';
 import { postCommonSchema, userCommonSchema } from '@/common/swagger/select.swagger';
+import { ApiPostTags, ApiUserTags } from '@/common/swagger/tags.swagger';
 import { CONTENT_LEN } from '@/common/utils/content';
 import { PostContentDto } from '@/post/dto/post.dto';
 import { applyDecorators } from '@nestjs/common';
@@ -12,7 +13,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
@@ -33,7 +33,7 @@ const postContentDtoSwagger = {
 
 export const ApiCreatePost = () =>
   applyDecorators(
-    ApiTags('post'),
+    ApiPostTags(),
     ApiJwtAuth(),
     ApiOperation({
       summary: '게시글 생성',
@@ -59,7 +59,7 @@ export const ApiCreatePost = () =>
 
 export const ApiUpdatePost = () =>
   applyDecorators(
-    ApiTags('post'),
+    ApiPostTags(),
     ApiJwtAuth(),
     ApiOperation({
       summary: '게시글 수정',
@@ -95,7 +95,7 @@ export const ApiUpdatePost = () =>
 
 export const ApiDeletePost = () =>
   applyDecorators(
-    ApiTags('post'),
+    ApiPostTags(),
     ApiJwtAuth(),
     ApiOperation({
       summary: '게시글 삭제',
@@ -130,7 +130,7 @@ export const ApiDeletePost = () =>
 
 export const ApiTogglePostLike = () =>
   applyDecorators(
-    ApiTags('post'),
+    ApiPostTags(),
     ApiJwtAuth(),
     ApiOperation({
       summary: '게시글 좋아요 토글',
@@ -166,7 +166,7 @@ export const ApiTogglePostLike = () =>
 
 export const ApiFindPostById = () =>
   applyDecorators(
-    ApiTags('post'),
+    ApiPostTags(),
     ApiJwtAuth(),
     ApiOperation({
       summary: '게시글 조회',
@@ -204,7 +204,7 @@ export const ApiFindPostById = () =>
 
 export const ApiGetUserPosts = () =>
   applyDecorators(
-    ApiTags('user'),
+    ApiUserTags(),
     ApiJwtAuth(),
     ApiOperation({
       summary: '사용자 게시글 목록 조회',
@@ -217,7 +217,7 @@ export const ApiGetUserPosts = () =>
       type: String,
       required: true,
     }),
-    PageSwaggerQuery(),
+    ApiPageQuery(),
     ApiOkResponse({
       description: '사용자의 게시글 목록 조회 성공',
       schema: {
@@ -254,13 +254,13 @@ export const ApiGetUserPosts = () =>
 
 export const ApiFindPosts = () =>
   applyDecorators(
-    ApiTags('post'),
+    ApiPostTags(),
     ApiOperation({
       summary: '게시글 목록 조회',
       description:
         '모든 게시글 목록을 페이지네이션으로 조회합니다. 비공개 게시글은 작성자와 팔로워만 조회할 수 있습니다.',
     }),
-    PageSwaggerQuery(),
+    ApiPageQuery(),
     ApiOkResponse({
       description: '게시글 목록 조회 성공',
       schema: {

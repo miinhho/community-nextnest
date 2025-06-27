@@ -26,14 +26,14 @@ export const pageMetaSchema = {
  *
  * @example
  * ```typescript
- * ＠PageSwaggerQuery()
+ * ＠ApiPageQuery()
  * ＠Get()
  * async getPosts(＠Query() pageQuery: PageQuery) {
  *   // 페이지네이션 파라미터가 Swagger에 문서화됨
  * }
  * ```
  */
-export const PageSwaggerQuery = () =>
+export const ApiPageQuery = () =>
   applyDecorators(
     ApiQuery({
       name: 'page',

@@ -1,6 +1,6 @@
 import { FollowStatus } from '@/common/status';
 import { ApiJwtAuth } from '@/common/swagger/auth-info.swagger';
-import { pageMetaSchema, PageSwaggerQuery } from '@/common/swagger/page.swagger';
+import { ApiPageQuery, pageMetaSchema } from '@/common/swagger/page.swagger';
 import { userCommonSchema } from '@/common/swagger/select.swagger';
 import { applyDecorators } from '@nestjs/common';
 import {
@@ -62,7 +62,7 @@ export const ApiGetUserFollowers = () =>
       type: String,
       required: true,
     }),
-    PageSwaggerQuery(),
+    ApiPageQuery(),
     ApiOkResponse({
       description: '사용자의 팔로워 목록 조회 성공',
       schema: {
@@ -98,7 +98,7 @@ export const ApiGetUserFollowing = () =>
       type: String,
       required: true,
     }),
-    PageSwaggerQuery(),
+    ApiPageQuery(),
     ApiOkResponse({
       description: '사용자의 팔로잉 목록 조회 성공',
       schema: {
