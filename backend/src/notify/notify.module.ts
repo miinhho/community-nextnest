@@ -1,13 +1,14 @@
+import { NotifyEventListener } from '@/notify/event/notify.listener';
 import { NotifyController } from '@/notify/notify.controller';
 import { NotifyRepository } from '@/notify/notify.repository';
-import { NofifyService } from '@/notify/notify.service';
+import { NotifyService } from '@/notify/notify.service';
 import { PrismaModule } from '@/prisma/prisma.module';
 import { Module } from '@nestjs/common';
 
 @Module({
   imports: [PrismaModule],
   controllers: [NotifyController],
-  providers: [NofifyService, NotifyRepository],
-  exports: [NofifyService, NotifyRepository],
+  providers: [NotifyService, NotifyRepository, NotifyEventListener],
+  exports: [NotifyService, NotifyRepository],
 })
 export class NotifyModule {}

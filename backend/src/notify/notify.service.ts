@@ -4,7 +4,7 @@ import { NotifyRepository } from '@/notify/notify.repository';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 
 @Injectable()
-export class NofifyService {
+export class NotifyService {
   constructor(private readonly notifyRepository: NotifyRepository) {}
 
   /**

@@ -3,14 +3,14 @@ import { PageQuery } from '@/common/decorator/page-query.decorator';
 import { User } from '@/common/decorator/user.decorator';
 import { ApiNotifyTags } from '@/common/swagger/tags.swagger';
 import { UserData } from '@/common/user';
-import { NofifyService } from '@/notify/notify.service';
+import { NotifyService } from '@/notify/notify.service';
 import { ApiGetNotifiesByUserId, ApiGetNotifyById } from '@/notify/notify.swagger';
 import { Controller, Get } from '@nestjs/common';
 
 @ApiNotifyTags()
 @Controller('notify')
 export class NotifyController {
-  constructor(private readonly notifyService: NofifyService) {}
+  constructor(private readonly notifyService: NotifyService) {}
 
   @Get(':id')
   @ApiGetNotifyById()
