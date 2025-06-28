@@ -29,7 +29,6 @@ export class PrivateRepository {
       if (err.code === PrismaError.RecordsNotFound) {
         throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
       }
-
       this.logger.error('사용자 공개 여부 업데이트 중 오류 발생', err.stack, {
         userId: id,
       });
@@ -46,18 +45,17 @@ export class PrivateRepository {
    */
   async isUserPrivate(id: string) {
     try {
-      const user = await this.prisma.user.findUnique({
+      const user = await this.prisma.user.findUniqueOrThrow({
         where: { id },
         select: {
           isPrivate: true,
         },
       });
-      if (!user) {
-        throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
-      }
-
       return !user.isPrivate;
     } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
+      }
       this.logger.error('사용자 공개 여부 조회 중 오류 발생', err.stack, { userId: id });
       throw new PrismaDBError('사용자 공개 여부 조회에 실패했습니다.', err.code);
     }
@@ -74,7 +72,7 @@ export class PrivateRepository {
    */
   async isUserAvailable({ userId, targetId }: { userId: string; targetId: string }) {
     try {
-      const user = await this.prisma.user.findUnique({
+      const user = await this.prisma.user.findUniqueOrThrow({
         where: { id: targetId },
         select: {
           isPrivate: true,
@@ -83,12 +81,11 @@ export class PrivateRepository {
           },
         },
       });
-      if (!user) {
-        throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
-      }
-
       return !user.isPrivate || user.followers.length > 0;
     } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
+      }
       this.logger.error('사용자 공개 여부 확인 중 오류 발생', err.stack, {
         userId,
         targetId,

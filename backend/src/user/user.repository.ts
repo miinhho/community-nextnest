@@ -92,7 +92,7 @@ export class UserRepository {
     try {
       const [user, followingCount, followerCount, postCount] =
         await this.prisma.$transaction([
-          this.prisma.user.findUnique({
+          this.prisma.user.findUniqueOrThrow({
             where: { id },
             select: {
               ...userSelections,
@@ -114,9 +114,6 @@ export class UserRepository {
             where: { authorId: id },
           }),
         ]);
-      if (!user) {
-        throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
-      }
       return {
         ...user,
         followingCount,
@@ -124,8 +121,8 @@ export class UserRepository {
         postCount,
       };
     } catch (err) {
-      if (err instanceof NotFoundException) {
-        throw err;
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
       }
       this.logger.error('사용자 조회 중 오류 발생', err.stack, { userId: id });
       throw new PrismaDBError('사용자 조회에 실패했습니다.', err.code);
@@ -142,7 +139,7 @@ export class UserRepository {
    */
   async findUserByEmail(email: string, password: boolean = false) {
     try {
-      const user = await this.prisma.user.findUnique({
+      return this.prisma.user.findUniqueOrThrow({
         where: { email },
         select: {
           ...userSelections,
@@ -153,13 +150,9 @@ export class UserRepository {
           password: password,
         },
       });
-      if (!user) {
-        throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
-      }
-      return user;
     } catch (err) {
-      if (err instanceof NotFoundException) {
-        throw err;
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
       }
       this.logger.error('사용자 조회 중 오류 발생', err.stack, { email });
       throw new PrismaDBError('사용자 조회에 실패했습니다.', err.code);

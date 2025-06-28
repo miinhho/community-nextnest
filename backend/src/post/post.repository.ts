@@ -72,7 +72,7 @@ export class PostRepository {
    */
   async findPostById(id: string) {
     try {
-      const post = await this.prisma.post.findUnique({
+      const post = await this.prisma.post.findUniqueOrThrow({
         where: { id },
         select: {
           content: true,
@@ -90,13 +90,10 @@ export class PostRepository {
           },
         },
       });
-      if (!post) {
-        throw new NotFoundException('게시글을 찾을 수 없습니다.');
-      }
       return post;
     } catch (err) {
-      if (err instanceof NotFoundException) {
-        throw err;
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('게시글을 찾을 수 없습니다.');
       }
 
       this.logger.error('게시글 조회 중 오류 발생', err.stack, { postId: id });
@@ -113,15 +110,15 @@ export class PostRepository {
    */
   async findPostAuthorId(id: string) {
     try {
-      const post = await this.prisma.post.findUnique({
+      const post = await this.prisma.post.findUniqueOrThrow({
         where: { id },
         select: { authorId: true },
       });
-      if (!post) {
-        throw new NotFoundException('존재하지 않는 게시글입니다.');
-      }
       return post.authorId;
     } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('존재하지 않는 게시글입니다.');
+      }
       this.logger.error('게시글 작성자 ID 조회 중 오류 발생', err.stack, { postId: id });
       throw new PrismaDBError('게시글 작성자 ID 조회에 실패했습니다.', err.code);
     }
@@ -222,7 +219,7 @@ export class PostRepository {
    */
   async isPostPrivate(postId: string) {
     try {
-      const post = await this.prisma.post.findUnique({
+      const post = await this.prisma.post.findUniqueOrThrow({
         where: { id: postId },
         select: {
           author: {
@@ -233,16 +230,13 @@ export class PostRepository {
           },
         },
       });
-      if (!post) {
-        throw new NotFoundException('존재하지 않는 게시글입니다.');
-      }
       return {
         authorId: post.author.id,
         isPrivate: post.author.isPrivate,
       };
     } catch (err) {
-      if (err instanceof NotFoundException) {
-        throw err;
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('존재하지 않는 게시글입니다.');
       }
 
       this.logger.error('게시글 비공개 여부 조회 중 오류 발생', err.stack, { postId });

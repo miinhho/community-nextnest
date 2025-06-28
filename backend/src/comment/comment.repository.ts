@@ -2,7 +2,6 @@ import { getBlockFilter } from '@/block/utils/block-filter';
 import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { commentSelections, postSelections, userSelections } from '@/common/select';
 import { PageParams, toPageData } from '@/common/utils/page';
-import { ValidateService } from '@/common/validate/validate.service';
 import { PrismaDBError } from '@/prisma/error/prisma-db.error';
 import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
@@ -12,10 +11,7 @@ import { PrismaError } from 'prisma-error-enum';
 export class CommentRepository {
   private readonly logger = new Logger(CommentRepository.name);
 
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly validateService: ValidateService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * 새 댓글을 생성합니다.
@@ -205,7 +201,6 @@ export class CommentRepository {
    * @param params.page - 페이지 번호 (기본값: 1)
    * @param params.size - 페이지 크기 (기본값: 10)
    * @returns 페이지네이션된 댓글 목록
-   * @throws {NotFoundException} 사용자를 찾을 수 없거나 차단된 경우
    * @throws {PrismaDBError} 댓글 조회 실패 시
    */
   async findCommentsByUserId(
@@ -214,8 +209,6 @@ export class CommentRepository {
     viewerId?: string,
   ) {
     try {
-      await this.validateService.validateUserExists(userId);
-
       const filter = {
         authorId: userId,
         ...getBlockFilter(viewerId),
@@ -249,9 +242,6 @@ export class CommentRepository {
         size,
       });
     } catch (err) {
-      if (err instanceof NotFoundException) {
-        throw err;
-      }
       this.logger.error('사용자 댓글 조회 중 오류 발생', err.stack, { userId });
       throw new PrismaDBError('댓글 조회에 실패했습니다.', err.code);
     }
@@ -263,7 +253,6 @@ export class CommentRepository {
    * @param params.page - 페이지 번호 (기본값: 1)
    * @param params.size - 페이지 크기 (기본값: 10)
    * @returns 페이지네이션된 댓글 목록
-   * @throws {NotFoundException} 게시글을 찾을 수 없거나 차단된 경우
    * @throws {PrismaDBError} 댓글 조회 실패 시
    */
   async findCommentsByPostId(
@@ -272,8 +261,6 @@ export class CommentRepository {
     viewerId?: string,
   ) {
     try {
-      await this.validateService.validatePostExists(postId);
-
       const filter = {
         postId,
         parentId: null,
@@ -306,14 +293,6 @@ export class CommentRepository {
         size,
       });
     } catch (err) {
-      if (err instanceof NotFoundException) {
-        throw err;
-      }
-
-      if (err.code === PrismaError.RecordsNotFound) {
-        throw new NotFoundException('게시글을 찾을 수 없습니다.');
-      }
-
       this.logger.error('게시글 댓글 조회 중 오류 발생', err.stack, { postId });
       throw new PrismaDBError('댓글 조회에 실패했습니다.', err.code);
     }
@@ -325,7 +304,6 @@ export class CommentRepository {
    * @param params.page - 페이지 번호 (기본값: 1)
    * @param params.size - 페이지 크기 (기본값: 10)
    * @returns 답글 목록
-   * @throws {NotFoundException} 댓글을 찾을 수 없거나 차단된 경우
    * @throws {PrismaDBError} 답글 조회 실패 시
    */
   async findRepliesByCommentId(
@@ -334,8 +312,6 @@ export class CommentRepository {
     viewerId?: string,
   ) {
     try {
-      await this.validateService.validateCommentExists(commentId);
-
       const filter = {
         parentId: commentId,
         ...getBlockFilter(viewerId),
@@ -371,9 +347,6 @@ export class CommentRepository {
         size,
       });
     } catch (err) {
-      if (err instanceof NotFoundException) {
-        throw err;
-      }
       this.logger.error('댓글 답글 조회 중 오류 발생', err.stack, { commentId });
       throw new PrismaDBError('댓글 답글 조회에 실패했습니다.', err.code);
     }

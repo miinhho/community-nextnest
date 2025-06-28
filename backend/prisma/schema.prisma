@@ -31,10 +31,12 @@ model User {
   blocker Blocking[] @relation("BlockerRelation")
   blocked Blocking[] @relation("BlockedRelation")
 
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
-  notifications     Notification[]
-  notificationsSent Notification[] @relation("NotificationFollower")
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  notifications        Notification[]
+  notificationsSent    Notification[]  @relation("NotificationFollower")
+  followRequestReceive FollowRequest[] @relation("FollowRequestReceiver")
+  followRequestSent    FollowRequest[] @relation("FollowRequestSender")
 
   @@map("users")
 }
@@ -202,4 +204,28 @@ enum NotificationType {
   FOLLOW
   MESSAGE
   SYSTEM
+}
+
+model FollowRequest {
+  id         String              @id @default(uuid())
+  senderId   String
+  receiverId String
+  message    String?
+  status     FollowRequestStatus @default(PENDING)
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+
+  sender   User @relation("FollowRequestSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("FollowRequestReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@map("follow_requests")
+}
+
+enum FollowRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }

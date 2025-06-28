@@ -231,7 +231,6 @@ export const ApiToggleCommentLike = () =>
         },
       },
     }),
-    ApiNotFoundResponse({ description: '존재하지 않는 댓글입니다.' }),
     ApiInternalServerErrorResponse({ description: '서버 오류' }),
   );
 
@@ -275,6 +274,8 @@ export const ApiGetCommentById = () =>
         },
       },
     }),
+    ApiNotFoundResponse({ description: '존재하지 않는 댓글입니다.' }),
+    ApiInternalServerErrorResponse({ description: '서버 오류' }),
   );
 
 export const ApiGetCommentReplies = () =>
@@ -317,7 +318,6 @@ export const ApiGetCommentReplies = () =>
         },
       },
     }),
-    ApiNotFoundResponse({ description: '존재하지 않는 댓글입니다.' }),
     ApiInternalServerErrorResponse({ description: '서버 오류' }),
   );
 
@@ -374,7 +374,6 @@ export const ApiGetCommentsByPostId = () =>
         },
       },
     }),
-    ApiNotFoundResponse({ description: '존재하지 않는 게시물입니다.' }),
     ApiInternalServerErrorResponse({ description: '서버 오류' }),
   );
 
@@ -419,6 +418,5 @@ export const ApiGetCommentsByUserId = () =>
         },
       },
     }),
-    ApiNotFoundResponse({ description: '존재하지 않는 사용자입니다.' }),
     ApiInternalServerErrorResponse({ description: '서버 오류' }),
   );

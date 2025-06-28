@@ -1,5 +1,6 @@
 import { userSelections } from '@/common/select';
 import { PageParams, toPageData } from '@/common/utils/page';
+import { AlreadyFollowRequestError } from '@/follow/error/already-follow-request.error';
 import { AlreadyFollowError } from '@/follow/error/already-follow.error';
 import { PrismaDBError } from '@/prisma/error/prisma-db.error';
 import { PrismaService } from '@/prisma/prisma.service';
@@ -65,6 +66,126 @@ export class FollowRepository {
         followingId: targetId,
       });
       throw new PrismaDBError('언팔로우 실패', err.code);
+    }
+  }
+
+  async isFollowRequested({ userId, targetId }: { userId: string; targetId: string }) {
+    try {
+      const followRequest = await this.prisma.followRequest.findUnique({
+        where: {
+          senderId_receiverId: {
+            senderId: userId,
+            receiverId: targetId,
+          },
+        },
+        select: {},
+      });
+      return !!followRequest;
+    } catch (err) {
+      this.logger.error('팔로우 요청 상태 확인 중 오류 발생', err.stack, {
+        senderId: userId,
+        receiverId: targetId,
+      });
+      throw new PrismaDBError('팔로우 요청 상태 확인 실패', err.code);
+    }
+  }
+
+  /**
+   * 사용자가 팔로우 요청을 보낸 사용자들의 목록을 조회합니다.
+   * @param userId - 팔로우 요청을 보낸 사용자 ID
+   * @returns 팔로우 요청을 받은 사용자 목록
+   * @throws {PrismaDBError} 팔로우 요청 조회 실패 시
+   */
+  findFollowRequestSent(userId: string) {
+    try {
+      return this.prisma.followRequest.findMany({
+        where: { senderId: userId },
+        select: {
+          sender: {
+            select: userSelections,
+          },
+        },
+      });
+    } catch (err) {
+      this.logger.error('팔로우 요청 조회 중 오류 발생', err.stack, { userId });
+      throw new PrismaDBError('팔로우 요청 조회 실패', err.code);
+    }
+  }
+
+  /**
+   * 사용자가 팔로우 요청을 받은 사용자들의 목록을 조회합니다.
+   * @param userId - 팔로우 요청을 받은 사용자 ID
+   * @returns 팔로우 요청을 보낸 사용자 목록
+   * @throws {PrismaDBError} 팔로우 요청 조회 실패 시
+   */
+  findFollowRequestReceived(userId: string) {
+    try {
+      return this.prisma.followRequest.findMany({
+        where: { receiverId: userId },
+        select: {
+          receiver: {
+            select: userSelections,
+          },
+        },
+      });
+    } catch (err) {
+      this.logger.error('팔로우 요청 조회 중 오류 발생', err.stack, { userId });
+      throw new PrismaDBError('팔로우 요청 조회 실패', err.code);
+    }
+  }
+
+  /**
+   * 팔로우 요청을 생성합니다.
+   * @param params.userId - 팔로우 요청을 보낸 사용자 ID
+   * @param params.targetId - 팔로우 요청을 받은 대상 사용자 ID
+   * @throws {AlreadyFollowRequestError} 이미 팔로우 요청이 존재하는 경우
+   * @throws {PrismaDBError} 팔로우 요청 실패 시
+   */
+  async createFollowRequest({ userId, targetId }: { userId: string; targetId: string }) {
+    try {
+      await this.prisma.followRequest.create({
+        data: {
+          senderId: userId,
+          receiverId: targetId,
+        },
+      });
+    } catch (err) {
+      if (err.code === PrismaError.UniqueConstraintViolation) {
+        throw new AlreadyFollowRequestError(userId, targetId);
+      }
+      this.logger.error('팔로우 요청 중 오류 발생', err.stack, {
+        userId,
+        targetId,
+      });
+      throw new PrismaDBError('팔로우 요청 실패', err.code);
+    }
+  }
+
+  /**
+   * 팔로우 요청을 삭제합니다.
+   * @param params.userId - 팔로우 요청을 보낸 사용자 ID
+   * @param params.targetId - 팔로우 요청을 받은 대상 사용자 ID
+   * @throws {PrismaDBError} 팔로우 요청 취소 실패 시
+   */
+  async deleteFollowRequest({ userId, targetId }: { userId: string; targetId: string }) {
+    try {
+      await this.prisma.followRequest.delete({
+        where: {
+          senderId_receiverId: {
+            senderId: userId,
+            receiverId: targetId,
+          },
+        },
+      });
+    } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new PrismaDBError('존재하지 않는 팔로우 요청입니다.', err.code);
+      }
+      this.logger.error('팔로우 요청 취소 중 오류 발생', err.stack, {
+        senderId: userId,
+        receiverId: targetId,
+      });
+      throw new PrismaDBError('팔로우 요청 취소 실패', err.code);
     }
   }
 
