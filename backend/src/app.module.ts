@@ -9,6 +9,7 @@ import { PrivateModule } from '@/private/private.module';
 import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD, APP_PIPE } from '@nestjs/core';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AuthModule } from './auth/auth.module';
 import { CommentModule } from './comment/comment.module';
 import { FollowModule } from './follow/follow.module';
@@ -26,6 +27,7 @@ import { UserModule } from './user/user.module';
       isGlobal: true,
       cache: true,
     }),
+    EventEmitterModule.forRoot(),
     PostModule,
     UserModule,
     CommentModule,

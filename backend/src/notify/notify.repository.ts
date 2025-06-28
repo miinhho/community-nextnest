@@ -15,6 +15,20 @@ export class NotifyRepository {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * 알림 ID로 알림을 조회합니다.
+   * 알림 타입에 따라 필요한 필드만 선택적으로 반환합니다.
+   * - `POST_LIKE`: 게시글 좋아요 알림
+   * - `POST_COMMENT`: 게시글 댓글 알림
+   * - `COMMENT_LIKE`: 댓글 좋아요 알림
+   * - `COMMENT_REPLY`: 댓글 답글 알림
+   * - `FOLLOW`: 팔로우 알림
+   * - `SYSTEM`: 시스템 알림
+   * @param id - 알림 ID
+   * @returns 알림 정보
+   * @throws {NotFoundException} - 알림을 찾을 수 없는 경우
+   * @throws {PrismaDBError} - 알림 생성 중 오류 발생 시
+   */
   async findNotifyById(id: string) {
     try {
       const notify = await this.prisma.notification.findUniqueOrThrow({
@@ -83,6 +97,14 @@ export class NotifyRepository {
     }
   }
 
+  /**
+   * 사용자 ID로 알림 목록을 조회합니다.
+   * 페이지네이션을 지원하며, 기본적으로 최신 알림부터 반환합니다.
+   * @param userId - 사용자 ID
+   * @param pageParams - 페이지 정보 (page, size)
+   * @returns 알림 목록과 페이지 정보
+   * @throws {PrismaDBError} - 알림 생성 중 오류 발생 시
+   */
   async findNotifiesByUserId(userId: string, { page = 1, size = 10 }: PageParams) {
     try {
       const [notifies, totalCount] = await this.prisma.$transaction([
@@ -132,6 +154,14 @@ export class NotifyRepository {
     }
   }
 
+  /**
+   * 게시글 좋아요 알림을 생성합니다.
+   * @param userId - 알림을 받을 사용자 ID
+   * @param postId - 좋아요가 눌린 게시글 ID
+   * @param viewerId - 좋아요를 누른 사용자 ID
+   * @throws {NotFoundException} - 게시글 또는 사용자를 찾을 수 없는 경우
+   * @throws {PrismaDBError} - 알림 생성 중 오류 발생 시
+   */
   async createPostLikeNotify({
     userId,
     postId,
@@ -192,6 +222,13 @@ export class NotifyRepository {
     }
   }
 
+  /**
+   * 게시글 댓글 알림을 생성합니다.
+   * @param userId - 알림을 받을 사용자 ID
+   * @param commentId - 댓글 ID
+   * @throws {NotFoundException} - 게시글 또는 사용자를 찾을 수 없는 경우
+   * @throws {PrismaDBError} - 알림 생성 중 오류 발생 시
+   */
   async createCommentNotify({
     userId,
     commentId,
@@ -240,6 +277,14 @@ export class NotifyRepository {
     }
   }
 
+  /**
+   * 댓글 좋아요 알림을 생성합니다.
+   * @param userId - 알림을 받을 사용자 ID
+   * @param commentId - 좋아요가 눌린 댓글 ID
+   * @param viewerId - 좋아요를 누른 사용자 ID
+   * @throws {NotFoundException} - 댓글 또는 사용자를 찾을 수 없는 경우
+   * @throws {PrismaDBError} - 알림 생성 중 오류 발생 시
+   */
   async createCommentLikeNotify({
     userId,
     commentId,
@@ -297,6 +342,14 @@ export class NotifyRepository {
     }
   }
 
+  /**
+   * 댓글 답글 알림을 생성합니다.
+   * @param userId - 알림을 받을 사용자 ID
+   * @param commentId - 댓글 ID
+   * @param replyId - 답글 ID
+   * @throws {NotFoundException} - 답글 또는 사용자를 찾을 수 없는 경우
+   * @throws {PrismaDBError} - 알림 생성 중 오류 발생 시
+   */
   async createReplyNotify({
     userId,
     commentId,
@@ -334,7 +387,7 @@ export class NotifyRepository {
       });
     } catch (err) {
       if (err.code === PrismaError.RecordsNotFound) {
-        throw new NotFoundException('답글 또는 사용자를 찾을 수 없습니다.');
+        throw new NotFoundException('답글이나 댓글을 찾을 수 없습니다.');
       }
       this.logger.error('댓글 답글 알람 생성 중 오류 발생', err.stack, {
         commentId,
@@ -344,6 +397,13 @@ export class NotifyRepository {
     }
   }
 
+  /**
+   * 팔로우 알림을 생성합니다.
+   * @param userId - 알림을 받을 사용자 ID
+   * @param followerId - 팔로우한 사용자 ID
+   * @throws {NotFoundException} - 사용자 또는 팔로워를 찾을 수 없는 경우
+   * @throws {PrismaDBError} - 알림 생성 중 오류 발생 시
+   */
   async createFollowNotify({
     userId,
     followerId,
@@ -383,6 +443,13 @@ export class NotifyRepository {
     }
   }
 
+  /**
+   * 시스템 알람을 생성합니다.
+   * @param userId - 알림을 받을 사용자 ID
+   * @param title - 알림 제목
+   * @param content - 알림 내용
+   * @throws {PrismaDBError} - 알림 생성 중 오류 발생 시
+   */
   async createSystemNotify({
     userId,
     title,
@@ -412,6 +479,12 @@ export class NotifyRepository {
     }
   }
 
+  /**
+   * 알림 내용이 너무 길 경우, 지정된 길이로 잘라서 반환합니다.
+   * @param content - 알림 내용
+   * @param type - 알림 타입
+   * @returns 잘린 알림 내용
+   */
   private truncateContent(content: string, type: NotificationType) {
     const getMaxLength = () => {
       switch (type) {
