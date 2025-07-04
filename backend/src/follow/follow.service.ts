@@ -1,9 +1,9 @@
 import { BlockService } from '@/block/block.service';
 import { FollowStatus } from '@/common/status';
 import { PageParams } from '@/common/utils/page';
-import { AlreadyFollowRequestError } from '@/follow/error/already-follow-request.error';
 import { AlreadyFollowError } from '@/follow/error/already-follow.error';
 import { FollowRepository } from '@/follow/follow.repository';
+import { PrivateUserError } from '@/private/error/private-user.error';
 import { PrivateService } from '@/private/private.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { FollowRequestStatus } from '@prisma/client';
@@ -26,6 +26,7 @@ export class FollowService {
    * @throws {UserBlockedError} 내가 상대방을 차단한 경우 (`throwError`가 `true` 일 때)
    * @throws {BlockedError} 상대방이 나를 차단한 경우 (`throwError`가 `true` 일 때)
    * @throws {AlreadyFollowError} 이미 팔로우한 사용자인 경우 (toggle이 false일 때)
+   * @throws {PrivateUserError} 비공개 사용자인 경우
    * @throws {PrismaDBError} 팔로우 실패 시
    */
   async followUser({
@@ -50,7 +51,7 @@ export class FollowService {
       // 사용자 비공개 여부 확인
       const isPrivate = await this.privateService.isUserPrivate(targetId);
       if (isPrivate) {
-        // TODO : 팔로우 대상이 비공개 사용자일 경우, 팔로우 신청 알림 전송
+        throw new PrivateUserError();
       }
 
       await this.followRepository.followUser({
@@ -92,30 +93,16 @@ export class FollowService {
   }
 
   /**
-   * 팔로우 요청을 보냅니다. 이미 요청한 경우 거절합니다.
+   * 팔로우 요청을 보냅니다.
    * @param props - 팔로우 요청 파라미터
    * @param props.userId - 팔로우 요청을 보내는 사용자 ID
    * @param props.targetId - 팔로우 요청을 받을 대상 사용자 ID
-   * @param toggle - 이미 팔로우 요청이 있는 경우 거절 여부 (기본값: true)
    * @returns 팔로우 상태 (REJECTED 또는 ACCEPTED)
    * @throws {NotFoundException} 대상 사용자를 찾을 수 없는 경우
    * @throws {PrismaDBError} 팔로우 요청 실패 시
    */
-  async sendFollowRequest(
-    props: { userId: string; targetId: string },
-    toggle: boolean = true,
-  ) {
-    try {
-      await this.followRepository.createFollowRequest(props);
-    } catch (err) {
-      if (toggle && err instanceof AlreadyFollowRequestError) {
-        return this.rejectFollowRequest({
-          userId: props.userId,
-          targetId: props.targetId,
-        });
-      }
-      throw err;
-    }
+  async sendFollowRequest(props: { userId: string; targetId: string }) {
+    await this.followRepository.createFollowRequest(props);
   }
 
   /**

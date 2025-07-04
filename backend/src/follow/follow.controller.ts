@@ -9,9 +9,11 @@ import {
   ApiGetUserFollowersCount,
   ApiGetUserFollowing,
   ApiGetUserFollowingCount,
+  ApiRejectFollowRequest,
+  ApiSendFollowRequest,
   ApiToggleFollowUser,
 } from '@/follow/follow.swagger';
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Delete, Get, Post } from '@nestjs/common';
 import { FollowService } from './follow.service';
 
 @Controller()
@@ -38,6 +40,34 @@ export class FollowController {
           data: { targetId, status: FollowStatus.UNFOLLOW },
         };
     }
+  }
+
+  @Post('follow/request/:id')
+  @ApiSendFollowRequest()
+  async sendFollowRequest(@IdParam('id') targetId: string, @User() user: UserData) {
+    await this.followService.sendFollowRequest({
+      userId: user.id,
+      targetId,
+    });
+
+    return {
+      success: true,
+      data: { targetId },
+    };
+  }
+
+  @Delete('follow/request/:id')
+  @ApiRejectFollowRequest()
+  async rejectFollowRequest(@IdParam('id') targetId: string, @User() user: UserData) {
+    await this.followService.rejectFollowRequest({
+      userId: user.id,
+      targetId,
+    });
+
+    return {
+      success: true,
+      data: { targetId },
+    };
   }
 
   @Public()

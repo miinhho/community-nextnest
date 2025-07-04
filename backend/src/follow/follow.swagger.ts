@@ -48,6 +48,70 @@ export const ApiToggleFollowUser = () =>
     ApiInternalServerErrorResponse({ description: '서버 오류' }),
   );
 
+export const ApiSendFollowRequest = () =>
+  applyDecorators(
+    ApiUserTags(),
+    ApiJwtAuth(),
+    ApiOperation({
+      summary: '팔로우 요청',
+      description: '사용자에게 팔로우 요청을 보냅니다.',
+    }),
+    ApiParam({
+      name: 'id',
+      description: '팔로우 요청할 사용자 ID',
+      type: String,
+      required: true,
+    }),
+    ApiOkResponse({
+      description: '팔로우 요청 성공',
+      schema: {
+        properties: {
+          success: { type: 'boolean' },
+          data: {
+            type: 'object',
+            properties: {
+              targetId: { type: 'string' },
+            },
+          },
+        },
+      },
+    }),
+    ApiNotFoundResponse({ description: '사용자를 찾을 수 없음' }),
+    ApiInternalServerErrorResponse({ description: '서버 오류' }),
+  );
+
+export const ApiRejectFollowRequest = () =>
+  applyDecorators(
+    ApiUserTags(),
+    ApiJwtAuth(),
+    ApiOperation({
+      summary: '팔로우 요청 거절',
+      description: '사용자의 팔로우 요청을 거절합니다.',
+    }),
+    ApiParam({
+      name: 'id',
+      description: '팔로우 요청을 거절할 사용자 ID',
+      type: String,
+      required: true,
+    }),
+    ApiOkResponse({
+      description: '팔로우 요청 거절 성공',
+      schema: {
+        properties: {
+          success: { type: 'boolean' },
+          data: {
+            type: 'object',
+            properties: {
+              targetId: { type: 'string' },
+            },
+          },
+        },
+      },
+    }),
+    ApiNotFoundResponse({ description: '사용자를 찾을 수 없음' }),
+    ApiInternalServerErrorResponse({ description: '서버 오류' }),
+  );
+
 export const ApiGetUserFollowers = () =>
   applyDecorators(
     ApiUserTags(),
