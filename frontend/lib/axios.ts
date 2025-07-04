@@ -13,7 +13,7 @@ interface ApiResponse<T = any, D = any> extends AxiosResponse<T, D> {
 }
 
 export const fetcher = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000',
+  baseURL: '/api',
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
