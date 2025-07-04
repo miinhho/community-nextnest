@@ -15,5 +15,6 @@ tests/
 !dist/
 !prisma/
 
-!.env.development.local
+.env.example
+.env.development.local
 !.env.production.local
