@@ -3,6 +3,12 @@ import { PageParams } from '@/lib/types/page.types';
 import { BaseTimestamp, CommentSchema, PostSchema, UserSchema } from '@/lib/types/schema.types';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
+export const USER_KEY = 'user';
+export const USER_POSTS_KEY = 'userPosts';
+export const USER_COMMENTS_KEY = 'userComments';
+export const FOLLOWER_KEY = 'followers';
+export const FOLLOWING_KEY = 'following';
+
 // User Get Query
 interface UserData extends UserSchema, BaseTimestamp {
   followersCount: number;
@@ -17,7 +23,7 @@ export const userQueryFn = async (userId: string) => {
 };
 export const useUserQuery = (userId: string) =>
   useQuery({
-    queryKey: ['user', userId],
+    queryKey: [USER_KEY, userId],
     queryFn: () => userQueryFn(userId),
   });
 
@@ -36,7 +42,7 @@ export const userFollowersQueryFn = async (userId: string, { page = 1, size = 10
 };
 export const useUserFollowersQuery = (userId: string, params: PageParams) =>
   useQuery({
-    queryKey: ['user', userId, 'followers', params],
+    queryKey: [USER_KEY, userId, FOLLOWER_KEY, params],
     queryFn: () => userFollowersQueryFn(userId, params),
   });
 
@@ -55,7 +61,7 @@ export const userFollowingQueryFn = async (userId: string, { page = 1, size = 10
 };
 export const useUserFollowingQuery = (userId: string, params: PageParams) =>
   useQuery({
-    queryKey: ['user', userId, 'following', params],
+    queryKey: [USER_KEY, userId, FOLLOWING_KEY, params],
     queryFn: () => userFollowingQueryFn(userId, params),
   });
 
@@ -72,7 +78,7 @@ export const userPostQueryFn = async (userId: string, { page = 1, size = 10 }: P
 };
 export const useUserPostQuery = (userId: string, params: PageParams) =>
   useQuery({
-    queryKey: ['user', userId, 'posts', params],
+    queryKey: [USER_KEY, userId, USER_POSTS_KEY, params],
     queryFn: () => userPostQueryFn(userId, params),
   });
 
@@ -91,7 +97,7 @@ export const userCommentQueryFn = async (userId: string, { page = 1, size = 10 }
 };
 export const useUserCommentQuery = (userId: string, params: PageParams) =>
   useQuery({
-    queryKey: ['user', userId, 'comments', params],
+    queryKey: [USER_KEY, userId, USER_COMMENTS_KEY, params],
     queryFn: () => userCommentQueryFn(userId, params),
   });
 

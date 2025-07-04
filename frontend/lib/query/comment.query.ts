@@ -4,6 +4,9 @@ import { CommentSchema } from '@/lib/types/schema.types';
 import { LikeStatus } from '@/lib/types/status.types';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
+export const COMMENT_KEY = 'comment';
+export const REPLIES_KEY = 'replies';
+
 // Commment Get Query
 interface CommentData extends CommentSchema {
   postId: string;
@@ -16,7 +19,7 @@ export const commentQueryFn = async (commentId: string) => {
 };
 export const useCommentQuery = (commentId: string) =>
   useQuery({
-    queryKey: ['comment', commentId],
+    queryKey: [COMMENT_KEY, commentId],
     queryFn: () => commentQueryFn(commentId),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -36,7 +39,7 @@ export const repliesQueryFn = async (commentId: string, { page = 1, size = 10 }:
 };
 export const useRepliesQuery = (commentId: string, params: PageParams) =>
   useQuery({
-    queryKey: ['replies', commentId, params],
+    queryKey: [REPLIES_KEY, commentId, params],
     queryFn: () => repliesQueryFn(commentId, params),
     staleTime: 1000 * 60 * 2, // 2 minutes
   });

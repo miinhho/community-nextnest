@@ -4,6 +4,10 @@ import { CommentSchema, PostSchema } from '@/lib/types/schema.types';
 import { LikeStatus } from '@/lib/types/status.types';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
+export const POST_LIST_KEY = 'postList';
+export const POST_KEY = 'post';
+export const POST_COMMENT_KEY = 'postComment';
+
 // Post Get Paging Query
 interface PostListData {
   posts: PostSchema[];
@@ -17,7 +21,7 @@ export const postListQueryFn = async ({ page = 1, size = 10 }: PageParams) => {
 };
 export const usePostListQuery = (params: PageParams) =>
   useQuery({
-    queryKey: ['postList', params],
+    queryKey: [POST_LIST_KEY, params],
     queryFn: () => postListQueryFn(params),
   });
 
@@ -28,7 +32,7 @@ export const postQueryFn = async (postId: string) => {
 };
 export const usePostQuery = (postId: string) =>
   useQuery({
-    queryKey: ['post', postId],
+    queryKey: [POST_KEY, postId],
     queryFn: () => postQueryFn(postId),
   });
 
@@ -116,6 +120,6 @@ export const postCommentQueryFn = async (postId: string, { page = 1, size = 10 }
 };
 export const usePostCommentQuery = (postId: string, params: PageParams) =>
   useQuery({
-    queryKey: ['postComment', postId, params],
+    queryKey: [POST_COMMENT_KEY, postId, params],
     queryFn: () => postCommentQueryFn(postId, params),
   });

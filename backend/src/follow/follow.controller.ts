@@ -42,7 +42,7 @@ export class FollowController {
     }
   }
 
-  @Post('follow/request/:id')
+  @Post('user/:id/follow/request')
   @ApiSendFollowRequest()
   async sendFollowRequest(@IdParam('id') targetId: string, @User() user: UserData) {
     await this.followService.sendFollowRequest({
@@ -56,7 +56,7 @@ export class FollowController {
     };
   }
 
-  @Delete('follow/request/:id')
+  @Delete('user/:id/follow/request')
   @ApiRejectFollowRequest()
   async rejectFollowRequest(@IdParam('id') targetId: string, @User() user: UserData) {
     await this.followService.rejectFollowRequest({
