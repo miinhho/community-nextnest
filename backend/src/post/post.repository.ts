@@ -348,4 +348,48 @@ export class PostRepository {
       throw new PrismaDBError('게시글 좋아요 취소에 실패했습니다.', err.code);
     }
   }
+
+  async addPostView({
+    userId,
+    postId,
+    ipAddress,
+    userAgent,
+  }: {
+    userId?: string;
+    postId: string;
+    ipAddress?: string;
+    userAgent?: string;
+  }) {
+    try {
+      await this.prisma.$transaction([
+        this.prisma.postView.create({
+          data: {
+            userId,
+            postId,
+            ipAddress,
+            userAgent,
+          },
+        }),
+        this.prisma.post.update({
+          where: { id: postId },
+          data: {
+            viewCount: { increment: 1 },
+          },
+        }),
+      ]);
+    } catch (err) {
+      // 이미 조회한 게시글인 경우 무시
+      if (err.code === PrismaError.UniqueConstraintViolation) {
+        return;
+      }
+
+      this.logger.error('게시글 조회 추가 중 오류 발생', err.stack, {
+        userId,
+        postId,
+        ipAddress,
+        userAgent,
+      });
+      throw new PrismaDBError('게시글 조회 추가에 실패했습니다.', err.code);
+    }
+  }
 }

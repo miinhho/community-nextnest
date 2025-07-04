@@ -2,6 +2,7 @@ import { CommentRepository } from '@/comment/comment.repository';
 import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
+import { ClientInfo } from '@/common/utils/header';
 import { PageParams } from '@/common/utils/page';
 import { Injectable } from '@nestjs/common';
 
@@ -59,7 +60,18 @@ export class CommentService {
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
    * @throws {PrismaDBError} 댓글 조회 실패 시
    */
-  async findCommentById(id: string, user?: UserData) {
+  async findCommentById(
+    id: string,
+    user?: UserData,
+    { ipAddress, userAgent }: Partial<ClientInfo> = {},
+  ) {
+    // 댓글 조회수 증가
+    await this.commentRepository.addCommentView({
+      commentId: id,
+      userId: user?.id,
+      ipAddress,
+      userAgent,
+    });
     return this.commentRepository.findCommentById(id, user?.id);
   }
 

@@ -1,3 +1,6 @@
+// ============================================
+// GENERATOR & DATASOURCE
+// ============================================
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
@@ -9,6 +12,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ============================================
+// USER MANAGEMENT
+// ============================================
 model User {
   id            String    @id @default(uuid())
   name          String
@@ -20,23 +26,27 @@ model User {
   isPrivate     Boolean   @default(false)
 
   posts        Post[]
-  comments     Comment[]
+  postView     PostView[]
   postLikes    PostLikes[]
+  comments     Comment[]
+  commentView  CommentView[]
   commentLikes CommentLikes[]
+
+  following            Follow[]        @relation("following")
+  followers            Follow[]        @relation("follower")
+  followRequestReceive FollowRequest[] @relation("follow_request_receiver")
+  followRequestSent    FollowRequest[] @relation("follow_request_sender")
+
+  blocker Blocking[] @relation("blocker")
+  blocked Blocking[] @relation("blocked")
+
+  notifications     Notification[]
+  notificationsSent Notification[] @relation("notification_follower")
+
   refreshToken RefreshToken[]
 
-  following Follow[] @relation("FollowingRelation")
-  followers Follow[] @relation("FollowerRelation")
-
-  blocker Blocking[] @relation("BlockerRelation")
-  blocked Blocking[] @relation("BlockedRelation")
-
-  createdAt            DateTime        @default(now())
-  updatedAt            DateTime        @updatedAt
-  notifications        Notification[]
-  notificationsSent    Notification[]  @relation("NotificationFollower")
-  followRequestReceive FollowRequest[] @relation("FollowRequestReceiver")
-  followRequestSent    FollowRequest[] @relation("FollowRequestSender")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("users")
 }
@@ -48,13 +58,58 @@ model Follow {
 
   createdAt DateTime @default(now())
 
-  follower  User @relation("FollowerRelation", fields: [followerId], references: [id])
-  following User @relation("FollowingRelation", fields: [followingId], references: [id])
+  follower  User @relation("follower", fields: [followerId], references: [id])
+  following User @relation("following", fields: [followingId], references: [id])
 
   @@unique([followerId, followingId])
   @@index([followerId])
   @@index([followingId])
   @@map("follows")
+}
+
+model FollowRequest {
+  id         String              @id @default(uuid())
+  senderId   String
+  receiverId String
+  message    String?
+  status     FollowRequestStatus @default(PENDING)
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+
+  sender   User @relation("follow_request_sender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("follow_request_receiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@map("follow_requests")
+}
+
+model Notification {
+  id      String           @id @default(uuid())
+  userId  String
+  type    NotificationType
+  image   String?
+  title   String
+  content String?
+  isRead  Boolean          @default(false)
+
+  postId     String?
+  commentId  String?
+  followerId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post     Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment  Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  follower User?    @relation("notification_follower", fields: [followerId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@index([type, createdAt])
+  @@map("notifications")
 }
 
 model Blocking {
@@ -64,8 +119,8 @@ model Blocking {
 
   createdAt DateTime @default(now())
 
-  blocker User @relation("BlockerRelation", fields: [blockerId], references: [id])
-  blocked User @relation("BlockedRelation", fields: [blockedId], references: [id])
+  blocker User @relation("blocker", fields: [blockerId], references: [id])
+  blocked User @relation("blocked", fields: [blockedId], references: [id])
 
   @@unique([blockerId, blockedId])
   @@index([blockerId])
@@ -73,11 +128,29 @@ model Blocking {
   @@map("blockings")
 }
 
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+// ============================================
+// CONTENT MANAGEMENT
+// ============================================
 model Post {
   id           String      @id @default(uuid())
   content      String
   authorId     String
   commentCount Int         @default(0)
+  postView     PostView[]
+  viewCount    Int         @default(0)
   likeCount    Int         @default(0)
   likes        PostLikes[]
   comments     Comment[]
@@ -100,17 +173,19 @@ model Comment {
   postId   String
   authorId String
 
-  parentId   String?
-  likesCount Int            @default(0)
-  likes      CommentLikes[]
+  parentId    String?
+  viewCount   Int            @default(0)
+  commentView CommentView[]
+  likesCount  Int            @default(0)
+  likes       CommentLikes[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   post         Post           @relation(fields: [postId], references: [id])
   author       User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  parent       Comment?       @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies      Comment[]      @relation("CommentReplies")
+  parent       Comment?       @relation("comment_reply", fields: [parentId], references: [id], onDelete: Cascade)
+  replies      Comment[]      @relation("comment_reply")
   notification Notification[]
 
   @@index([postId, createdAt])
@@ -118,6 +193,29 @@ model Comment {
   @@index([authorId])
   @@index([parentId])
   @@map("comments")
+}
+
+// ============================================
+// ENGAGEMENT & ANALYTICS
+// ============================================
+model PostView {
+  id        String  @id @default(uuid())
+  postId    String
+  userId    String?
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  post Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId], name: "post_user_view")
+  @@unique([postId, ipAddress, userAgent], name: "post_ip_view")
+  @@index([postId])
+  @@index([userId])
+  @@index([ipAddress])
+  @@map("post_views")
 }
 
 model PostLikes {
@@ -137,6 +235,26 @@ model PostLikes {
   @@map("post_likes")
 }
 
+model CommentView {
+  id        String  @id @default(uuid())
+  commentId String
+  userId    String?
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, userId], name: "comment_user_view")
+  @@unique([commentId, ipAddress, userAgent], name: "comment_ip_view")
+  @@index([commentId])
+  @@index([userId])
+  @@index([ipAddress])
+  @@map("comment_views")
+}
+
 model CommentLikes {
   id        String @id @default(uuid())
   userId    String
@@ -151,49 +269,12 @@ model CommentLikes {
   @@map("comment_likes")
 }
 
+// ============================================
+// ENUMS
+// ============================================
 enum Role {
   ADMIN
   USER
-}
-
-model RefreshToken {
-  id        String   @id @default(uuid())
-  userId    String
-  token     String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("refresh_tokens")
-}
-
-model Notification {
-  id      String           @id @default(uuid())
-  userId  String
-  type    NotificationType
-  image   String?
-  title   String
-  content String?
-  isRead  Boolean          @default(false)
-
-  postId     String?
-  commentId  String?
-  followerId String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post     Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
-  comment  Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  follower User?    @relation("NotificationFollower", fields: [followerId], references: [id], onDelete: Cascade)
-
-  @@index([userId, isRead])
-  @@index([userId, createdAt])
-  @@index([type, createdAt])
-  @@map("notifications")
 }
 
 enum NotificationType {
@@ -204,24 +285,6 @@ enum NotificationType {
   FOLLOW
   MESSAGE
   SYSTEM
-}
-
-model FollowRequest {
-  id         String              @id @default(uuid())
-  senderId   String
-  receiverId String
-  message    String?
-  status     FollowRequestStatus @default(PENDING)
-  createdAt  DateTime            @default(now())
-  updatedAt  DateTime            @updatedAt
-
-  sender   User @relation("FollowRequestSender", fields: [senderId], references: [id], onDelete: Cascade)
-  receiver User @relation("FollowRequestReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
-
-  @@unique([senderId, receiverId])
-  @@index([senderId])
-  @@index([receiverId])
-  @@map("follow_requests")
 }
 
 enum FollowRequestStatus {

@@ -513,4 +513,49 @@ export class CommentRepository {
       throw new PrismaDBError('댓글 좋아요 취소에 실패했습니다.', err.code);
     }
   }
+
+  async addCommentView({
+    userId,
+    commentId,
+    ipAddress,
+    userAgent,
+  }: {
+    commentId: string;
+    userId?: string;
+    ipAddress?: string;
+    userAgent?: string;
+  }) {
+    try {
+      await this.prisma.$transaction([
+        this.prisma.commentView.create({
+          data: {
+            commentId,
+            userId,
+            ipAddress,
+            userAgent,
+          },
+        }),
+        this.prisma.comment.update({
+          where: { id: commentId },
+          data: {
+            viewCount: { increment: 1 },
+          },
+          select: {},
+        }),
+      ]);
+    } catch (err) {
+      // 이미 조회한 댓글인 경우 무시
+      if (err.code === PrismaError.UniqueConstraintViolation) {
+        return;
+      }
+
+      this.logger.error('댓글 조회수 증가 중 오류 발생', err.stack, {
+        userId,
+        commentId,
+        ipAddress,
+        userAgent,
+      });
+      throw new PrismaDBError('댓글 조회수 증가에 실패했습니다.', err.code);
+    }
+  }
 }

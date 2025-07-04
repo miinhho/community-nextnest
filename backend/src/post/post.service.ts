@@ -2,6 +2,7 @@ import { BlockService } from '@/block/block.service';
 import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
+import { ClientInfo } from '@/common/utils/header';
 import { PageParams } from '@/common/utils/page';
 import { PostRepository } from '@/post/post.repository';
 import { PrivateAuthError } from '@/private/error/private-auth.error';
@@ -49,7 +50,11 @@ export class PostService {
    * @throws {ForbiddenException} 해당 게시글에 접근할 수 없는 경우
    * @throws {PrismaDBError} 게시글 조회 중 오류 발생 시
    */
-  async findPostById(id: string, user?: UserData) {
+  async findPostById(
+    id: string,
+    user?: UserData,
+    { ipAddress, userAgent }: Partial<ClientInfo> = {},
+  ) {
     const post = await this.postRepository.findPostById(id);
 
     // 유저 차단 여부 확인
@@ -84,6 +89,14 @@ export class PostService {
       },
       true,
     );
+
+    // 게시글 조회수 증가
+    await this.postRepository.addPostView({
+      postId: id,
+      userId: user.id,
+      ipAddress: ipAddress,
+      userAgent: userAgent,
+    });
 
     return post;
   }

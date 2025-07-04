@@ -18,7 +18,8 @@ import { PageQuery } from '@/common/decorator/page-query.decorator';
 import { User } from '@/common/decorator/user.decorator';
 import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
-import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
+import { getClientInfo } from '@/common/utils/header';
+import { Body, Controller, Delete, Get, Headers, Post, Put } from '@nestjs/common';
 import { CommentService } from './comment.service';
 
 @Controller()
@@ -75,8 +76,13 @@ export class CommentController {
   @OptionalAuth()
   @Get('comment/:id')
   @ApiGetCommentById()
-  async getCommentById(@IdParam() id: string, @User() user?: UserData) {
-    const comment = await this.commentService.findCommentById(id, user);
+  async getCommentById(
+    @IdParam() id: string,
+    @User() user?: UserData,
+    @Headers() headers?: any,
+  ) {
+    const clientInfo = getClientInfo(headers);
+    const comment = await this.commentService.findCommentById(id, user, clientInfo);
     return {
       success: true,
       data: comment,
