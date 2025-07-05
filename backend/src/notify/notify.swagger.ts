@@ -142,3 +142,47 @@ export const ApiGetNotifiesByUserId = () =>
     ApiForbiddenResponse({ description: '다른 사용자의 알람을 조회할 수 없음' }),
     ApiInternalServerErrorResponse({ description: '서버 오류' }),
   );
+
+export const ApiReadNotifyById = () =>
+  applyDecorators(
+    ApiJwtAuth(),
+    ApiOperation({
+      summary: '알람 읽음 처리',
+      description: '특정 알람을 읽음 처리합니다.',
+    }),
+    ApiParam({
+      name: 'id',
+      description: '알람 ID',
+      type: String,
+    }),
+    ApiOkResponse({
+      description: '알람 읽음 처리 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean' },
+        },
+      },
+    }),
+    ApiNotFoundResponse({ description: '알람을 찾을 수 없음' }),
+    ApiInternalServerErrorResponse({ description: '서버 오류' }),
+  );
+
+export const ApiReadAllNotifiesByUserId = () =>
+  applyDecorators(
+    ApiJwtAuth(),
+    ApiOperation({
+      summary: '사용자 알람 전체 읽음 처리',
+      description: '특정 사용자의 모든 알람을 읽음 처리합니다.',
+    }),
+    ApiOkResponse({
+      description: '사용자 알람 전체 읽음 처리 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean' },
+        },
+      },
+    }),
+    ApiInternalServerErrorResponse({ description: '서버 오류' }),
+  );

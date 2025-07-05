@@ -480,6 +480,44 @@ export class NotifyRepository {
   }
 
   /**
+   * 알람을 읽음 처리합니다.
+   * @param id - 알람 ID
+   * @throws {NotFoundException} - 알람을 찾을 수 없는 경우
+   * @throws {PrismaDBError} - 알람 읽음 처리 중 오류 발생 시
+   */
+  async markAsRead(id: string, userId: string) {
+    try {
+      await this.prisma.notification.update({
+        where: { id, userId: userId },
+        data: { isRead: true },
+      });
+    } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('알람을 찾을 수 없습니다.');
+      }
+      this.logger.error('알람 읽음 처리 중 오류 발생', err.stack, { id });
+      throw new PrismaDBError('알람 읽음 처리 중 오류 발생', err.code);
+    }
+  }
+
+  /**
+   * 사용자의 모든 알람을 읽음 처리합니다.
+   * @param userId - 사용자 ID
+   * @throws {PrismaDBError} - 알람 읽음 처리 중 오류 발생 시
+   */
+  async markAllAsRead(userId: string) {
+    try {
+      await this.prisma.notification.updateMany({
+        where: { userId, isRead: false },
+        data: { isRead: true },
+      });
+    } catch (err) {
+      this.logger.error('모든 알람 읽음 처리 중 오류 발생', err.stack, { userId });
+      throw new PrismaDBError('모든 알람 읽음 처리 중 오류 발생', err.code);
+    }
+  }
+
+  /**
    * 알림 내용이 너무 길 경우, 지정된 길이로 잘라서 반환합니다.
    * @param content - 알림 내용
    * @param type - 알림 타입

@@ -122,4 +122,23 @@ export class NotifyService {
   async createSystemNotify(props: { userId: string; title: string; content: string }) {
     return this.notifyRepository.createSystemNotify(props);
   }
+
+  /**
+   * 알림을 읽음 처리합니다.
+   * @param id - 알림 ID
+   * @throws {NotFoundException} - 알림을 찾을 수 없는 경우
+   * @throws {PrismaDBError} - 알림 업데이트 중 오류 발생 시
+   */
+  async markAsRead(id: string, user: UserData) {
+    return this.notifyRepository.markAsRead(id, user.id);
+  }
+
+  /**
+   * 사용자의 모든 알림을 읽음 처리합니다.
+   * @param userId - 사용자 ID
+   * @throws {PrismaDBError} - 알림 업데이트 중 오류 발생 시
+   */
+  async markAllAsRead(user: UserData) {
+    return this.notifyRepository.markAllAsRead(user.id);
+  }
 }

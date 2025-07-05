@@ -5,7 +5,7 @@ import { ApiNotifyTags } from '@/common/swagger/tags.swagger';
 import { UserData } from '@/common/user';
 import { NotifyService } from '@/notify/notify.service';
 import { ApiGetNotifiesByUserId, ApiGetNotifyById } from '@/notify/notify.swagger';
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Patch } from '@nestjs/common';
 
 @ApiNotifyTags()
 @Controller('notify')
@@ -40,6 +40,24 @@ export class NotifyController {
         notifies,
         meta,
       },
+    };
+  }
+
+  @Patch(':id/read')
+  @ApiGetNotifyById()
+  async readNotifyById(@IdParam() id: string, @User() user: UserData) {
+    await this.notifyService.markAsRead(id, user);
+    return {
+      success: true,
+    };
+  }
+
+  @Patch('user/read-all')
+  @ApiGetNotifiesByUserId()
+  async readAllNotifiesByUserId(@User() user: UserData) {
+    await this.notifyService.markAllAsRead(user);
+    return {
+      success: true,
     };
   }
 }
