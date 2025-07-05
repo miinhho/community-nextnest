@@ -129,8 +129,8 @@ export class NotifyService {
    * @throws {NotFoundException} - 알림을 찾을 수 없는 경우
    * @throws {PrismaDBError} - 알림 업데이트 중 오류 발생 시
    */
-  async markAsRead(id: string, user: UserData) {
-    return this.notifyRepository.markAsRead(id, user.id);
+  async markAsRead(id: string, userId: string) {
+    return this.notifyRepository.markAsRead(id, userId);
   }
 
   /**
@@ -138,7 +138,7 @@ export class NotifyService {
    * @param userId - 사용자 ID
    * @throws {PrismaDBError} - 알림 업데이트 중 오류 발생 시
    */
-  async markAllAsRead(user: UserData) {
-    return this.notifyRepository.markAllAsRead(user.id);
+  async markAllAsRead(userId: string) {
+    return this.notifyRepository.markAllAsRead(userId);
   }
 }

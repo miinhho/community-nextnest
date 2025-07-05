@@ -1,5 +1,5 @@
 Backend:
-  - [ ] WebSocket 을 사용한 채팅, 알림 시스템
+  - [ ] WebSocket 을 사용한 채팅
   - [ ] @nestjs/bullmq 를 이용한 채팅 캐싱
   - [ ] 추천 시스템 추가
   - [ ] Web push 를 이용한 백그라운드 알림

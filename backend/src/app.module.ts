@@ -5,6 +5,7 @@ import jwt from '@/config/jwt.config';
 import swagger from '@/config/swagger.config';
 import { HealthModule } from '@/health/health.module';
 import { NotifyModule } from '@/notify/notify.module';
+import { NotifySocketModule } from '@/notify/socket/notify-socket.module';
 import { PrivateModule } from '@/private/private.module';
 import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -37,6 +38,7 @@ import { UserModule } from './user/user.module';
     BlockModule,
     HealthModule,
     NotifyModule,
+    NotifySocketModule,
   ],
   providers: [
     {

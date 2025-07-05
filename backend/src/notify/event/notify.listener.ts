@@ -10,6 +10,8 @@ import {
   COMMENT_LIKE_NOTIFY,
   COMMENT_REPLY_NOTIFY,
   FOLLOW_NOTIFY,
+  MARK_ALL_AS_READ_NOTIFY,
+  MARK_AS_READ_NOTIFY,
   POST_COMMENT_NOTIFY,
   POST_LIKE_NOTIFY,
   SYSTEM_NOTIFY,
@@ -26,47 +28,75 @@ export class NotifyEventListener {
    * 게시글 좋아요 알림을 처리합니다.
    */
   @OnEvent(POST_LIKE_NOTIFY)
-  async handlePostLikeNotify(payload: PostLikeNotifyEvent) {
-    await this.notifyService.createPostLikeNotify(payload);
+  async handlePostLikeNotify(userId: string, payload: PostLikeNotifyEvent) {
+    await this.notifyService.createPostLikeNotify({
+      userId,
+      ...payload,
+    });
   }
 
   /**
    * 게시글 댓글 알림을 처리합니다.
    */
   @OnEvent(POST_COMMENT_NOTIFY)
-  async handlePostCommentNotify(payload: PostCommentNotifyEvent) {
-    await this.notifyService.createCommentNotify(payload);
+  async handlePostCommentNotify(userId: string, payload: PostCommentNotifyEvent) {
+    await this.notifyService.createCommentNotify({
+      userId,
+      ...payload,
+    });
   }
 
   /**
    * 댓글 좋아요 알림을 처리합니다.
    */
   @OnEvent(COMMENT_LIKE_NOTIFY)
-  async handleCommentLikeNotify(payload: CommentLikeNotifyEvent) {
-    await this.notifyService.createCommentLikeNotify(payload);
+  async handleCommentLikeNotify(userId: string, payload: CommentLikeNotifyEvent) {
+    await this.notifyService.createCommentLikeNotify({
+      userId,
+      ...payload,
+    });
   }
 
   /**
    * 댓글 답글 알림을 처리합니다.
    */
   @OnEvent(COMMENT_REPLY_NOTIFY)
-  async handleCommentReplyNotify(payload: CommentReplyNotifyEvent) {
-    await this.notifyService.createReplyNotify(payload);
+  async handleCommentReplyNotify(userId: string, payload: CommentReplyNotifyEvent) {
+    await this.notifyService.createReplyNotify({
+      userId,
+      ...payload,
+    });
   }
 
   /**
    * 팔로우 알림을 처리합니다.
    */
   @OnEvent(FOLLOW_NOTIFY)
-  async handleFollowNotify(payload: FollowNotifyEvent) {
-    await this.notifyService.createFollowNotify(payload);
+  async handleFollowNotify(userId: string, payload: FollowNotifyEvent) {
+    await this.notifyService.createFollowNotify({
+      userId,
+      ...payload,
+    });
   }
 
   /**
    * 시스템 알림을 처리합니다.
    */
   @OnEvent(SYSTEM_NOTIFY)
-  async handleSystemNotify(payload: SystemNotifyEvent) {
-    await this.notifyService.createSystemNotify(payload);
+  async handleSystemNotify(userId: string, payload: SystemNotifyEvent) {
+    await this.notifyService.createSystemNotify({
+      userId,
+      ...payload,
+    });
+  }
+
+  @OnEvent(MARK_AS_READ_NOTIFY)
+  async handleMarkAsRead(userId: string, notifyId: string) {
+    await this.notifyService.markAsRead(notifyId, userId);
+  }
+
+  @OnEvent(MARK_ALL_AS_READ_NOTIFY)
+  async handleMarkAllAsRead(userId: string) {
+    await this.notifyService.markAllAsRead(userId);
   }
 }

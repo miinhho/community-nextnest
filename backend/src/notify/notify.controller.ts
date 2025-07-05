@@ -46,7 +46,7 @@ export class NotifyController {
   @Patch(':id/read')
   @ApiGetNotifyById()
   async readNotifyById(@IdParam() id: string, @User() user: UserData) {
-    await this.notifyService.markAsRead(id, user);
+    await this.notifyService.markAsRead(id, user.id);
     return {
       success: true,
     };
@@ -55,7 +55,7 @@ export class NotifyController {
   @Patch('user/read-all')
   @ApiGetNotifiesByUserId()
   async readAllNotifiesByUserId(@User() user: UserData) {
-    await this.notifyService.markAllAsRead(user);
+    await this.notifyService.markAllAsRead(user.id);
     return {
       success: true,
     };
