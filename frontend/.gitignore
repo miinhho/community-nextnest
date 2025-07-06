@@ -45,3 +45,6 @@ next-env.d.ts
 
 # prisma
 prisma/migrations
+
+# public assets
+/public/default-avatar.webp

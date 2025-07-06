@@ -1,18 +1,19 @@
 Backend:
-  - [ ] WebSocket 을 사용한 채팅
-  - [ ] @nestjs/bullmq 를 이용한 채팅 캐싱
   - [ ] 추천 시스템 추가
   - [ ] Web push 를 이용한 백그라운드 알림
   - [ ] AWS S3 나 Cloudflare CDN 을 활용한 이미지 파일 저장
+  - [ ] WebSocket 을 사용한 채팅
+  - [ ] @nestjs/bullmq 를 이용한 채팅 캐싱
 
 Frontend:
-  - [ ] 글 컴포넌트 구현
-    - [ ] sonner 로 정보 모달 처리
-    - [ ] LexicalViewer 에서 글과 댓글 관련 스타일링 분리
+  - [ ] 페이지 MVP 구현
+  - [ ] LexicalViewer 컴포넌트 처리
+    - [ ] 글 컴포넌트 분리
+    - [ ] 댓글 컴포넌트 분리
+  - [ ] LexicalEditor 컴포넌트 처리
+    - [ ] 글 컴포넌트 분리
+    - [ ] 댓글 컴포넌트 분리
   - [ ] 유저 페이지 구현
-  - [ ] 댓글 컴포넌트 구현
-  - [ ] 글 페이지에 댓글 컴포넌트 추가
-  - [ ] 댓글 에디터 구현
 
 Feature:
   - [ ] 유저 간 채팅 기능

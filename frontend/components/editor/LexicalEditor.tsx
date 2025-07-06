@@ -23,7 +23,7 @@ interface Props {
 /**
  * @param json - 에디터에 불러올 json 데이터
  */
-export const LexicalTextEditor = ({
+export const LexicalEditor = ({
   json
 }: Props) => {
   return (
