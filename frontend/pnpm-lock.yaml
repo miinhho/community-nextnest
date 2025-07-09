@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@lexical/html':
-        specifier: ^0.31.2
-        version: 0.31.2
       '@lexical/link':
         specifier: ^0.31.2
         version: 0.31.2
