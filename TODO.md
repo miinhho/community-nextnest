@@ -20,10 +20,6 @@ Feature:
   - [ ] 신고 기능
   - [ ] 관리자 패널 및 관리 기능
 
-+ React Native 로 모바일 앱까지 구현이 가능하다면 해도 좋다고 생각함 (추후 다른 포트폴리오를 개발하며 사이드로 할 듯)
-+ React Native 로 개발할 시 NativeWind 로 TailwindCSS 로 스타일링한 컴포넌트를 그대로 사용하고 Shadcn/ui 도 react-native-reusables 를 사용할 예정
-+ React Native 로 한다면 Expo 기반으로 추진할 예정이기 때문에, 백그라운드 알림을 ExpoPushMessage 로 구현할 예정
-
 추천 시스템: 시간 + 인기 + 개인화
 전체적으로 핫한 콘텐츠 ~200개를 미리 캐싱 (Nest.js caching)
 아래와 같은 로직으로 계산 후 hot score 순으로 7일 내의 게시글만 정렬 후 상단 콘텐츠는 캐싱. 
