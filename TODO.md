@@ -36,8 +36,8 @@ function calculateHotScore(likeCount, createdAt) {
 
 요청 시점에는 팔로우 관계를 필터링해 팔로우 관계 점수를 합산해 Global : Follow = 6 : 4 로 재정렬. 
 
-서로 팔로우 : +20
-일방 팔로우 : +8
+서로 팔로우 : + 20
+일방 팔로우 : + 8
 DM 을 주고 받았다면
 - 10개 미만 : + 7
 - 100개 미만 : + 15

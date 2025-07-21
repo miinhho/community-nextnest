@@ -2,7 +2,7 @@
 
 echo "Starting deployment..."
 
-COMPOSE_FILE="docker-compose.prod.yml"
+COMPOSE_FILE="docker-compose.yml"
 
 if [ ! -f "$COMPOSE_FILE" ]; then
     echo "Error: $COMPOSE_FILE not found! Please run from project root."

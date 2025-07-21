@@ -2,7 +2,7 @@
 
 echo "Starting development deployment..."
 
-COMPOSE_FILE="docker-compose.dev.yml"
+COMPOSE_FILE="docker-compose.yml"
 
 if [ ! -f "$COMPOSE_FILE" ]; then
     echo "Error: $COMPOSE_FILE not found!"
