@@ -8,7 +8,7 @@ import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { JsonImportPlugin } from './plugins/JsonImportPlugin';
 
-interface Props {
+interface LexicalViewerProps {
   json: string;
 }
 
@@ -18,7 +18,7 @@ interface Props {
  */
 export const LexicalViewer = ({
   json
-}: Props) => {
+}: LexicalViewerProps) => {
 
   return (
     <LexicalComposer initialConfig={viewerConfig}>

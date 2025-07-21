@@ -6,9 +6,8 @@ Backend:
   - [ ] @nestjs/bullmq 를 이용한 채팅 캐싱
 
 Frontend:
-  - [ ] 페이지 MVP 구현
   - [ ] LexicalViewer 컴포넌트 처리
-    - [ ] 글 컴포넌트 분리
+    - [x] 글 컴포넌트 분리
     - [ ] 댓글 컴포넌트 분리
   - [ ] LexicalEditor 컴포넌트 처리
     - [ ] 글 컴포넌트 분리

@@ -16,7 +16,7 @@ import { YouTubePlugin } from './plugins/YouTubePlugin';
 
 const placeholder = "내용을 입력하세요...";
 
-interface Props {
+interface LexicalEditorProps {
   json?: string;
 }
 
@@ -25,7 +25,7 @@ interface Props {
  */
 export const LexicalEditor = ({
   json
-}: Props) => {
+}: LexicalEditorProps) => {
   return (
     <LexicalComposer initialConfig={editorConfig}>
       <div className={cn(

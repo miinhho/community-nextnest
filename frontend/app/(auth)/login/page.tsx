@@ -8,8 +8,8 @@ import { useState } from "react";
 import { ZodError } from "zod/v4";
 
 export default function LoginPage() {
-  const { mutate: loginMutation, isPending } = useAuthLoginQuery();
   const router = useRouter();
+  const { mutate: loginMutation, isPending } = useAuthLoginQuery();
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleLogin = async (formData: FormData) => {

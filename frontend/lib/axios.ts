@@ -1,6 +1,5 @@
 'use client';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PageMeta } from '@/lib/types/page.types';
 import { recursiveDateParse } from '@/lib/utils';
 import axios, { AxiosResponse, HttpStatusCode } from 'axios';

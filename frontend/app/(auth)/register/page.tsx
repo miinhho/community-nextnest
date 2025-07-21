@@ -8,8 +8,8 @@ import { useState } from "react";
 import { ZodError } from "zod/v4";
 
 export default function RegisterPage() {
-  const { mutate: registerMutation, isPending } = useAuthRegisterQuery();
   const router = useRouter();
+  const { mutate: registerMutation, isPending } = useAuthRegisterQuery();
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleRegister = async (formData: FormData) => {
