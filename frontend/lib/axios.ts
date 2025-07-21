@@ -1,10 +1,10 @@
 'use client';
 
-import { fetchQueue } from '@/lib/fetch-queue';
 import { PageMeta } from '@/lib/types/page.types';
 import { recursiveDateParse } from '@/lib/utils/parsing';
 import { tokenUtils } from '@/lib/utils/token';
 import axios, { AxiosResponse, HttpStatusCode } from 'axios';
+import createAuthRefreshInterceptor from 'axios-auth-refresh';
 
 interface ApiResponse<T = any, D = any> extends AxiosResponse<T, D> {
   success: boolean;
@@ -31,62 +31,38 @@ fetcher.interceptors.request.use((config) => {
   return config;
 });
 
+const refreshAuthLogic = async (failedRequest: any) => {
+  const response = await axios.post(
+    'api/auth/refresh',
+    {},
+    {
+      withCredentials: true,
+    },
+  );
+  const { accessToken } = response.data.data;
+
+  tokenUtils.set(accessToken);
+  failedRequest.response.config.headers.Authorization = `Bearer ${accessToken}`;
+  return Promise.resolve();
+};
+
+createAuthRefreshInterceptor(fetcher, refreshAuthLogic);
+
 fetcher.interceptors.response.use(
   (response) => {
     response.data = recursiveDateParse(response.data);
     return response;
   },
   async (error) => {
-    const requestInfo = error.config;
     const status = error.response?.status;
     const message = error.response.message || 'An error occurred';
 
     // TODO : 에러 페이지로 리다이렉트
     switch (status) {
       case HttpStatusCode.Unauthorized: {
-        if (fetchQueue.isRefreshing) {
-          try {
-            const token = await fetchQueue.addToQueue();
-            requestInfo.headers.Authorization = `Bearer ${token}`;
-            return fetcher(requestInfo);
-          } catch (err) {
-            return Promise.reject(err);
-          }
-        }
-        fetchQueue.startRefreshing();
-
-        try {
-          const response = await axios.post(
-            '/api/auth/refresh',
-            {},
-            {
-              withCredentials: true,
-            },
-          );
-
-          if (response.data.success) {
-            const { accessToken } = response.data.data;
-            if (!accessToken) {
-              throw new Error('Access token is missing from response');
-            }
-
-            tokenUtils.set(accessToken);
-            fetchQueue.resolveQueue(accessToken);
-            requestInfo.headers.Authorization = `Bearer ${accessToken}`;
-            return fetcher(requestInfo);
-          } else {
-            throw new Error('Token refresh failed');
-          }
-        } catch (err) {
-          fetchQueue.rejectQueue(err);
-          tokenUtils.remove();
-
-          alert('로그인이 필요합니다. 다시 로그인 해주세요.');
-          window.location.href = '/login';
-          return Promise.reject(err);
-        } finally {
-          fetchQueue.finishRefreshing();
-        }
+        alert('로그인이 필요합니다. 다시 로그인 해주세요.');
+        window.location.href = '/login';
+        break;
       }
       case HttpStatusCode.Forbidden: {
         console.error('Forbidden access:', message);
@@ -101,7 +77,6 @@ fetcher.interceptors.response.use(
         break;
       }
     }
-
     return Promise.reject(error);
   },
 );

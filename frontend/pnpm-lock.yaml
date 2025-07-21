@@ -32,6 +32,9 @@ importers:
       axios:
         specifier: ^1.10.0
         version: 1.10.0
+      axios-auth-refresh:
+        specifier: ^3.3.6
+        version: 3.3.6(axios@1.10.0)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1058,6 +1061,11 @@ packages:
   axe-core@4.10.3:
     resolution: {integrity: sha512-Xm7bpRXnDSX2YE2YFfBk2FnF0ep6tmG7xPh8iHee8MIcrgq762Nkce856dYtJYLkuIoYZvGfTs/PbZhideTcEg==}
     engines: {node: '>=4'}
+
+  axios-auth-refresh@3.3.6:
+    resolution: {integrity: sha512-2CeBUce/SxIfFxow5/n8vApJ97yYF6qoV4gh1UrswT7aEOnlOdBLxxyhOI4IaxGs6BY0l8YujU2jlc4aCmK17Q==}
+    peerDependencies:
+      axios: '>= 0.18 < 0.19.0 || >= 0.19.1'
 
   axios@1.10.0:
     resolution: {integrity: sha512-/1xYAC4MP/HEG+3duIhFr4ZQXR4sQXOIe+o6sdqzeykGLx6Upp/1p8MHqhINOvGeP7xyNHe7tsiJByc4SSVUxw==}
@@ -3176,6 +3184,10 @@ snapshots:
       possible-typed-array-names: 1.1.0
 
   axe-core@4.10.3: {}
+
+  axios-auth-refresh@3.3.6(axios@1.10.0):
+    dependencies:
+      axios: 1.10.0
 
   axios@1.10.0:
     dependencies:
