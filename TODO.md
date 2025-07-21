@@ -23,14 +23,19 @@ Feature:
 추천 시스템: 시간 + 인기 + 개인화
 전체적으로 핫한 콘텐츠 ~200개를 미리 캐싱 (Nest.js caching)
 아래와 같은 로직으로 계산 후 hot score 순으로 7일 내의 게시글만 정렬 후 상단 콘텐츠는 캐싱. 
-```js
-function calculateHotScore(likeCount, createdAt) {
-    const SECONDS_IN_HOUR = 3600;
-    const baseTime = new Date('2024-01-01T00:00:00Z').getTime();
-    const postTime = new Date(createdAt).getTime();
-    const hoursSince = (postTime - baseTime) / (1000 * SECONDS_IN_HOUR);
 
-    return likeCount / Math.pow(hoursSince + 2, 1.5);
+참여율을 활용하여 좋아요와 댓글, 조회수를 반영한 인기도 알고리즘  
+```js
+function calculateHotScore(likeCount, viewCount, commentCount createdAt) {
+    const engagementRate = viewCount > 0 ? 
+        (likeCount + commentCount * 2) / viewCount : 0;
+    
+    const popularityScore = Math.log(viewCount + 1) * 0.3;
+    const qualityScore = engagementRate * viewCount * 0.7;
+    
+    const hoursSince = (new Date(createdAt).getTime() - new Date('2024-01-01').getTime()) / (1000 * 3600);
+    
+    return (popularityScore + qualityScore) / Math.pow(hoursSince + 2, 1.5);
 }
 ```
 

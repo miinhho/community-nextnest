@@ -349,6 +349,14 @@ export class PostRepository {
     }
   }
 
+  /**
+   * 게시글 조회수를 추가합니다.
+   * @param params.userId - 조회를 시도한 사용자 ID (선택적)
+   * @param params.postId - 조회할 게시글 ID
+   * @param params.ipAddress - 조회를 시도한 IP 주소 (선택적)
+   * @param params.userAgent - 조회를 시도한 User-Agent (선택적)
+   * @throws {PrismaDBError} 게시글 조회 추가 중 오류 발생 시
+   */
   async addPostView({
     userId,
     postId,
@@ -360,14 +368,13 @@ export class PostRepository {
     ipAddress?: string;
     userAgent?: string;
   }) {
+    // userId 를 우선적으로 사용하고, 없으면 ipAddress와 userAgent를 사용
+    const uniqueKey = userId ? { postId, userId } : { postId, ipAddress, userAgent };
     try {
       await this.prisma.$transaction([
         this.prisma.postView.create({
           data: {
-            userId,
-            postId,
-            ipAddress,
-            userAgent,
+            ...uniqueKey,
           },
         }),
         this.prisma.post.update({
@@ -390,6 +397,51 @@ export class PostRepository {
         userAgent,
       });
       throw new PrismaDBError('게시글 조회 추가에 실패했습니다.', err.code);
+    }
+  }
+
+  /**
+   * 특정 게시글에 대한 24시간 이내 조회 여부를 확인합니다.
+   * @param params.userId - 조회를 시도한 사용자 ID (선택적)
+   * @param params.postId - 조회할 게시글 ID
+   * @param params.ipAddress - 조회를 시도한 IP 주소 (선택적)
+   * @param params.userAgent - 조회를 시도한 User-Agent (선택적)
+   * @returns 게시글이 조회된 경우 true, 그렇지 않은 경우 false
+   * @throws {PrismaDBError} 조회 여부 확인 중 오류 발생 시
+   */
+  async isExistingPostView({
+    userId,
+    postId,
+    ipAddress,
+    userAgent,
+  }: {
+    userId?: string;
+    postId: string;
+    ipAddress?: string;
+    userAgent?: string;
+  }) {
+    // userId 를 우선적으로 사용하고, 없으면 ipAddress와 userAgent를 사용
+    const uniqueKey = userId ? { postId, userId } : { postId, ipAddress, userAgent };
+    try {
+      // 24시간 이내에 조회한 기록이 있는지 확인
+      const view = await this.prisma.postView.findFirst({
+        where: {
+          ...uniqueKey,
+          createdAt: {
+            gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
+          },
+        },
+      });
+
+      return !!view;
+    } catch (err) {
+      this.logger.error('게시글 조회 여부 확인 중 오류 발생', err.stack, {
+        userId,
+        postId,
+        ipAddress,
+        userAgent,
+      });
+      throw new PrismaDBError('게시글 조회 여부 확인에 실패했습니다.', err.code);
     }
   }
 }

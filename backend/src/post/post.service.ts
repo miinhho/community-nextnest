@@ -70,33 +70,39 @@ export class PostService {
 
     // 게시글이 비공개인 경우
     if (!post.author.isPrivate) {
-      return post;
-    }
-    if (!user) {
-      throw new PrivateAuthError();
+      if (!user) {
+        throw new PrivateAuthError();
+      }
+      const { id: userId, role } = user;
+      // 비공개 게시글에 접근할 수 있는지 확인
+      if (role !== Role.ADMIN && userId !== post.author.id) {
+        await this.privateService.isUserAvailable(
+          {
+            userId: userId,
+            targetId: post.author.id,
+          },
+          true,
+        );
+      }
     }
 
-    const { id: userId, role } = user;
-    if (role === Role.ADMIN || userId === post.author.id) {
-      return post;
-    }
-
-    // 비공개 게시글에 접근할 수 있는지 확인
-    await this.privateService.isUserAvailable(
-      {
-        userId: userId,
-        targetId: post.author.id,
-      },
-      true,
-    );
-
-    // 게시글 조회수 증가
-    await this.postRepository.addPostView({
+    // 24시간 이내 조회 여부 확인
+    const isExistingView = await this.postRepository.isExistingPostView({
+      userId: user?.id,
       postId: id,
-      userId: user.id,
       ipAddress: ipAddress,
       userAgent: userAgent,
     });
+
+    // 중복 조회 방지: 이미 조회한 경우 조회수 증가하지 않음
+    if (!isExistingView) {
+      await this.postRepository.addPostView({
+        postId: id,
+        userId: user?.id,
+        ipAddress: ipAddress,
+        userAgent: userAgent,
+      });
+    }
 
     return post;
   }
