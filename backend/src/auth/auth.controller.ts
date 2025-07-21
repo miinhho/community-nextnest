@@ -24,7 +24,8 @@ import { CookieOptions, Request, Response } from 'express';
 @ApiAuthTags()
 @Controller('auth')
 export class AuthController {
-  private readonly COOKIE_OPTIONS: CookieOptions;
+  private readonly REFRESH_COOKIE_OPTIONS: CookieOptions;
+  private readonly ACCESS_COOKIE_OPTIONS: CookieOptions;
 
   constructor(
     private readonly authService: AuthService,
@@ -33,11 +34,19 @@ export class AuthController {
     @Inject(app.KEY)
     private readonly appConfig: ConfigType<typeof app>,
   ) {
-    this.COOKIE_OPTIONS = {
+    this.REFRESH_COOKIE_OPTIONS = {
       httpOnly: true,
       secure: this.appConfig.isProduction,
       sameSite: 'strict',
       maxAge: this.jwtConfig.refreshExpiration,
+      path: '/',
+    };
+
+    this.ACCESS_COOKIE_OPTIONS = {
+      httpOnly: true,
+      secure: this.appConfig.isProduction,
+      sameSite: 'strict',
+      maxAge: this.jwtConfig.accessExpiration,
       path: '/',
     };
   }
@@ -53,12 +62,12 @@ export class AuthController {
       await this.authService.register(registerUserDto);
 
     this.setRefreshTokenCookie(res, refreshToken);
+    this.setAccessTokenCookie(res, accessToken);
     return {
       success: true,
       data: {
         id: user.id,
         role: user.role,
-        accessToken,
       },
     };
   }
@@ -68,16 +77,19 @@ export class AuthController {
   @ApiLogin()
   @Post('login')
   async login(@User() user: UserData, @Res({ passthrough: true }) res: Response) {
-    const result = await this.authService.login(user);
-    this.setRefreshTokenCookie(res, result.refreshToken);
+    const {
+      refreshToken,
+      accessToken,
+      user: userData,
+    } = await this.authService.login(user);
+    this.setRefreshTokenCookie(res, refreshToken);
+    this.setAccessTokenCookie(res, accessToken);
 
-    const { refreshToken: _, ...responseData } = result;
     return {
       success: true,
       data: {
-        id: responseData.user.id,
-        role: responseData.user.role,
-        accessToken: responseData.accessToken,
+        id: userData.id,
+        role: userData.role,
       },
     };
   }
@@ -90,6 +102,7 @@ export class AuthController {
       await this.authService.logout(refreshToken);
     }
 
+    res.clearCookie('accessToken');
     res.clearCookie('refreshToken');
     return { success: true };
   }
@@ -97,15 +110,14 @@ export class AuthController {
   @Post('refresh')
   @ApiRefresh()
   async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const refreshToken = this.extractRefreshToken(req);
-    const tokens = await this.authService.refreshTokens(refreshToken);
+    const oldRefreshToken = this.extractRefreshToken(req);
+    const { refreshToken, accessToken } =
+      await this.authService.refreshTokens(oldRefreshToken);
 
-    this.setRefreshTokenCookie(res, tokens.refreshToken);
+    this.setRefreshTokenCookie(res, refreshToken);
+    this.setAccessTokenCookie(res, accessToken);
     return {
       success: true,
-      data: {
-        accessToken: tokens.accessToken,
-      },
     };
   }
 
@@ -118,6 +130,10 @@ export class AuthController {
   }
 
   private setRefreshTokenCookie(res: Response, refreshToken: string) {
-    res.cookie('refreshToken', refreshToken, this.COOKIE_OPTIONS);
+    res.cookie('refreshToken', refreshToken, this.REFRESH_COOKIE_OPTIONS);
+  }
+
+  private setAccessTokenCookie(res: Response, accessToken: string) {
+    res.cookie('accessToken', accessToken, this.ACCESS_COOKIE_OPTIONS);
   }
 }

@@ -2,7 +2,6 @@
 
 import { PageMeta } from '@/lib/types/page.types';
 import { recursiveDateParse } from '@/lib/utils/parsing';
-import { tokenUtils } from '@/lib/utils/token';
 import axios, { AxiosResponse, HttpStatusCode } from 'axios';
 import createAuthRefreshInterceptor from 'axios-auth-refresh';
 
@@ -23,26 +22,14 @@ export const fetcher = axios.create({
   withCredentials: true,
 });
 
-fetcher.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access-token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-const refreshAuthLogic = async (failedRequest: any) => {
-  const response = await axios.post(
+const refreshAuthLogic = async (_failedRequest: any) => {
+  await axios.post(
     'api/auth/refresh',
     {},
     {
       withCredentials: true,
     },
   );
-  const { accessToken } = response.data.data;
-
-  tokenUtils.set(accessToken);
-  failedRequest.response.config.headers.Authorization = `Bearer ${accessToken}`;
   return Promise.resolve();
 };
 

@@ -18,16 +18,15 @@ export class TokenService {
    * 사용자 ID를 기반으로 Access Token을 생성합니다.
    *
    * @param userId - 토큰을 생성할 사용자 ID
-   * @returns 생성된 Access Token
    * @throws {NotFoundException} 사용자를 찾을 수 없는 경우
    * @throws {PrismaDBError} 토큰 생성 실패 시
    */
   async generateAccessToken(userId: string) {
-    const user = await this.userService.findUserByIdAsAdmin(userId);
+    const role = await this.userService.findUserRoleById(userId);
     return this.jwtService.sign(
       {
         sub: userId,
-        role: user?.role,
+        role,
       } as JwtPayload,
       {
         secret: this.jwtConfig.accessSecret,
@@ -40,7 +39,6 @@ export class TokenService {
    * 사용자 ID를 기반으로 Refresh Token을 생성합니다.
    *
    * @param userId - 토큰을 생성할 사용자 ID
-   * @returns 생성된 Refresh Token
    */
   generateRefreshToken(userId: string): string {
     return this.jwtService.sign(

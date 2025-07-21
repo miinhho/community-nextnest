@@ -82,6 +82,30 @@ export class UserRepository {
   }
 
   /**
+   * ID를 통해 사용자 역할을 조회합니다.
+   * @param id - 조회할 사용자 ID
+   * @throws {NotFoundException} 존재하지 않는 사용자인 경우
+   * @throws {PrismaDBError} 조회 중 오류 발생 시
+   */
+  async findUserRoleById(id: string) {
+    try {
+      const user = await this.prisma.user.findUniqueOrThrow({
+        where: { id },
+        select: {
+          role: true,
+        },
+      });
+      return user.role;
+    } catch (err) {
+      if (err.code === PrismaError.RecordsNotFound) {
+        throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
+      }
+      this.logger.error('사용자 역할 조회 중 오류 발생', err.stack, { userId: id });
+      throw new PrismaDBError('사용자 역할 조회에 실패했습니다.', err.code);
+    }
+  }
+
+  /**
    * ID를 통해 사용자 상세 정보를 조회합니다.
    * @param id - 조회할 사용자 ID
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우

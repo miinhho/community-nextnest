@@ -113,11 +113,10 @@ export class AuthService {
       throw new UnauthorizedException('토큰이 만료되었습니다');
     }
 
-    const newAccessToken = this.tokenService.generateAccessToken(userId);
+    const newAccessToken = await this.tokenService.generateAccessToken(userId);
     const newRefreshToken = this.tokenService.generateRefreshToken(userId);
 
     await this.refreshTokenService.revokeRefreshToken(storedToken.id);
-
     await this.refreshTokenService.createRefreshToken(
       userId,
       newRefreshToken,

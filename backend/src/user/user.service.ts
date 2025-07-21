@@ -48,6 +48,16 @@ export class UserService {
   }
 
   /**
+   * ID를 통해 사용자 역할을 조회합니다.
+   * @param id - 조회할 사용자 ID
+   * @throws {NotFoundException} 존재하지 않는 사용자인 경우
+   * @throws {PrismaDBError} 조회 중 오류 발생 시
+   */
+  async findUserRoleById(id: string) {
+    return this.userRepository.findUserRoleById(id);
+  }
+
+  /**
    * 현재 로그인한 사용자의 정보를 조회합니다.
    * @param user - 현재 로그인한 사용자 정보
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
