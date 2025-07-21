@@ -75,7 +75,6 @@ export class BlockService {
   /**
    * 사용자가 차단한 사용자 목록을 조회합니다.
    * @param userId - 차단한 사용자 ID
-   * @returns 차단된 사용자 목록
    * @throws {PrismaDBError} 차단 목록 조회 중 오류 발생 시
    */
   async getBlockedUsers(userId: string) {
@@ -85,7 +84,6 @@ export class BlockService {
   /**
    * 사용자가 차단한 사용자 ID 목록을 Set 형태로 반환합니다.
    * @param userId - 차단한 사용자 ID
-   * @returns 차단된 사용자 ID 목록의 Set
    * @throws {PrismaDBError} 차단 목록 조회 중 오류 발생 시
    */
   async getBlockedUsersId(userId: string) {
@@ -96,7 +94,6 @@ export class BlockService {
   /**
    * 사용자를 차단한 사용자 목록을 조회합니다.
    * @param userId - 차단한 사용자 ID
-   * @returns 차단된 사용자 목록
    * @throws {PrismaDBError} 차단 목록 조회 중 오류 발생 시
    */
   async getBlockedByUsers(userId: string) {
@@ -106,7 +103,6 @@ export class BlockService {
   /**
    * 사용자를 차단한 사용자 ID 목록을 Set 형태로 반환합니다.
    * @param userId - 차단한 사용자 ID
-   * @returns 차단된 사용자 ID 목록의 Set
    * @throws {PrismaDBError} 차단 목록 조회 중 오류 발생 시
    */
   async getBlockedByUsersId(userId: string) {

@@ -285,6 +285,8 @@ enum NotificationType {
   FOLLOW
   MESSAGE
   SYSTEM
+  MARK_AS_READ
+  MARK_ALL_AS_READ
 }
 
 enum FollowRequestStatus {

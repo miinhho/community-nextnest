@@ -9,8 +9,6 @@ import {
 import { Request } from 'express';
 
 /**
- * 관리자 권한을 확인하는 Guard 클래스
- *
  * 로그인된 사용자가 관리자 권한을 가지고 있는지 검증합니다.
  */
 @Injectable()
@@ -39,11 +37,7 @@ export class AdminGuard implements CanActivate {
 }
 
 /**
- * 관리자 권한 확인을 위한 데코레이터 함수
- *
- * 컨트롤러 메서드나 클래스에 적용하여 관리자만 접근할 수 있도록 제한합니다.
- *
- * @returns UseGuards 데코레이터
+ * 관리자만 접근할 수 있도록 제한합니다.
  *
  * @example
  * ```typescript
@@ -54,6 +48,4 @@ export class AdminGuard implements CanActivate {
  * }
  * ```
  */
-export function Admin() {
-  return UseGuards(AdminGuard);
-}
+export const Admin = () => UseGuards(AdminGuard);

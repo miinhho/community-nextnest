@@ -7,8 +7,6 @@ import { BadRequestException } from '@nestjs/common';
  */
 export class AlreadyFollowError extends BadRequestException {
   /**
-   * AlreadyFollowError 인스턴스를 생성합니다.
-   *
    * @param userId - 팔로우를 요청한 사용자 ID
    * @param targetId - 이미 팔로우된 대상 사용자 ID
    */

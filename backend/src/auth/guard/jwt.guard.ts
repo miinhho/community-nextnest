@@ -5,10 +5,10 @@ import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 
 /**
- * JWT 기반 인증을 처리하는 Guard 클래스
+ * JWT 기반 인증을 처리하는 Guard
  *
- * `＠Public` 데코레이터가 적용된 엔드포인트는 인증을 건너뛰고,
- * 그렇지 않은 경우 JWT 토큰을 검증하여 사용자 인증을 수행합니다.
+ * - `＠Public` 데코레이터가 적용된 엔드포인트는 인증을 건너뛰고,
+ * - 그렇지 않은 경우 JWT 토큰을 검증하여 사용자 인증을 수행합니다.
  */
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -19,8 +19,8 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   /**
    * 요청에 대한 접근 권한을 확인합니다.
    *
-   * `＠Public` 데코레이터가 적용된 경우 인증을 건너뛰고,
-   * 그렇지 않은 경우 JWT 토큰 검증을 수행합니다.
+   * - `＠Public` 데코레이터가 적용된 경우 인증을 건너뛰고,
+   * - 그렇지 않은 경우 JWT 토큰 검증을 수행합니다.
    *
    * @param {ExecutionContext} context - NestJS 실행 컨텍스트
    * @returns 접근 허용 여부 또는 부모 클래스의 canActivate 결과

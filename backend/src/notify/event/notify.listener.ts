@@ -90,11 +90,17 @@ export class NotifyEventListener {
     });
   }
 
+  /**
+   * 알림을 읽음 처리합니다.
+   */
   @OnEvent(MARK_AS_READ_NOTIFY)
   async handleMarkAsRead(userId: string, notifyId: string) {
     await this.notifyService.markAsRead(notifyId, userId);
   }
 
+  /**
+   * 사용자의 모든 알림을 읽음 처리합니다.
+   */
   @OnEvent(MARK_ALL_AS_READ_NOTIFY)
   async handleMarkAllAsRead(userId: string) {
     await this.notifyService.markAllAsRead(userId);

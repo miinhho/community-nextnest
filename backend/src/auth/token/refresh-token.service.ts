@@ -14,7 +14,6 @@ export class RefreshTokenService {
    * @param userId - 토큰 소유자 사용자 ID
    * @param token - Refresh Token 문자열
    * @param expiresIn - 토큰 만료 시간 (초)
-   * @returns 생성된 Refresh Token 레코드
    * @throws {PrismaDBError} 토큰 생성 실패 시
    */
   async createRefreshToken(userId: string, token: string, expiresIn: number) {
@@ -89,7 +88,6 @@ export class RefreshTokenService {
    * 토큰 ID로 Refresh Token을 조회합니다.
    *
    * @param tokenId - 조회할 토큰의 ID
-   * @returns Refresh Token 레코드
    * @throws {NotFoundException} 토큰을 찾을 수 없는 경우
    * @throws {PrismaDBError} 토큰 조회 실패 시
    */

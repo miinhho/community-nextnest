@@ -66,14 +66,17 @@ export class PostRepository {
   /**
    * ID를 통해 특정 게시글을 조회합니다.
    * @param id - 조회할 게시글 ID
-   * @returns 게시글 정보 (내용, 생성/수정 시간, 작성자 정보, 좋아요/댓글 수)
+   * @param viewerId - 게시글을 조회하는 사용자의 ID (선택)
    * @throws {NotFoundException} 게시글을 찾을 수 없는 경우
    * @throws {PrismaDBError} 게시글 조회 중 오류 발생 시
    */
-  async findPostById(id: string) {
+  async findPostById(id: string, viewerId?: string) {
     try {
-      const post = await this.prisma.post.findUniqueOrThrow({
-        where: { id },
+      return this.prisma.post.findUniqueOrThrow({
+        where: {
+          id,
+          ...getBlockFilter(viewerId),
+        },
         select: {
           content: true,
           createdAt: true,
@@ -90,7 +93,6 @@ export class PostRepository {
           },
         },
       });
-      return post;
     } catch (err) {
       if (err.code === PrismaError.RecordsNotFound) {
         throw new NotFoundException('게시글을 찾을 수 없습니다.');
@@ -104,7 +106,6 @@ export class PostRepository {
   /**
    * 게시글의 작성자 ID를 조회합니다.
    * @param id - 게시글 ID
-   * @returns 게시글 작성자의 ID
    * @throws {NotFoundException} 존재하지 않는 게시글인 경우
    * @throws {PrismaDBError} 조회 중 오류 발생 시
    */
@@ -128,7 +129,6 @@ export class PostRepository {
    * 페이지네이션을 적용하여 게시글 목록을 조회합니다.
    * @param params.page - 페이지 번호 (기본값: 1)
    * @param params.size - 페이지 크기 (기본값: 10)
-   * @returns 페이지네이션이 적용된 게시글 목록과 총 개수 정보
    * @throws {PrismaDBError} 목록 조회 중 오류 발생 시
    */
   async findPostsByPage({ page = 1, size = 10 }: PageParams, viewerId?: string) {
@@ -172,7 +172,6 @@ export class PostRepository {
    * @param userId - 조회할 사용자 ID
    * @param params.page - 페이지 번호 (기본값: 1)
    * @param params.size - 페이지 크기 (기본값: 10)
-   * @returns 해당 사용자의 게시글 목록과 총 개수 정보
    * @throws {PrismaDBError} 조회 중 오류 발생 시
    */
   async findPostsByUserId(userId: string, { page = 1, size = 10 }: PageParams) {
@@ -247,7 +246,6 @@ export class PostRepository {
   /**
    * ID를 통해 게시글을 삭제합니다.
    * @param id - 삭제할 게시글 ID
-   * @returns 삭제된 게시글의 정보 (ID, 내용, 작성자 ID)
    * @throws {NotFoundException} 존재하지 않는 게시글인 경우
    * @throws {PrismaDBError} 삭제 중 오류 발생 시
    */
@@ -283,17 +281,28 @@ export class PostRepository {
   async addPostLikes({ userId, postId }: { userId: string; postId: string }) {
     try {
       await this.prisma.$transaction([
+        this.prisma.post.findUniqueOrThrow({
+          where: {
+            id: postId,
+            ...getBlockFilter(userId),
+          },
+        }),
         this.prisma.postLikes.create({
           data: {
             userId,
             postId,
           },
+          select: {},
         }),
         this.prisma.post.update({
-          where: { id: postId },
+          where: {
+            id: postId,
+            ...getBlockFilter(userId),
+          },
           data: {
             likeCount: { increment: 1 },
           },
+          select: {},
         }),
       ]);
     } catch (err) {
@@ -351,10 +360,10 @@ export class PostRepository {
 
   /**
    * 게시글 조회수를 추가합니다.
-   * @param params.userId - 조회를 시도한 사용자 ID (선택적)
-   * @param params.postId - 조회할 게시글 ID
-   * @param params.ipAddress - 조회를 시도한 IP 주소 (선택적)
-   * @param params.userAgent - 조회를 시도한 User-Agent (선택적)
+   * @param params.postId - 게시글 ID
+   * @param params.userId - 사용자 ID (선택)
+   * @param params.ipAddress - IP 주소 (선택)
+   * @param params.userAgent - User-Agent (선택)
    * @throws {PrismaDBError} 게시글 조회 추가 중 오류 발생 시
    */
   async addPostView({
@@ -382,6 +391,7 @@ export class PostRepository {
           data: {
             viewCount: { increment: 1 },
           },
+          select: {},
         }),
       ]);
     } catch (err) {
@@ -401,12 +411,12 @@ export class PostRepository {
   }
 
   /**
-   * 특정 게시글에 대한 24시간 이내 조회 여부를 확인합니다.
-   * @param params.userId - 조회를 시도한 사용자 ID (선택적)
+   * 특정 게시글에 대한 조회 기록이 24시간 이내에 존재하는지 확인합니다.
    * @param params.postId - 조회할 게시글 ID
-   * @param params.ipAddress - 조회를 시도한 IP 주소 (선택적)
-   * @param params.userAgent - 조회를 시도한 User-Agent (선택적)
-   * @returns 게시글이 조회된 경우 true, 그렇지 않은 경우 false
+   * @param params.userId - 조회를 시도한 사용자 ID (선택)
+   * @param params.ipAddress - 조회를 시도한 IP 주소 (선택)
+   * @param params.userAgent - 조회를 시도한 User-Agent (선택)
+   * @returns 조회 기록이 존재하는지 여부
    * @throws {PrismaDBError} 조회 여부 확인 중 오류 발생 시
    */
   async isExistingPostView({
@@ -415,8 +425,8 @@ export class PostRepository {
     ipAddress,
     userAgent,
   }: {
-    userId?: string;
     postId: string;
+    userId?: string;
     ipAddress?: string;
     userAgent?: string;
   }) {
@@ -432,7 +442,6 @@ export class PostRepository {
           },
         },
       });
-
       return !!view;
     } catch (err) {
       this.logger.error('게시글 조회 여부 확인 중 오류 발생', err.stack, {

@@ -56,7 +56,6 @@ export class TokenService {
    * Access Token을 검증하고 페이로드를 반환합니다.
    *
    * @param token - 검증할 Access Token
-   * @returns 토큰의 페이로드 정보
    * @throws {JsonWebTokenError} 토큰이 유효하지 않은 경우
    * @throws {TokenExpiredError} 토큰이 만료된 경우
    */
@@ -70,7 +69,6 @@ export class TokenService {
    * Refresh Token을 검증하고 페이로드를 반환합니다.
    *
    * @param token - 검증할 Refresh Token
-   * @returns 토큰의 페이로드 정보
    * @throws {JsonWebTokenError} 토큰이 유효하지 않은 경우
    * @throws {TokenExpiredError} 토큰이 만료된 경우
    */

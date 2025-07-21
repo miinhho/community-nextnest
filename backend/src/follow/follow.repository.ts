@@ -93,7 +93,6 @@ export class FollowRepository {
   /**
    * 사용자가 팔로우 요청을 보낸 사용자들의 목록을 조회합니다.
    * @param userId - 팔로우 요청을 보낸 사용자 ID
-   * @returns 팔로우 요청을 받은 사용자 목록
    * @throws {PrismaDBError} 팔로우 요청 조회 실패 시
    */
   findFollowRequestSent(userId: string) {
@@ -115,7 +114,6 @@ export class FollowRepository {
   /**
    * 사용자가 팔로우 요청을 받은 사용자들의 목록을 조회합니다.
    * @param userId - 팔로우 요청을 받은 사용자 ID
-   * @returns 팔로우 요청을 보낸 사용자 목록
    * @throws {PrismaDBError} 팔로우 요청 조회 실패 시
    */
   findFollowRequestReceived(userId: string) {
@@ -220,7 +218,6 @@ export class FollowRepository {
   /**
    * 특정 사용자의 팔로워 수를 조회합니다.
    * @param userId - 팔로워 수를 조회할 사용자 ID
-   * @returns 팔로워 수
    * @throws {PrismaDBError} 팔로워 수 조회 실패 시
    */
   async getFollowersCount(userId: string) {
@@ -239,7 +236,6 @@ export class FollowRepository {
   /**
    * 특정 사용자가 팔로우하는 사용자 수를 조회합니다.
    * @param userId - 팔로잉 수를 조회할 사용자 ID
-   * @returns 팔로잉 수
    * @throws {PrismaDBError} 팔로잉 수 조회 실패 시
    */
   async getFollowingCount(userId: string) {
@@ -260,7 +256,6 @@ export class FollowRepository {
    * @param userId - 팔로워 목록을 조회할 사용자 ID
    * @param params.page - 페이지 번호 (기본값: 1)
    * @param params.size - 페이지 크기 (기본값: 10)
-   * @returns 페이지네이션된 팔로워 목록
    * @throws {PrismaDBError} 팔로워 목록 조회 실패 시
    */
   async getFollowers(userId: string, { page = 1, size = 10 }: PageParams) {
@@ -296,7 +291,6 @@ export class FollowRepository {
    * @param userId - 팔로잉 목록을 조회할 사용자 ID
    * @param params.page - 페이지 번호 (기본값: 1)
    * @param params.size - 페이지 크기 (기본값: 10)
-   * @returns 페이지네이션된 팔로잉 목록
    * @throws {PrismaDBError} 팔로잉 목록 조회 실패 시
    */
   async getFollowing(userId: string, { page = 1, size = 10 }: PageParams) {

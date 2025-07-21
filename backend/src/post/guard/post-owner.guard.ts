@@ -11,7 +11,6 @@ import {
 import { Request } from 'express';
 
 /**
- * 게시글 소유권을 확인하는 Guard 클래스
  * 현재 사용자가 게시글의 작성자이거나 관리자인지 검증합니다.
  */
 @Injectable()
@@ -21,7 +20,6 @@ export class PostOwnerGuard implements CanActivate {
   /**
    * 사용자가 게시글에 대한 권한이 있는지 확인합니다.
    * @param context - 실행 컨텍스트 (HTTP 요청 정보 포함)
-   * @returns 권한이 있으면 true, 없으면 예외 발생
    * @throws {ForbiddenException} 로그인하지 않은 경우
    * @throws {BadRequestException} 게시글 ID가 없는 경우
    * @throws {ForbiddenException} 게시글 수정 권한이 없는 경우
@@ -53,8 +51,7 @@ export class PostOwnerGuard implements CanActivate {
 }
 
 /**
- * 게시글 소유권 검증 데코레이터
- * 컨트롤러 메서드에 적용하여 게시글 작성자 또는 관리자만 접근할 수 있도록 제한합니다.
+ * 게시글 작성자 또는 관리자만 접근할 수 있도록 제한합니다.
  *
  * @example
  *```
@@ -65,6 +62,4 @@ export class PostOwnerGuard implements CanActivate {
  * }
  *```
  */
-export function PostOwner() {
-  return UseGuards(PostOwnerGuard);
-}
+export const PostOwner = () => UseGuards(PostOwnerGuard);

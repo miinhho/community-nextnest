@@ -44,7 +44,6 @@ export class PostService {
   /**
    * ID를 통해 특정 게시글을 조회합니다.
    * @param id - 조회할 게시글 ID
-   * @returns 게시글 정보 (내용, 생성/수정 시간, 작성자 정보, 좋아요/댓글 수)
    * @throws {NotFoundException} 게시글을 찾을 수 없는 경우
    * @throws {UnauthorizedException} 비공개 게시글에 접근하려는 경우
    * @throws {ForbiddenException} 해당 게시글에 접근할 수 없는 경우
@@ -56,17 +55,6 @@ export class PostService {
     { ipAddress, userAgent }: Partial<ClientInfo> = {},
   ) {
     const post = await this.postRepository.findPostById(id);
-
-    // 유저 차단 여부 확인
-    if (user) {
-      await this.blockService.isUserBlocked(
-        {
-          userId: user.id,
-          targetId: post.author.id,
-        },
-        true,
-      );
-    }
 
     // 게시글이 비공개인 경우
     if (!post.author.isPrivate) {
@@ -90,8 +78,8 @@ export class PostService {
     const isExistingView = await this.postRepository.isExistingPostView({
       userId: user?.id,
       postId: id,
-      ipAddress: ipAddress,
-      userAgent: userAgent,
+      ipAddress,
+      userAgent,
     });
 
     // 중복 조회 방지: 이미 조회한 경우 조회수 증가하지 않음
@@ -99,8 +87,8 @@ export class PostService {
       await this.postRepository.addPostView({
         postId: id,
         userId: user?.id,
-        ipAddress: ipAddress,
-        userAgent: userAgent,
+        ipAddress,
+        userAgent,
       });
     }
 
@@ -111,7 +99,6 @@ export class PostService {
    * 페이지네이션을 적용하여 게시글 목록을 조회합니다.
    * @param pageParams.page - 페이지 번호 (기본값: 1)
    * @param pageParams.size - 페이지 크기 (기본값: 10)
-   * @returns 페이지네이션이 적용된 게시글 목록과 총 개수 정보
    * @throws {PrismaDBError} 목록 조회 중 오류 발생 시
    */
   async findPostsByPage(pageParams: PageParams, user?: UserData) {
@@ -123,7 +110,6 @@ export class PostService {
    * @param userId - 조회할 사용자 ID
    * @param pageParams.page - 페이지 번호 (기본값: 1)
    * @param pageParams.size - 페이지 크기 (기본값: 10)
-   * @returns 해당 사용자의 게시글 목록과 총 개수 정보
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
    * @throws {PrivateAuthError} 비공개 사용자에 접근하려는 경우
    * @throws {PrivateDeniedError} 비공개 게시글에 접근하려는 경우
@@ -164,7 +150,7 @@ export class PostService {
   /**
    * ID를 통해 게시글을 삭제합니다.
    * @param postId - 삭제할 게시글 ID
-   * @returns 삭제된 게시글의 정보 (ID, 내용, 작성자 ID)
+   * @returns 삭제된 게시글의 정보
    * @throws {NotFoundException} 존재하지 않는 게시글인 경우
    * @throws {PrismaDBError} 삭제 중 오류 발생 시
    */

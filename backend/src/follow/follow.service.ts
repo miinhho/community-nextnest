@@ -21,7 +21,9 @@ export class FollowService {
    * @param params.userId - 팔로우를 요청하는 사용자 ID
    * @param params.targetId - 팔로우할 대상 사용자 ID
    * @param params.toggle - 이미 팔로우한 경우 언팔로우 여부 (기본값: true)
+   *
    * @returns 팔로우 상태 (FOLLOW 또는 UNFOLLOW)
+   *
    * @throws {NotFoundException} 대상 사용자를 찾을 수 없는 경우
    * @throws {UserBlockedError} 내가 상대방을 차단한 경우 (`throwError`가 `true` 일 때)
    * @throws {BlockedError} 상대방이 나를 차단한 경우 (`throwError`가 `true` 일 때)
@@ -75,7 +77,9 @@ export class FollowService {
    * @param props - 팔로우 요청 수락 파라미터
    * @param props.userId - 팔로우 요청을 수락하는 사용자 ID
    * @param props.targetId - 팔로우 요청을 보낸 대상 사용자 ID
+   *
    * @returns 팔로우 요청 상태 (ACCEPTED)
+   *
    * @throws {NotFoundException} 대상 사용자를 찾을 수 없는 경우
    * @throws {NotFoundException} 팔로우 요청이 존재하지 않는 경우
    * @throws {PrismaDBError} 팔로우 요청 수락 실패 시
@@ -97,7 +101,9 @@ export class FollowService {
    * @param props - 팔로우 요청 파라미터
    * @param props.userId - 팔로우 요청을 보내는 사용자 ID
    * @param props.targetId - 팔로우 요청을 받을 대상 사용자 ID
+   *
    * @returns 팔로우 상태 (REJECTED 또는 ACCEPTED)
+   *
    * @throws {NotFoundException} 대상 사용자를 찾을 수 없는 경우
    * @throws {PrismaDBError} 팔로우 요청 실패 시
    */
@@ -110,7 +116,9 @@ export class FollowService {
    * @param props - 팔로우 요청 거절 파라미터
    * @param props.userId - 팔로우 요청을 거절하는 사용자 ID
    * @param props.targetId - 팔로우 요청을 보낸 대상 사용자 ID
+   *
    * @returns 팔로우 상태 (REJECTED)
+   *
    * @throws {NotFoundException} 대상 사용자를 찾을 수 없는 경우
    * @throws {PrismaDBError} 팔로우 요청 거절 실패 시
    */
@@ -149,7 +157,6 @@ export class FollowService {
   /**
    * 특정 사용자의 팔로워 수를 조회합니다.
    * @param userId - 팔로워 수를 조회할 사용자 ID
-   * @returns 팔로워 수
    * @throws {PrismaDBError} 팔로워 수 조회 실패 시
    */
   async getFollowersCount(userId: string) {
@@ -159,7 +166,6 @@ export class FollowService {
   /**
    * 특정 사용자가 팔로우하는 사용자 수를 조회합니다.
    * @param userId - 팔로잉 수를 조회할 사용자 ID
-   * @returns 팔로잉 수
    * @throws {PrismaDBError} 팔로잉 수 조회 실패 시
    */
   async getFollowingCount(userId: string) {
@@ -170,7 +176,6 @@ export class FollowService {
    * 특정 사용자의 팔로워 목록을 페이지네이션으로 조회합니다.
    * @param userId - 팔로워 목록을 조회할 사용자 ID
    * @param pageParams - 페이지네이션 파라미터
-   * @returns 페이지네이션된 팔로워 목록
    * @throws {PrismaDBError} 팔로워 목록 조회 실패 시
    */
   async getFollowers(userId: string, pageParams: PageParams) {
@@ -181,7 +186,6 @@ export class FollowService {
    * 특정 사용자가 팔로우하는 사용자 목록을 페이지네이션으로 조회합니다.
    * @param userId - 팔로잉 목록을 조회할 사용자 ID
    * @param pageParams - 페이지네이션 파라미터
-   * @returns 페이지네이션된 팔로잉 목록
    * @throws {PrismaDBError} 팔로잉 목록 조회 실패 시
    */
   async getFollowing(userId: string, pageParams: PageParams) {

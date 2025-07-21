@@ -153,7 +153,6 @@ export class CommentRepository {
   /**
    * ID로 댓글을 조회합니다.
    * @param id - 댓글 ID
-   * @returns 댓글 정보
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
    * @throws {PrismaDBError} 댓글 조회 실패 시
    */
@@ -163,6 +162,7 @@ export class CommentRepository {
       author: {
         select: {
           ...userSelections,
+          isPrivate: true,
         },
       },
     };
@@ -200,7 +200,6 @@ export class CommentRepository {
    * @param userId - 사용자 ID
    * @param params.page - 페이지 번호 (기본값: 1)
    * @param params.size - 페이지 크기 (기본값: 10)
-   * @returns 페이지네이션된 댓글 목록
    * @throws {PrismaDBError} 댓글 조회 실패 시
    */
   async findCommentsByUserId(
@@ -252,7 +251,6 @@ export class CommentRepository {
    * @param postId - 게시글 ID
    * @param params.page - 페이지 번호 (기본값: 1)
    * @param params.size - 페이지 크기 (기본값: 10)
-   * @returns 페이지네이션된 댓글 목록
    * @throws {PrismaDBError} 댓글 조회 실패 시
    */
   async findCommentsByPostId(
@@ -303,7 +301,6 @@ export class CommentRepository {
    * @param commentId - 댓글 ID
    * @param params.page - 페이지 번호 (기본값: 1)
    * @param params.size - 페이지 크기 (기본값: 10)
-   * @returns 답글 목록
    * @throws {PrismaDBError} 답글 조회 실패 시
    */
   async findRepliesByCommentId(
@@ -355,7 +352,6 @@ export class CommentRepository {
   /**
    * 댓글 ID로 해당 댓글이 속한 게시글의 ID를 조회합니다.
    * @param commentId - 댓글 ID
-   * @returns 게시글 ID
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
    * @throws {PrismaDBError} 게시글 ID 조회 실패 시
    */
@@ -428,20 +424,14 @@ export class CommentRepository {
    */
   async addCommentLike({ userId, commentId }: { userId: string; commentId: string }) {
     try {
-      const comment = await this.prisma.comment.findUnique({
-        where: {
-          id: commentId,
-          ...getBlockFilter(userId),
-        },
-        select: {
-          id: true,
-        },
-      });
-      if (!comment) {
-        throw new NotFoundException('댓글을 찾을 수 없습니다.');
-      }
-
       await this.prisma.$transaction([
+        this.prisma.comment.findUniqueOrThrow({
+          where: {
+            id: commentId,
+            ...getBlockFilter(userId),
+          },
+          select: {},
+        }),
         this.prisma.commentLikes.create({
           data: {
             userId,
@@ -476,9 +466,9 @@ export class CommentRepository {
 
   /**
    * 댓글의 좋아요를 취소합니다.
-   * @param params.userId - 사용자 ID
-   * @param params.commentId - 댓글 ID
-   * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
+   * @param params.userId - 좋아요를 취소하는사용자 ID
+   * @param params.commentId - 좋아요를 취소할 댓글 ID
+   * @throws {NotFoundException} 댓글을 찾을 수 없거나 좋아요를 누르지 않은 경우
    * @throws {PrismaDBError} 좋아요 취소 실패 시
    */
   async minusCommentLike({ userId, commentId }: { userId: string; commentId: string }) {
@@ -503,7 +493,9 @@ export class CommentRepository {
       ]);
     } catch (err) {
       if (err.code === PrismaError.RecordsNotFound) {
-        throw new NotFoundException('댓글을 찾을 수 없습니다.');
+        throw new NotFoundException(
+          '댓글이 없거나, 해당 댓글에 좋아요를 누르지 않아서 취소할 수 없습니다.',
+        );
       }
 
       this.logger.error('댓글 좋아요 취소 중 오류 발생', err.stack, {
@@ -514,6 +506,14 @@ export class CommentRepository {
     }
   }
 
+  /**
+   * 댓글 조회수를 증가시킵니다.
+   * @param params.commentId - 댓글 ID
+   * @param params.userId - 사용자 ID (선택)
+   * @param params.ipAddress - IP 주소 (선택)
+   * @param params.userAgent - User-Agent (선택)
+   * @throws {PrismaDBError} 조회수 증가 실패 시
+   */
   async addCommentView({
     userId,
     commentId,
@@ -525,14 +525,15 @@ export class CommentRepository {
     ipAddress?: string;
     userAgent?: string;
   }) {
+    // userId 를 우선적으로 사용하고, 없으면 ipAddress와 userAgent를 사용
+    const uniqueKey = userId
+      ? { commentId, userId }
+      : { commentId, ipAddress, userAgent };
     try {
       await this.prisma.$transaction([
         this.prisma.commentView.create({
           data: {
-            commentId,
-            userId,
-            ipAddress,
-            userAgent,
+            ...uniqueKey,
           },
         }),
         this.prisma.comment.update({
@@ -556,6 +557,53 @@ export class CommentRepository {
         userAgent,
       });
       throw new PrismaDBError('댓글 조회수 증가에 실패했습니다.', err.code);
+    }
+  }
+
+  /**
+   * 특정 댓글에 대한 조회 기록이 24시간 이내에 존재하는지 확인합니다.
+   * @param params.commentId - 조회할 댓글 ID
+   * @param params.userId - 조회를 시도한 사용자 ID (선택)
+   * @param params.ipAddress - 조회를 시도한 IP 주소 (선택)
+   * @param params.userAgent - 조회를 시도한 User-Agent (선택)
+   * @returns 조회 기록이 존재하는지 여부
+   * @throws {PrismaDBError} 조회 기록 확인 실패 시
+   */
+  async isExistingCommentView({
+    userId,
+    commentId,
+    ipAddress,
+    userAgent,
+  }: {
+    commentId: string;
+    userId?: string;
+    ipAddress?: string;
+    userAgent?: string;
+  }) {
+    // userId 를 우선적으로 사용하고, 없으면 ipAddress와 userAgent를 사용
+    const uniqueKey = userId
+      ? { commentId, userId }
+      : { commentId, ipAddress, userAgent };
+
+    try {
+      // 24시간 이내에 조회한 기록이 있는지 확인
+      const view = await this.prisma.commentView.findFirst({
+        where: {
+          ...uniqueKey,
+          createdAt: {
+            gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
+          },
+        },
+      });
+      return !!view;
+    } catch (err) {
+      this.logger.error('댓글 조회 기록 확인 중 오류 발생', err.stack, {
+        userId,
+        commentId,
+        ipAddress,
+        userAgent,
+      });
+      throw new PrismaDBError('댓글 조회 기록 확인에 실패했습니다.', err.code);
     }
   }
 }

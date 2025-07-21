@@ -9,18 +9,20 @@ export class NotifyService {
 
   /**
    * 알림 ID로 알림을 조회합니다.
+   *
    * 알림 타입에 따라 필요한 필드만 선택적으로 반환합니다.
-   * - `POST_LIKE`: 게시글 좋아요 알림
-   * - `POST_COMMENT`: 게시글 댓글 알림
-   * - `COMMENT_LIKE`: 댓글 좋아요 알림
-   * - `COMMENT_REPLY`: 댓글 답글 알림
-   * - `FOLLOW`: 팔로우 알림
-   * - `SYSTEM`: 시스템 알림
    * @param id - 알림 ID
-   * @returns 알림 정보
+   *
    * @throws {NotFoundException} - 알림을 찾을 수 없는 경우
    * @throws {ForbiddenException} - 사용자가 해당 알림을 조회할 권한이 없는 경우
    * @throws {PrismaDBError} - 알림 생성 중 오류 발생 시
+   *
+   * @type `POST_LIKE`: 게시글 좋아요 알림
+   * @type `POST_COMMENT`: 게시글 댓글 알림
+   * @type `COMMENT_LIKE`: 댓글 좋아요 알림
+   * @type `COMMENT_REPLY`: 댓글 답글 알림
+   * @type `FOLLOW`: 팔로우 알림
+   * @type `SYSTEM`: 시스템 알림
    */
   async findNotifyById(id: string, user: UserData) {
     const notify = await this.notifyRepository.findNotifyById(id);
@@ -32,10 +34,11 @@ export class NotifyService {
 
   /**
    * 사용자 ID로 알림 목록을 조회합니다.
+   *
    * 페이지네이션을 지원하며, 기본적으로 최신 알림부터 반환합니다.
+   *
    * @param userId - 사용자 ID
    * @param pageParams - 페이지 정보 (page, size)
-   * @returns 알림 목록과 페이지 정보
    * @throws {ForbiddenException} - 다른 사용자의 알림을 조회하려고 할 때
    * @throws {PrismaDBError} - 알림 생성 중 오류 발생 시
    */

@@ -172,7 +172,6 @@ export class BlockRepository {
   /**
    * 사용자가 차단한 사용자 목록을 조회합니다.
    * @param userId - 차단한 사용자 ID
-   * @returns 차단된 사용자 목록
    * @throws {PrismaDBError} 차단 목록 조회 중 오류 발생 시
    */
   async getBlockedUsers(userId: string) {
@@ -198,7 +197,6 @@ export class BlockRepository {
   /**
    * 사용자를 차단한 사용자의 목록을 조회합니다.
    * @param userId - 차단된 사용자 ID
-   * @returns 차단한 사용자 목록
    * @throws {PrismaDBError} 차단된 사용자 목록 조회 중 오류 발생 시
    */
   async getBlockedByUsers(userId: string) {

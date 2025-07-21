@@ -1,13 +1,11 @@
 import { Param, ParseUUIDPipe } from '@nestjs/common';
 
 /**
- * UUID 형식의 ID 파라미터 데코레이터
+ * URL 경로에서 UUID 형식의 ID 파라미터를 추출하고 유효성을 검사하는 데코레이터
  *
- * URL 경로에서 UUID 형식의 ID 파라미터를 추출하고 유효성을 검사하는 데코레이터입니다.
  * ParseUUIDPipe를 사용하여 자동으로 UUID 형식 검증을 수행합니다.
  *
  * @param property - 파라미터 이름 (기본값: 'id')
- * @returns UUID 파라미터 데코레이터
  *
  * @example
  * ```

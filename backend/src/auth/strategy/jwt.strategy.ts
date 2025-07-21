@@ -6,8 +6,6 @@ import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 /**
- * JWT 토큰을 검증하는 Passport 전략 클래스
- *
  * Authorization 헤더의 Bearer 토큰 또는 쿠키의 access_token에서 JWT를 추출하고 검증합니다.
  */
 @Injectable()

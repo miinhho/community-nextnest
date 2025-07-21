@@ -40,7 +40,6 @@ export class UserService {
   /**
    * ID를 통해 사용자 상세 정보를 조회합니다 (관리자 권한).
    * @param id - 조회할 사용자 ID
-   * @returns 사용자 정보
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
    * @throws {PrismaDBError} 조회 중 오류 발생 시
    */
@@ -51,7 +50,6 @@ export class UserService {
   /**
    * ID를 통해 사용자 상세 정보를 조회합니다.
    * @param id - 조회할 사용자 ID
-   * @returns 사용자 정보 (팔로워/팔로잉/게시글 수 포함)
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
    * @throws {PrismaDBError} 조회 중 오류 발생 시
    */
@@ -84,7 +82,6 @@ export class UserService {
    * 이메일을 통해 사용자를 조회합니다.
    * @param email - 조회할 사용자 이메일
    * @param password - 비밀번호 포함 여부 (기본값: false)
-   * @returns 사용자 정보
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
    * @throws {PrismaDBError} 조회 중 오류 발생 시
    */
@@ -107,7 +104,6 @@ export class UserService {
    * @param name - 검색할 사용자 이름 (부분 매칭)
    * @param pageParams.page - 페이지 번호 (기본값: 1)
    * @param pageParams.size - 페이지 크기 (기본값: 10)
-   * @returns 페이지네이션이 적용된 사용자 목록과 총 개수 정보
    * @throws {PrismaDBError} 조회 중 오류 발생 시
    */
   async findUsersByName(name: string, pageParams: PageParams) {

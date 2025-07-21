@@ -56,7 +56,6 @@ export class CommentService {
   /**
    * ID로 댓글을 조회합니다.
    * @param id - 댓글 ID
-   * @returns 댓글 정보 (작성자, 부모 댓글, 답글 포함)
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
    * @throws {PrismaDBError} 댓글 조회 실패 시
    */
@@ -65,13 +64,24 @@ export class CommentService {
     user?: UserData,
     { ipAddress, userAgent }: Partial<ClientInfo> = {},
   ) {
-    // 댓글 조회수 증가
-    await this.commentRepository.addCommentView({
+    // 24시간 이내 조회 여부 확인
+    const isExistingView = await this.commentRepository.isExistingCommentView({
       commentId: id,
       userId: user?.id,
       ipAddress,
       userAgent,
     });
+
+    // 중복 조회 방지: 이미 조회한 경우 조회수 증가하지 않음
+    if (!isExistingView) {
+      await this.commentRepository.addCommentView({
+        commentId: id,
+        userId: user?.id,
+        ipAddress,
+        userAgent,
+      });
+    }
+
     return this.commentRepository.findCommentById(id, user?.id);
   }
 
@@ -79,7 +89,6 @@ export class CommentService {
    * 특정 사용자가 작성한 댓글 목록을 페이지네이션으로 조회합니다.
    * @param userId - 사용자 ID
    * @param pageParams - 페이지네이션 파라미터
-   * @returns 페이지네이션된 댓글 목록
    * @throws {NotFoundException} 사용자를 찾을 수 없는 경우
    * @throws {PrismaDBError} 댓글 조회 실패 시
    */
@@ -91,7 +100,6 @@ export class CommentService {
    * 특정 게시글의 최상위 댓글 목록을 페이지네이션으로 조회합니다.
    * @param postId - 게시글 ID
    * @param pageParams - 페이지네이션 파라미터
-   * @returns 페이지네이션된 댓글 목록
    * @throws {NotFoundException} 게시글을 찾을 수 없는 경우
    * @throws {PrismaDBError} 댓글 조회 실패 시
    */
@@ -103,7 +111,6 @@ export class CommentService {
    * 특정 댓글의 답글 목록을 페이지네이션으로 조회합니다.
    * @param commentId - 댓글 ID
    * @param pageParams - 페이지네이션 파라미터
-   * @returns 답글 목록
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
    * @throws {PrismaDBError} 답글 조회 실패 시
    */
