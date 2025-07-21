@@ -5,7 +5,12 @@ import { ApiUserTags } from '@/common/swagger/tags.swagger';
 import { UserData } from '@/common/user';
 import { UpdateUserDto } from '@/user/dto/user.dto';
 import { UserOwner } from '@/user/guard/user-owner.guard';
-import { ApiDeleteUser, ApiGetUserById, ApiUpdateUser } from '@/user/user.swagger';
+import {
+  ApiDeleteUser,
+  ApiGetMyInfo,
+  ApiGetUserById,
+  ApiUpdateUser,
+} from '@/user/user.swagger';
 import { Body, Controller, Delete, Get, Patch } from '@nestjs/common';
 import { UserService } from './user.service';
 
@@ -19,6 +24,18 @@ export class UserController {
   @ApiGetUserById()
   async getUserById(@IdParam() id: string, @User() user?: UserData) {
     const userData = await this.userService.findUserById(id, user);
+    return {
+      success: true,
+      data: {
+        ...userData,
+      },
+    };
+  }
+
+  @Get('me')
+  @ApiGetMyInfo()
+  async getMyInfo(@User() user: UserData) {
+    const userData = await this.userService.findMyInfo(user);
     return {
       success: true,
       data: {

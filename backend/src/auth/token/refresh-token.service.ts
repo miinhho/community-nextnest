@@ -6,7 +6,7 @@ import { PrismaError } from 'prisma-error-enum';
 @Injectable()
 export class RefreshTokenService {
   private readonly logger = new Logger(RefreshTokenService.name);
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * 새로운 Refresh Token을 데이터베이스에 저장합니다.
@@ -18,7 +18,7 @@ export class RefreshTokenService {
    */
   async createRefreshToken(userId: string, token: string, expiresIn: number) {
     try {
-      const refreshToken = await this.prismaService.refreshToken.create({
+      const refreshToken = await this.prisma.refreshToken.create({
         data: {
           userId,
           token,
@@ -46,7 +46,7 @@ export class RefreshTokenService {
    */
   async revokeRefreshToken(tokenId: string) {
     try {
-      await this.prismaService.refreshToken.delete({
+      await this.prisma.refreshToken.delete({
         where: { id: tokenId },
         select: {},
       });
@@ -71,7 +71,7 @@ export class RefreshTokenService {
    */
   async revokeAllUserRefreshTokens(userId: string) {
     try {
-      await this.prismaService.refreshToken.deleteMany({
+      await this.prisma.refreshToken.deleteMany({
         where: { userId },
       });
     } catch (err) {
@@ -93,7 +93,7 @@ export class RefreshTokenService {
    */
   async findRefreshTokenById(tokenId: string) {
     try {
-      const refreshToken = await this.prismaService.refreshToken.findUnique({
+      const refreshToken = await this.prisma.refreshToken.findUnique({
         where: { id: tokenId },
       });
       return refreshToken!;
@@ -117,7 +117,7 @@ export class RefreshTokenService {
    */
   async findRefreshTokenByToken(token: string) {
     try {
-      const refreshToken = await this.prismaService.refreshToken.findUnique({
+      const refreshToken = await this.prisma.refreshToken.findUnique({
         where: { token },
       });
       if (!refreshToken) {

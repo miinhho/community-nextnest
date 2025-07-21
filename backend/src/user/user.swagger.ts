@@ -14,6 +14,39 @@ import {
 } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 
+export const ApiGetMyInfo = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: '현재 사용자 정보 조회',
+      description: '현재 로그인한 사용자의 정보를 조회합니다.',
+    }),
+    ApiOkResponse({
+      description: '사용자 조회 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean' },
+          data: {
+            type: 'object',
+            properties: {
+              ...userCommonSchema.properties,
+              email: { type: 'string', format: 'email' },
+              emailVerified: { type: 'string', format: 'date-time', nullable: true },
+              followingCount: { type: 'number' },
+              followerCount: { type: 'number' },
+              postCount: { type: 'number' },
+              role: { type: 'string', enum: [Role.ADMIN, Role.USER] },
+              createdAt: { type: 'string', format: 'date-time' },
+              updatedAt: { type: 'string', format: 'date-time' },
+            },
+          },
+        },
+      },
+    }),
+    ApiNotFoundResponse({ description: '사용자를 찾을 수 없음' }),
+    ApiInternalServerErrorResponse({ description: '서버 오류' }),
+  );
+
 export const ApiGetUserById = () =>
   applyDecorators(
     ApiOperation({

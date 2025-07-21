@@ -28,8 +28,8 @@ export class UserService {
   /**
    * 사용자 정보를 업데이트합니다.
    * @param id - 업데이트할 사용자 ID
-   * @param dataToUpdate.name - 사용자 이름 (선택사항)
-   * @param dataToUpdate.image - 사용자 프로필 이미지 (선택사항)
+   * @param dataToUpdate.name - 사용자 이름 (선택)
+   * @param dataToUpdate.image - 사용자 프로필 이미지 (선택)
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
    * @throws {PrismaDBError} 업데이트 중 오류 발생 시
    */
@@ -48,9 +48,21 @@ export class UserService {
   }
 
   /**
+   * 현재 로그인한 사용자의 정보를 조회합니다.
+   * @param user - 현재 로그인한 사용자 정보
+   * @throws {NotFoundException} 존재하지 않는 사용자인 경우
+   * @throws {PrismaDBError} 조회 중 오류 발생 시
+   */
+  async findMyInfo(user: UserData) {
+    return this.userRepository.findUserById(user.id);
+  }
+
+  /**
    * ID를 통해 사용자 상세 정보를 조회합니다.
    * @param id - 조회할 사용자 ID
+   * @param user - 현재 로그인한 사용자 정보 (선택)
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
+   * @throws {UnauthorizedException} 비공개 사용자 정보에 접근하려는 경우
    * @throws {PrismaDBError} 조회 중 오류 발생 시
    */
   async findUserById(id: string, user?: UserData) {

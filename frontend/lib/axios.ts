@@ -1,7 +1,9 @@
 'use client';
 
+import { fetchQueue } from '@/lib/fetch-queue';
 import { PageMeta } from '@/lib/types/page.types';
-import { recursiveDateParse } from '@/lib/utils';
+import { recursiveDateParse } from '@/lib/utils/parsing';
+import { tokenUtils } from '@/lib/utils/token';
 import axios, { AxiosResponse, HttpStatusCode } from 'axios';
 
 interface ApiResponse<T = any, D = any> extends AxiosResponse<T, D> {
@@ -34,15 +36,57 @@ fetcher.interceptors.response.use(
     response.data = recursiveDateParse(response.data);
     return response;
   },
-  (error) => {
-    const status = error.response.status;
+  async (error) => {
+    const requestInfo = error.config;
+    const status = error.response?.status;
     const message = error.response.message || 'An error occurred';
 
-    // TODO : Handle different HTTP status codes
+    // TODO : 에러 페이지로 리다이렉트
     switch (status) {
       case HttpStatusCode.Unauthorized: {
-        console.error('Unauthorized access:', message);
-        break;
+        if (fetchQueue.isRefreshing) {
+          try {
+            const token = await fetchQueue.addToQueue();
+            requestInfo.headers.Authorization = `Bearer ${token}`;
+            return fetcher(requestInfo);
+          } catch (err) {
+            return Promise.reject(err);
+          }
+        }
+        fetchQueue.startRefreshing();
+
+        try {
+          const response = await axios.post(
+            '/api/auth/refresh',
+            {},
+            {
+              withCredentials: true,
+            },
+          );
+
+          if (response.data.success) {
+            const { accessToken } = response.data.data;
+            if (!accessToken) {
+              throw new Error('Access token is missing from response');
+            }
+
+            tokenUtils.set(accessToken);
+            fetchQueue.resolveQueue(accessToken);
+            requestInfo.headers.Authorization = `Bearer ${accessToken}`;
+            return fetcher(requestInfo);
+          } else {
+            throw new Error('Token refresh failed');
+          }
+        } catch (err) {
+          fetchQueue.rejectQueue(err);
+          tokenUtils.remove();
+
+          alert('로그인이 필요합니다. 다시 로그인 해주세요.');
+          window.location.href = '/login';
+          return Promise.reject(err);
+        } finally {
+          fetchQueue.finishRefreshing();
+        }
       }
       case HttpStatusCode.Forbidden: {
         console.error('Forbidden access:', message);
@@ -54,10 +98,6 @@ fetcher.interceptors.response.use(
       }
       case HttpStatusCode.InternalServerError: {
         console.error('Internal server error:', message);
-        break;
-      }
-      default: {
-        console.error('An error occurred:', message);
         break;
       }
     }

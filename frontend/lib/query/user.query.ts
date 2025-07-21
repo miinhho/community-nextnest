@@ -10,11 +10,12 @@ export const FOLLOWER_KEY = 'followers';
 export const FOLLOWING_KEY = 'following';
 
 // User Get Query
-interface UserData extends UserSchema, BaseTimestamp {
+export interface UserData extends UserSchema, BaseTimestamp {
   followersCount: number;
   followingCount: number;
   postCount: number;
   role: string;
+  email: string;
   emailVerified: Date | null;
 }
 export const userQueryFn = async (userId: string) => {

@@ -23,7 +23,7 @@ export class AuthService {
   /**
    * 사용자의 이메일과 비밀번호를 검증합니다.
    *
-   * LocalStrategy에서 사용되며, 로그인 시 사용자 자격 증명을 확인합니다.
+   * 로그인 시 사용자 자격 증명을 확인합니다.
    *
    * @param email - 사용자 이메일
    * @param password - 사용자 비밀번호 (평문)
