@@ -1,15 +1,15 @@
-import { cn } from "@/lib/utils";
-import Image from "next/image";
+import { TailWindClasses } from '@/lib/types/component-util.types'
+import { cn } from '@/lib/utils'
+import Image from 'next/image'
 
-interface Props {
-  className?: string;
-  image?: string;
-  name?: string;
+interface MainUserProfileProps extends TailWindClasses {
+  image?: string
+  name?: string
 }
 
-export const MainUserProfile = ({ image, name, className }: Props) => {
+export const MainUserProfile = ({ image, name, className }: MainUserProfileProps) => {
   return (
-    <div className={cn("flex flex-row justify-center rounded-md bg-white shadow-sm", className)}>
+    <div className={cn('flex flex-row justify-center rounded-md bg-white shadow-sm', className)}>
       <Image
         src={image || '/default-avatar.webp'}
         alt={name || 'User Avatar'}
@@ -19,5 +19,5 @@ export const MainUserProfile = ({ image, name, className }: Props) => {
       />
       <span className="py-4 flex justify-self-end text-lg font-semibold max-lg:hidden">{name}</span>
     </div>
-  );
+  )
 }

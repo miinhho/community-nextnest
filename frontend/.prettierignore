@@ -1,1 +1,11 @@
 **/*.css
+
+pnpm-lock.yaml
+package.json
+
+postcss.config.mjs
+.prettierrc
+eslint.config.mjs
+
+tsconfig.json
+components.json

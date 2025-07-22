@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod/v4'
 
 export const updateUserData = z.object({
   name: z
@@ -8,6 +8,6 @@ export const updateUserData = z.object({
     .optional(),
   // TODO : Review after image upload feature is implemented
   image: z.url({ message: '유효한 이미지 URL이 아닙니다.' }).optional(),
-});
+})
 
-export type UpdateUserData = z.infer<typeof updateUserData>;
+export type UpdateUserData = z.infer<typeof updateUserData>

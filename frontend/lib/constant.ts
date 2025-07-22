@@ -6,7 +6,7 @@ export const CONTENT_LEN = {
   MIN: 5,
   /** 게시글 내용 최대 길이 (1,000,000자) */
   MAX: 1_000_000,
-} as const;
+} as const
 
 /**
  * 댓글 내용의 길이 제한을 정의하는 상수 객체
@@ -16,4 +16,4 @@ export const COMMENT_LEN = {
   MIN: 5,
   /** 댓글 내용 최대 길이 (10,000자) */
   MAX: 10_000,
-} as const;
+} as const

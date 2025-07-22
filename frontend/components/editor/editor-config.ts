@@ -6,13 +6,13 @@
  *
  */
 
-import { AutoLinkNode, LinkNode } from '@lexical/link';
-import { LexicalComposer } from '@lexical/react/LexicalComposer';
-import { ParagraphNode, TextNode } from 'lexical';
-import { ComponentProps } from 'react';
-import { YouTubeNode } from './nodes/YoutubeNode';
+import { AutoLinkNode, LinkNode } from '@lexical/link'
+import { LexicalComposer } from '@lexical/react/LexicalComposer'
+import { ParagraphNode, TextNode } from 'lexical'
+import { ComponentProps } from 'react'
+import { YouTubeNode } from './nodes/YoutubeNode'
 
-export type LexicalConfig = ComponentProps<typeof LexicalComposer>['initialConfig'];
+export type LexicalConfig = ComponentProps<typeof LexicalComposer>['initialConfig']
 
 export const nodes: LexicalConfig['nodes'] = [
   ParagraphNode,
@@ -20,7 +20,7 @@ export const nodes: LexicalConfig['nodes'] = [
   YouTubeNode,
   AutoLinkNode,
   LinkNode,
-];
+]
 
 export const editorTheme = {
   image: 'editor-image',
@@ -38,18 +38,18 @@ export const editorTheme = {
     underline: 'editor-text-underline',
     underlineStrikethrough: 'editor-text-underlineStrikethrough',
   },
-};
+}
 
 export const editorConfig: LexicalConfig = {
   namespace: 'TextEditor',
   nodes,
   onError(error) {
-    throw error;
+    throw error
   },
   theme: editorTheme,
-};
+}
 
 export const viewerConfig: LexicalConfig = {
   ...editorConfig,
   editable: false,
-};
+}

@@ -6,5 +6,5 @@ export default function HomePage() {
         <p className="text-gray-600">메인 콘텐츠 영역</p>
       </div>
     </div>
-  );
+  )
 }
