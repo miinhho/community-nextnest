@@ -19,7 +19,7 @@ const PostUserAvatar = ({ author, className }: UserAvatarProps) => {
         </AvatarFallback>
       </Avatar>
       <>
-        <div className="font-semibold text-neutral-900">{author.name}</div>
+        <p className="font-semibold text-neutral-900">{author.name}</p>
         <div className="text-xs text-neutral-500 flex gap-1">
           <span>@{author.name}</span>
           <span>.</span>

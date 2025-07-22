@@ -14,5 +14,9 @@ export const UserStoreProvider = ({ children }: { children: React.ReactNode }) =
     storeRef.current = createUserStore()
   }
 
-  return <UserStoreContext.Provider value={storeRef.current}>{children}</UserStoreContext.Provider>
+  return (
+    <UserStoreContext.Provider value={storeRef.current}>
+      {children}
+    </UserStoreContext.Provider>
+  )
 }

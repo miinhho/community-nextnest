@@ -18,8 +18,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         )}
       >
         <MainSidebar image={image} name={name} />
-
-        <div className="flex overflow-y-auto">{children}</div>
+        <div className="flex overflow-y-auto">
+          {children}
+        </div>
       </div>
     </UserStoreProvider>
   )
