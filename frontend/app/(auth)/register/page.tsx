@@ -1,5 +1,6 @@
 'use client'
 
+import { useApiError } from '@/hooks/useApiError'
 import { useAuthRegisterQuery } from '@/lib/query/auth.query'
 import { cn } from '@/lib/utils'
 import { registerData, type RegisterData } from '@/lib/validation/auth.validate'
@@ -9,6 +10,7 @@ import { SubmitHandler, useForm } from 'react-hook-form'
 
 export default function RegisterPage() {
   const router = useRouter()
+  const { mutate: registerMutation, error: queryError } = useAuthRegisterQuery()
   const {
     register,
     handleSubmit,
@@ -16,16 +18,16 @@ export default function RegisterPage() {
   } = useForm<RegisterData>({
     resolver: zodResolver(registerData),
   })
-  const { mutate: registerMutation } = useAuthRegisterQuery()
+  const { handleApiError } = useApiError()
 
   const onSubmit: SubmitHandler<RegisterData> = async (data) => {
     registerMutation(data, {
       onSuccess: () => {
-        router.push('/home')
+        router.push('/main')
       },
-      onError: () => {
-        alert('회원가입에 실패했습니다. 다시 시도해주세요.')
-      },
+      onError: (error) => {
+        handleApiError(error)
+      }
     })
   }
 
@@ -38,6 +40,9 @@ export default function RegisterPage() {
       <div
         className={cn('w-full max-w-md flex flex-col p-6 space-y-4', 'bg-white rounded shadow-md')}
       >
+        {queryError && (
+          <p className="text-red-600 text-sm mb-4">{queryError.message}</p>
+        )}
         <>
           <input
             {...register('name')}
@@ -46,7 +51,9 @@ export default function RegisterPage() {
             className={cn('w-full p-3 border rounded', errors.name ? 'border-red-400' : '')}
             required
           />
-          {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name.message}</p>}
+          {errors.name && (
+            <p className="text-red-600 text-sm mt-1">{errors.name.message}</p>
+          )}
         </>
         <>
           <input
@@ -56,7 +63,9 @@ export default function RegisterPage() {
             className={cn('w-full p-3 border rounded', errors.email ? 'border-red-400' : '')}
             required
           />
-          {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
+          {errors.email && (
+            <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>
+          )}
         </>
         <>
           <input

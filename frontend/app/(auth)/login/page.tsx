@@ -1,5 +1,6 @@
 'use client'
 
+import { useApiError } from '@/hooks/useApiError'
 import { useAuthLoginQuery } from '@/lib/query/auth.query'
 import { cn } from '@/lib/utils'
 import { type LoginData, loginData } from '@/lib/validation/auth.validate'
@@ -9,6 +10,7 @@ import { SubmitHandler, useForm } from 'react-hook-form'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { mutate: loginMutation, error: queryError } = useAuthLoginQuery()
   const {
     register,
     handleSubmit,
@@ -16,15 +18,15 @@ export default function LoginPage() {
   } = useForm<LoginData>({
     resolver: zodResolver(loginData),
   })
-  const { mutate: loginMutation } = useAuthLoginQuery()
+  const { handleApiError } = useApiError()
 
   const onSubmit: SubmitHandler<LoginData> = async (data) => {
     loginMutation(data, {
       onSuccess: () => {
-        router.push('/home')
+        router.push('/main')
       },
-      onError: () => {
-        alert('로그인에 실패했습니다. 다시 시도해주세요.')
+      onError: (error) => {
+        handleApiError(error)
       },
     })
   }
@@ -36,6 +38,9 @@ export default function LoginPage() {
     >
       <h1 className="text-2xl font-bold mb-6">로그인</h1>
       <div className="w-full max-w-md space-y-4">
+        {queryError && (
+          <p className="text-red-600 text-sm mb-4">{queryError.message}</p>
+        )}
         <>
           <input
             {...register('email')}

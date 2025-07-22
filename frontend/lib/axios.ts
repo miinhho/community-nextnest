@@ -44,18 +44,18 @@ fetcher.interceptors.response.use(
   },
   async (error) => {
     const status = error.response?.status
+    const message = error.response?.data?.message || error.message
 
     switch (status) {
       case HttpStatusCode.Unauthorized:
-        throw new ApiError(401, '로그인이 필요합니다', error.response?.data)
+        throw new ApiError(401, message || '로그인이 필요합니다', error.response?.data)
       case HttpStatusCode.Forbidden:
-        throw new ApiError(403, '접근 권한이 없습니다', error.response?.data)
+        throw new ApiError(403, message || '접근 권한이 없습니다', error.response?.data)
       case HttpStatusCode.NotFound:
-        throw new ApiError(404, '요청한 리소스를 찾을 수 없습니다', error.response?.data)
+        throw new ApiError(404, message || '요청한 리소스를 찾을 수 없습니다', error.response?.data)
       case HttpStatusCode.InternalServerError:
-        throw new ApiError(500, '서버 내부 오류가 발생했습니다', error.response?.data)
+        throw new ApiError(500, message || '서버 내부 오류가 발생했습니다', error.response?.data)
       default:
-        const message = error.response?.data?.message || error.message
         throw new ApiError(status || 0, message, error.response?.data)
     }
   },
