@@ -2,6 +2,7 @@ import '@/components/editor/editor.css'
 import QueryProvider from '@/providers/QueryProvider'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import './globals.css'
 
 const geistSans = Geist({
@@ -27,7 +28,11 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          <NuqsAdapter>
+            {children}
+          </NuqsAdapter>
+        </QueryProvider>
       </body>
     </html>
   )

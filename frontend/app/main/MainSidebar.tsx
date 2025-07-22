@@ -1,5 +1,5 @@
-import { MainNavbar } from '@/app/(main)/main/MainNavbar'
-import { MainUserProfile } from '@/app/(main)/main/MainUserProfile'
+import { MainNavbar } from '@/app/main/MainNavbar'
+import { MainUserProfile } from '@/app/main/MainUserProfile'
 import { TailWindClasses } from '@/lib/types/component-util.types'
 import { cn } from '@/lib/utils'
 

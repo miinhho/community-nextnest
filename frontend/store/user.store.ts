@@ -1,6 +1,6 @@
 import { apiGet, apiPost } from '@/lib/axios'
+import { ApiError } from '@/lib/error/api-error'
 import { UserData } from '@/lib/query/user.query'
-import { tokenUtils } from '@/lib/utils/token'
 import { createStore } from 'zustand'
 import { persist } from 'zustand/middleware'
 
@@ -47,31 +47,30 @@ export const createUserStore = () => {
           try {
             await apiPost('/api/auth/logout')
           } catch {
-            throw new Error('Logout failed')
+            throw new Error('로그아웃에 실패했습니다.')
           } finally {
-            tokenUtils.remove()
             set(() => ({ ...initialState }))
           }
         },
         initializeUser: async () => {
-          const token = tokenUtils.get()
-          if (token) {
-            const response = await apiGet<UserData>('/api/user/me')
+          const response = await apiGet<UserData>('/api/user/me')
 
-            if (response.success) {
-              const userData = response.data
-              set(() => ({
-                id: userData.id,
-                name: userData.name,
-                email: userData.email,
-                image: userData.image,
-                isVerified: !!userData.emailVerified,
-              }))
-            } else {
-              set(() => ({ ...initialState }))
-              tokenUtils.remove()
-              throw new Error('Failed to fetch user data')
-            }
+          if (response.success) {
+            const userData = response.data
+            set(() => ({
+              id: userData.id,
+              name: userData.name,
+              email: userData.email,
+              image: userData.image,
+              isVerified: !!userData.emailVerified,
+            }))
+          } else {
+            set(() => ({ ...initialState }))
+            throw new ApiError(
+              response.status,
+              response.message || '유저 정보를 불러오지 못했습니다.',
+              response.data,
+            )
           }
         },
       }),

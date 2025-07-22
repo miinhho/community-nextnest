@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
+import { ApiError } from '@/lib/error/api-error'
 import { PageMeta } from '@/lib/types/page.types'
 import { recursiveDateParse } from '@/lib/utils/parsing'
 import axios, { AxiosResponse, HttpStatusCode } from 'axios'
@@ -43,29 +44,20 @@ fetcher.interceptors.response.use(
   },
   async (error) => {
     const status = error.response?.status
-    const message = error.response.message || 'An error occurred'
 
-    // TODO : 에러 페이지로 리다이렉트
     switch (status) {
-      case HttpStatusCode.Unauthorized: {
-        alert('로그인이 필요합니다. 다시 로그인 해주세요.')
-        window.location.href = '/login'
-        break
-      }
-      case HttpStatusCode.Forbidden: {
-        console.error('Forbidden access:', message)
-        break
-      }
-      case HttpStatusCode.NotFound: {
-        console.error('Resource not found:', message)
-        break
-      }
-      case HttpStatusCode.InternalServerError: {
-        console.error('Internal server error:', message)
-        break
-      }
+      case HttpStatusCode.Unauthorized:
+        throw new ApiError(401, '로그인이 필요합니다', error.response?.data)
+      case HttpStatusCode.Forbidden:
+        throw new ApiError(403, '접근 권한이 없습니다', error.response?.data)
+      case HttpStatusCode.NotFound:
+        throw new ApiError(404, '요청한 리소스를 찾을 수 없습니다', error.response?.data)
+      case HttpStatusCode.InternalServerError:
+        throw new ApiError(500, '서버 내부 오류가 발생했습니다', error.response?.data)
+      default:
+        const message = error.response?.data?.message || error.message
+        throw new ApiError(status || 0, message, error.response?.data)
     }
-    return Promise.reject(error)
   },
 )
 
