@@ -3,8 +3,13 @@ import { getQueryClient } from '@/lib/query'
 import { POST_COMMENT_KEY, POST_KEY, postCommentQueryFn, postQueryFn } from '@/lib/query/post.query'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 
-export default async function PostPage({ params }: { params: { id: string } }) {
-  const { id } = params
+interface PostPageProps {
+  params: {
+    id: string
+  }
+}
+
+export default async function PostPage({ params: { id } }: PostPageProps) {
   const queryClient = getQueryClient()
 
   await Promise.all([

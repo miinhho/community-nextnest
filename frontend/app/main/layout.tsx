@@ -1,14 +1,8 @@
-'use client'
-
-import { MainSidebar } from '@/app/main/MainSidebar'
-import { useUserStore } from '@/hooks/useUserStore'
+import { MainSidebar } from '@/app/main/_components/MainSidebar'
 import { cn } from '@/lib/utils'
 import { UserStoreProvider } from '@/providers/UserStoreProvider'
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
-  const image = useUserStore((state) => state.image)
-  const name = useUserStore((state) => state.name)
-
   return (
     <UserStoreProvider>
       <div
@@ -17,7 +11,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           'my-auto mx-0 pl-4 pr-4 max-lg:pl-0 max-lg:pr-0',
         )}
       >
-        <MainSidebar image={image} name={name} />
+        <MainSidebar />
         <div className="flex overflow-y-auto">
           {children}
         </div>

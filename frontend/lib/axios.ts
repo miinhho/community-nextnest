@@ -7,7 +7,7 @@ import { recursiveDateParse } from '@/lib/utils/parsing'
 import axios, { AxiosResponse, HttpStatusCode } from 'axios'
 import createAuthRefreshInterceptor from 'axios-auth-refresh'
 
-interface ApiResponse<T = any, D = any> extends AxiosResponse<T, D> {
+export interface ApiResponse<T = any, D = any> extends AxiosResponse<T, D> {
   success: boolean
   message?: string
   error?: string

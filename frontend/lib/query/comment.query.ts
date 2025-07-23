@@ -3,6 +3,7 @@ import { PageParams } from '@/lib/types/page.types'
 import { CommentSchema } from '@/lib/types/schema.types'
 import { LikeStatus } from '@/lib/types/status.types'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { ApiError } from 'next/dist/server/api-utils'
 
 export const COMMENT_KEY = 'comment'
 export const REPLIES_KEY = 'replies'
@@ -59,8 +60,8 @@ export const commentCreateQueryFn = async (params: CommentCreateBody) => {
   return response.data
 }
 export const useCommentCreateQuery = () =>
-  useMutation({
-    mutationFn: (params: CommentCreateBody) => commentCreateQueryFn(params),
+  useMutation<CommentCreateData, ApiError, CommentCreateBody, unknown>({
+    mutationFn: (params) => commentCreateQueryFn(params),
   })
 
 // Reply Create Query
@@ -79,8 +80,8 @@ export const replyCreateQueryFn = async (params: ReplyCreateBody) => {
   return response.data
 }
 export const useReplyCreateQuery = () =>
-  useMutation({
-    mutationFn: (params: ReplyCreateBody) => replyCreateQueryFn(params),
+  useMutation<ReplyCreateData, ApiError, ReplyCreateBody, unknown>({
+    mutationFn: (params) => replyCreateQueryFn(params),
   })
 
 // Comment Update Query
@@ -101,17 +102,22 @@ export const commentPutQueryFn = async ({
   return response.data
 }
 export const useCommentPutQuery = () =>
-  useMutation({
+  useMutation<CommentPutData, ApiError, CommentPutParams & CommentPutBody, unknown>({
     mutationFn: (params: CommentPutParams & CommentPutBody) => commentPutQueryFn(params),
   })
 
 // Comment Delete Query
+interface CommentDeleteData {
+  postId: string
+  content: string
+  authorId: string
+}
 export const commentDeleteQueryFn = async (commentId: string) => {
-  const response = await apiDelete(`comment/${commentId}`)
+  const response = await apiDelete<CommentDeleteData>(`comment/${commentId}`)
   return response.data
 }
 export const useCommentDeleteQuery = () =>
-  useMutation({
+  useMutation<CommentDeleteData, ApiError, string, unknown>({
     mutationFn: (commentId: string) => commentDeleteQueryFn(commentId),
   })
 
@@ -125,6 +131,6 @@ export const commentLikeQueryFn = async (commentId: string) => {
   return response.data
 }
 export const useCommentLikeQuery = () =>
-  useMutation({
+  useMutation<CommentLikeData, ApiError, string, unknown>({
     mutationFn: (commentId: string) => commentLikeQueryFn(commentId),
   })

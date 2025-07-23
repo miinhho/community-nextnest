@@ -1,14 +1,18 @@
-import { MainNavbar } from '@/app/main/MainNavbar'
-import { MainUserProfile } from '@/app/main/MainUserProfile'
+'use client'
+
+import { MainNavbar } from '@/app/main/_components/MainNavbar'
+import { MainUserProfile } from '@/app/main/_components/MainUserProfile'
+import { useUserInfo } from '@/hooks/useUserInfo'
 import { TailWindClasses } from '@/lib/types/component-util.types'
 import { cn } from '@/lib/utils'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface MainSidebarProps extends TailWindClasses {
-  image?: string
-  name?: string
 }
 
-export const MainSidebar = ({ image, name, className }: MainSidebarProps) => {
+export const MainSidebar = ({ className }: MainSidebarProps) => {
+  const { image, name } = useUserInfo()
+
   return (
     <div
       className={cn('flex flex-col h-screen bg-gray-50 border-r border-gray-200 p-6', className)}

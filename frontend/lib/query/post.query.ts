@@ -3,6 +3,7 @@ import { PageParams } from '@/lib/types/page.types'
 import { CommentSchema, PostSchema } from '@/lib/types/schema.types'
 import { LikeStatus } from '@/lib/types/status.types'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { type ApiError } from 'next/dist/server/api-utils'
 
 export const POST_LIST_KEY = 'postList'
 export const POST_KEY = 'post'
@@ -55,8 +56,8 @@ export const postPutQueryFn = async ({ postId, content }: PostPutParams & PostPu
   return response.data
 }
 export const usePostPutQuery = () =>
-  useMutation({
-    mutationFn: (params: PostPutParams & PostPutBody) => postPutQueryFn(params),
+  useMutation<PostPutData, ApiError, PostPutParams & PostPutBody, unknown>({
+    mutationFn: (params) => postPutQueryFn(params),
   })
 
 // Post Create Query
@@ -71,8 +72,8 @@ export const postCreateQueryFn = async (content: string) => {
   return response.data
 }
 export const usePostCreateQuery = () =>
-  useMutation({
-    mutationFn: (content: string) => postCreateQueryFn(content),
+  useMutation<PostCreateData, ApiError, string, unknown>({
+    mutationFn: (content) => postCreateQueryFn(content),
   })
 
 // Post Like Query
@@ -85,7 +86,7 @@ export const postLikeQueryFn = async (postId: string) => {
   return response.data
 }
 export const usePostLikeQuery = () =>
-  useMutation({
+  useMutation<PostLikeData, ApiError, string, unknown>({
     mutationFn: (postId: string) => postLikeQueryFn(postId),
   })
 
@@ -100,8 +101,8 @@ export const postDeleteQueryFn = async (postId: string) => {
   return response.data
 }
 export const usePostDeleteQuery = () =>
-  useMutation({
-    mutationFn: (postId: string) => postDeleteQueryFn(postId),
+  useMutation<PostDeleteData, ApiError, string, unknown>({
+    mutationFn: (postId) => postDeleteQueryFn(postId),
   })
 
 // Post Comment Get Paging Query

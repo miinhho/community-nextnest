@@ -1,6 +1,7 @@
 import { apiDelete, apiPost } from '@/lib/axios'
 import { FollowStatus } from '@/lib/types/status.types'
 import { useMutation } from '@tanstack/react-query'
+import { type ApiError } from 'next/dist/server/api-utils'
 
 // Follow Toggle Query
 interface FollowData {
@@ -12,7 +13,7 @@ export const followQueryFn = async (targetId: string) => {
   return response.data
 }
 export const useFollowQuery = () =>
-  useMutation({
+  useMutation<FollowData, ApiError, string, unknown>({
     mutationFn: (targetId: string) => followQueryFn(targetId),
   })
 
@@ -25,7 +26,7 @@ export const followRequestQueryFn = async (targetId: string) => {
   return response.data
 }
 export const useFollowRequestQuery = () =>
-  useMutation({
+  useMutation<FollowRequestData, ApiError, string, unknown>({
     mutationFn: (targetId: string) => followRequestQueryFn(targetId),
   })
 
@@ -38,6 +39,6 @@ export const followRequestRejectQueryFn = async (targetId: string) => {
   return response.data
 }
 export const useFollowRequestRejectQuery = () =>
-  useMutation({
+  useMutation<FollowRequestRejectData, ApiError, string, unknown>({
     mutationFn: (targetId: string) => followRequestRejectQueryFn(targetId),
   })

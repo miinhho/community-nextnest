@@ -1,6 +1,7 @@
 import { apiPost } from '@/lib/axios'
 import { Role } from '@/lib/types/role.types'
 import { useMutation } from '@tanstack/react-query'
+import { type ApiError } from 'next/dist/server/api-utils'
 
 // Auth Register Query
 export interface AuthRegisterBody {
@@ -18,8 +19,8 @@ export const authRegisterQueryFn = async (params: AuthRegisterBody) => {
   return response.data
 }
 export const useAuthRegisterQuery = () =>
-  useMutation({
-    mutationFn: (params: AuthRegisterBody) => authRegisterQueryFn(params),
+  useMutation<AuthRegisterData, ApiError, AuthRegisterBody, unknown>({
+    mutationFn: (params) => authRegisterQueryFn(params),
   })
 
 // Auth Login Query
@@ -37,8 +38,8 @@ export const authLoginQueryFn = async (params: AuthLoginBody) => {
   return response.data
 }
 export const useAuthLoginQuery = () =>
-  useMutation({
-    mutationFn: (params: AuthLoginBody) => authLoginQueryFn(params),
+  useMutation<AuthLoginData, ApiError, AuthLoginBody, unknown>({
+    mutationFn: (params) => authLoginQueryFn(params),
   })
 
 // Auth Logout Query
@@ -59,6 +60,6 @@ export const authRefreshQueryFn = async () => {
   return response.data
 }
 export const useAuthRefreshQuery = () =>
-  useMutation({
+  useMutation<AuthRefreshData, ApiError, void, unknown>({
     mutationFn: () => authRefreshQueryFn(),
   })

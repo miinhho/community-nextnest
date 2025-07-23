@@ -2,6 +2,7 @@ import { apiGet, apiPatch } from '@/lib/axios'
 import { PageParams } from '@/lib/types/page.types'
 import { BaseTimestamp, CommentSchema, PostSchema, UserSchema } from '@/lib/types/schema.types'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { type ApiError } from 'next/dist/server/api-utils'
 
 export const USER_KEY = 'user'
 export const USER_POSTS_KEY = 'userPosts'
@@ -113,11 +114,11 @@ export const userPatchQueryFn = async ({ userId, name, image }: UserPatchParams)
     image,
     name,
   })
-  return response
+  return response.data
 }
 export const useUserPatchQuery = () =>
-  useMutation({
-    mutationFn: (params: UserPatchParams) => userPatchQueryFn(params),
+  useMutation<UserData, ApiError, UserPatchParams, unknown>({
+    mutationFn: (params) => userPatchQueryFn(params),
   })
 
 // User Delete Query
@@ -132,6 +133,6 @@ export const userDeleteQueryFn = async (userId: string) => {
   return response.data
 }
 export const useUserDeleteQuery = () =>
-  useMutation({
-    mutationFn: (userId: string) => userDeleteQueryFn(userId),
+  useMutation<UserDeleteData, ApiError, string, unknown>({
+    mutationFn: (userId) => userDeleteQueryFn(userId),
   })

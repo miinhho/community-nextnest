@@ -1,9 +1,9 @@
 /**
- * 유저 역할
- * @property USER 일반 유저
- * @property ADMIN 관리자
+ * 유저 역할을 정의하는 열거형
  */
 export enum Role {
+  /** 일반 유저 */
   USER = 'USER',
+  /** 관리자 */
   ADMIN = 'ADMIN',
 }
