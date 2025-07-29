@@ -6,9 +6,8 @@ import { ClientInfo } from '@/common/utils/header';
 import { PageParams } from '@/common/utils/page';
 import { PostRepository } from '@/post/post.repository';
 import { PrivateAuthError } from '@/private/error/private-auth.error';
-import { PrivateDeniedError } from '@/private/error/private-denied.error';
 import { PrivateService } from '@/private/private.service';
-import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Role } from '@prisma/client';
 
 @Injectable()

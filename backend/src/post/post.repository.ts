@@ -4,6 +4,7 @@ import { postSelections, userSelections } from '@/common/select';
 import { PageParams, toPageData } from '@/common/utils/page';
 import { PrismaDBError } from '@/prisma/error/prisma-db.error';
 import { PrismaService } from '@/prisma/prisma.service';
+import { PostRecommendService } from '@/recommend/post-recommend.service';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';
 
@@ -11,7 +12,10 @@ import { PrismaError } from 'prisma-error-enum';
 export class PostRepository {
   private readonly logger = new Logger(PostRepository.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly recommendService: PostRecommendService,
+  ) {}
 
   /**
    * 새로운 게시글을 생성합니다.
@@ -154,7 +158,7 @@ export class PostRepository {
           skip: (page - 1) * size,
           take: size,
           orderBy: {
-            createdAt: 'desc',
+            hotScore: 'desc',
           },
         }),
         this.prisma.post.count({ where: filter }),
@@ -280,11 +284,17 @@ export class PostRepository {
    */
   async addPostLikes({ userId, postId }: { userId: string; postId: string }) {
     try {
-      await this.prisma.$transaction([
+      const filter = {
+        id: postId,
+        ...getBlockFilter(userId),
+      };
+      const [post] = await this.prisma.$transaction([
         this.prisma.post.findUniqueOrThrow({
           where: {
-            id: postId,
-            ...getBlockFilter(userId),
+            ...filter,
+          },
+          select: {
+            ...this.recommendService.recommendSelection,
           },
         }),
         this.prisma.postLikes.create({
@@ -294,17 +304,23 @@ export class PostRepository {
           },
           select: {},
         }),
-        this.prisma.post.update({
-          where: {
-            id: postId,
-            ...getBlockFilter(userId),
-          },
-          data: {
-            likeCount: { increment: 1 },
-          },
-          select: {},
-        }),
       ]);
+
+      const newHotScore = this.recommendService.calculateHotScore({
+        ...post,
+        action: 'LIKE_ADD',
+      });
+
+      await this.prisma.post.update({
+        where: {
+          ...filter,
+        },
+        data: {
+          likeCount: { increment: 1 },
+          hotScore: newHotScore,
+        },
+        select: {},
+      });
     } catch (err) {
       if (err.code === PrismaError.UniqueConstraintViolation) {
         throw new AlreadyLikeError(postId, userId);
@@ -328,7 +344,15 @@ export class PostRepository {
    */
   async minusPostLikes({ userId, postId }: { userId: string; postId: string }) {
     try {
-      await this.prisma.$transaction([
+      const [post] = await this.prisma.$transaction([
+        this.prisma.post.findUniqueOrThrow({
+          where: {
+            id: postId,
+          },
+          select: {
+            ...this.recommendService.recommendSelection,
+          },
+        }),
         this.prisma.postLikes.delete({
           where: {
             userId_postId: {
@@ -338,14 +362,21 @@ export class PostRepository {
           },
           select: {},
         }),
-        this.prisma.post.update({
-          where: { id: postId },
-          data: {
-            likeCount: { decrement: 1 },
-          },
-          select: {},
-        }),
       ]);
+
+      const newHotScore = this.recommendService.calculateHotScore({
+        ...post,
+        action: 'LIKE_MINUS',
+      });
+
+      await this.prisma.post.update({
+        where: { id: postId },
+        data: {
+          likeCount: { decrement: 1 },
+          hotScore: newHotScore,
+        },
+        select: {},
+      });
     } catch (err) {
       if (err.code === PrismaError.RecordsNotFound) {
         throw new NotFoundException(
@@ -380,26 +411,41 @@ export class PostRepository {
     // userId 를 우선적으로 사용하고, 없으면 ipAddress와 userAgent를 사용
     const uniqueKey = userId ? { postId, userId } : { postId, ipAddress, userAgent };
     try {
-      await this.prisma.$transaction([
+      const [post] = await this.prisma.$transaction([
+        this.prisma.post.findUniqueOrThrow({
+          where: {
+            id: postId,
+          },
+          select: {
+            ...this.recommendService.recommendSelection,
+          },
+        }),
         this.prisma.postView.create({
           data: {
             ...uniqueKey,
           },
-        }),
-        this.prisma.post.update({
-          where: { id: postId },
-          data: {
-            viewCount: { increment: 1 },
-          },
           select: {},
         }),
       ]);
+
+      const newHotScore = this.recommendService.calculateHotScore({
+        ...post,
+        action: 'VIEW_ADD',
+      });
+
+      await this.prisma.post.update({
+        where: { id: postId },
+        data: {
+          viewCount: { increment: 1 },
+          hotScore: newHotScore,
+        },
+        select: {},
+      });
     } catch (err) {
       // 이미 조회한 게시글인 경우 무시
       if (err.code === PrismaError.UniqueConstraintViolation) {
         return;
       }
-
       this.logger.error('게시글 조회 추가 중 오류 발생', err.stack, {
         userId,
         postId,

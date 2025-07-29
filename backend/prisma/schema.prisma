@@ -152,6 +152,7 @@ model Post {
   postView     PostView[]
   viewCount    Int         @default(0)
   likeCount    Int         @default(0)
+  hotScore     Int         @default(0)
   likes        PostLikes[]
   comments     Comment[]
 
