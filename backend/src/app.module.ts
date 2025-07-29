@@ -2,6 +2,7 @@ import { JwtAuthGuard } from '@/auth/guard/jwt.guard';
 import { BlockModule } from '@/block/block.module';
 import app from '@/config/app.config';
 import jwt from '@/config/jwt.config';
+import recommend from '@/config/recommend.config';
 import swagger from '@/config/swagger.config';
 import { HealthModule } from '@/health/health.module';
 import { NotifyModule } from '@/notify/notify.module';
@@ -24,7 +25,7 @@ import { UserModule } from './user/user.module';
         process.env.NODE_ENV === 'production'
           ? '.env.production.local'
           : '.env.development.local',
-      load: [jwt, app, swagger],
+      load: [jwt, app, swagger, recommend],
       isGlobal: true,
       cache: true,
     }),
