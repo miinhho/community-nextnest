@@ -1,5 +1,4 @@
 Backend:
-  - [x] 추천 시스템 추가
   - [ ] 핫한 게시글 캐싱 추가
   - [ ] Web push 를 이용한 백그라운드 알림
   - [ ] AWS S3 나 Cloudflare CDN 을 활용한 이미지 파일 저장
