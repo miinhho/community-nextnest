@@ -11,7 +11,7 @@ export class PrivateService {
    * @param id - 업데이트할 사용자 ID
    * @param isPrivate - 공개 여부 (true: 비공개, false: 공개)
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
-   * @throws {PrismaDBError} 업데이트 중 오류 발생 시
+   * @throws {InternalServerErrorException} 업데이트 중 오류 발생 시
    */
   async updateUserPrivacy(id: string, isPrivate: boolean) {
     return this.privateRepository.updateUserPrivacyById(id, isPrivate);
@@ -22,7 +22,7 @@ export class PrivateService {
    * @param id - 조회할 사용자 ID
    * @returns 사용자 공개 여부 (true: 비공개, false: 공개)
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
-   * @throws {PrismaDBError} 조회 중 오류 발생 시
+   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
   async isUserPrivate(id: string) {
     return this.privateRepository.isUserPrivate(id);
@@ -37,7 +37,7 @@ export class PrivateService {
    * @returns 대상 사용자가 공개 상태이면 `true`, 비공개 상태이면서 팔로워인 경우에도 `true`, 그 외에는 `false`
    * @throws {PrivateDeniedError} 비공개 사용자에 접근하려는 경우 (`throwError`가 `true` 일 때)
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
-   * @throws {PrismaDBError} 조회 중 오류 발생 시
+   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
   async isUserAvailable(props: { userId: string; targetId: string }, throwError = false) {
     const isAvailable = await this.privateRepository.isUserAvailable(props);

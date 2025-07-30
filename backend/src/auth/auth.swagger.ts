@@ -3,8 +3,8 @@ import { RegisterUserDto } from '@/auth/dto/register.dto';
 import { ApiJwtAuth } from '@/common/swagger/auth-info.swagger';
 import { applyDecorators } from '@nestjs/common';
 import {
-  ApiBadRequestResponse,
   ApiBody,
+  ApiConflictResponse,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -48,7 +48,7 @@ export const ApiRegister = () =>
         },
       },
     }),
-    ApiBadRequestResponse({ description: '이미 사용 중인 이메일입니다' }),
+    ApiConflictResponse({ description: '이미 사용 중인 이메일입니다' }),
     ApiInternalServerErrorResponse({ description: '서버 오류' }),
   );
 
@@ -88,7 +88,6 @@ export const ApiLogin = () =>
     }),
     ApiNotFoundResponse({ description: '잘못된 이메일입니다' }),
     ApiUnauthorizedResponse({ description: '잘못된 비밀번호입니다' }),
-    ApiBadRequestResponse({ description: '잘못된 형식의 이메일이나 비밀번호입니다' }),
     ApiInternalServerErrorResponse({ description: '서버 오류' }),
   );
 

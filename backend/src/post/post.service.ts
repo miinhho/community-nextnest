@@ -23,7 +23,7 @@ export class PostService {
    * @param props.authorId - 작성자 ID
    * @param props.content - 게시글 내용
    * @returns 생성된 게시글의 ID를 포함하는 객체
-   * @throws {PrismaDBError} 게시글 작성 중 오류 발생 시
+   * @throws {InternalServerErrorException} 게시글 작성 중 오류 발생 시
    */
   async createPost(props: { authorId: string; content: string }) {
     return this.postRepository.createPost(props);
@@ -34,7 +34,7 @@ export class PostService {
    * @param props.id - 수정할 게시글 ID
    * @param props.content - 새로운 게시글 내용
    * @throws {NotFoundException} 존재하지 않는 게시글인 경우
-   * @throws {PrismaDBError} 게시글 수정 중 오류 발생 시
+   * @throws {InternalServerErrorException} 게시글 수정 중 오류 발생 시
    */
   async updatePost(props: { id: string; content: string }) {
     return this.postRepository.updatePost(props);
@@ -46,7 +46,7 @@ export class PostService {
    * @throws {NotFoundException} 게시글을 찾을 수 없는 경우
    * @throws {UnauthorizedException} 비공개 게시글에 접근하려는 경우
    * @throws {ForbiddenException} 해당 게시글에 접근할 수 없는 경우
-   * @throws {PrismaDBError} 게시글 조회 중 오류 발생 시
+   * @throws {InternalServerErrorException} 게시글 조회 중 오류 발생 시
    */
   async findPostById(
     id: string,
@@ -98,7 +98,7 @@ export class PostService {
    * 페이지네이션을 적용하여 게시글 목록을 조회합니다.
    * @param pageParams.page - 페이지 번호 (기본값: 1)
    * @param pageParams.size - 페이지 크기 (기본값: 10)
-   * @throws {PrismaDBError} 목록 조회 중 오류 발생 시
+   * @throws {InternalServerErrorException} 목록 조회 중 오류 발생 시
    */
   async findPostsByPage(pageParams: PageParams, user?: UserData) {
     return this.postRepository.findPostsByPage(pageParams, user?.id);
@@ -114,7 +114,7 @@ export class PostService {
    * @throws {PrivateDeniedError} 비공개 게시글에 접근하려는 경우
    * @throws {UserBlockedError} 내가 상대방을 차단한 경우
    * @throws {BlockedError} 상대방이 나를 차단한 경우
-   * @throws {PrismaDBError} 조회 중 오류 발생 시
+   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
   async findPostsByUserId(userId: string, pageParams: PageParams, user?: UserData) {
     // 비공개 사용자 여부 확인
@@ -151,7 +151,7 @@ export class PostService {
    * @param postId - 삭제할 게시글 ID
    * @returns 삭제된 게시글의 정보
    * @throws {NotFoundException} 존재하지 않는 게시글인 경우
-   * @throws {PrismaDBError} 삭제 중 오류 발생 시
+   * @throws {InternalServerErrorException} 삭제 중 오류 발생 시
    */
   async deletePostById(postId: string) {
     return this.postRepository.deletePostById(postId);
@@ -166,7 +166,7 @@ export class PostService {
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
    * @throws {ForbiddenException} 비공개 게시글이나 차단한 유저의 게시글에 접근하려는 경우
    * @throws {AlreadyLikeError} 이미 좋아요를 누른 경우 (toggle이 false일 때)
-   * @throws {PrismaDBError} 좋아요 처리 중 오류 발생 시
+   * @throws {InternalServerErrorException} 좋아요 처리 중 오류 발생 시
    */
   async addPostLikes({
     user,
@@ -224,7 +224,7 @@ export class PostService {
    * @param props.postId - 좋아요를 취소할 게시글 ID
    * @returns 좋아요 취소 상태 (MINUS)
    * @throws {NotFoundException} 게시물이 없거나 좋아요를 누르지 않은 경우
-   * @throws {PrismaDBError} 좋아요 취소 중 오류 발생 시
+   * @throws {InternalServerErrorException} 좋아요 취소 중 오류 발생 시
    */
   async minusPostLikes(props: { userId: string; postId: string }) {
     await this.postRepository.minusPostLikes(props);

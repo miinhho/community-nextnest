@@ -19,7 +19,7 @@ export class UserService {
    * @param props.name - 사용자 이름
    * @returns 생성된 사용자 정보
    * @throws {BadRequestException} 이미 사용 중인 이메일인 경우
-   * @throws {PrismaDBError} 사용자 생성 중 오류 발생 시
+   * @throws {InternalServerErrorException} 사용자 생성 중 오류 발생 시
    */
   async createUser(props: { email: string; password: string; name: string }) {
     return this.userRepository.createUser(props);
@@ -31,7 +31,7 @@ export class UserService {
    * @param dataToUpdate.name - 사용자 이름 (선택)
    * @param dataToUpdate.image - 사용자 프로필 이미지 (선택)
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
-   * @throws {PrismaDBError} 업데이트 중 오류 발생 시
+   * @throws {InternalServerErrorException} 업데이트 중 오류 발생 시
    */
   async updateUserById(id: string, dataToUpdate: { name?: string; image?: string }) {
     return this.userRepository.updateUserById(id, dataToUpdate);
@@ -41,7 +41,7 @@ export class UserService {
    * ID를 통해 사용자 상세 정보를 조회합니다 (관리자 권한).
    * @param id - 조회할 사용자 ID
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
-   * @throws {PrismaDBError} 조회 중 오류 발생 시
+   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
   async findUserByIdAsAdmin(id: string) {
     return this.userRepository.findUserById(id);
@@ -51,7 +51,7 @@ export class UserService {
    * ID를 통해 사용자 역할을 조회합니다.
    * @param id - 조회할 사용자 ID
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
-   * @throws {PrismaDBError} 조회 중 오류 발생 시
+   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
   async findUserRoleById(id: string) {
     return this.userRepository.findUserRoleById(id);
@@ -61,7 +61,7 @@ export class UserService {
    * 현재 로그인한 사용자의 정보를 조회합니다.
    * @param user - 현재 로그인한 사용자 정보
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
-   * @throws {PrismaDBError} 조회 중 오류 발생 시
+   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
   async findMyInfo(user: UserData) {
     return this.userRepository.findUserById(user.id);
@@ -73,7 +73,7 @@ export class UserService {
    * @param user - 현재 로그인한 사용자 정보 (선택)
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
    * @throws {UnauthorizedException} 비공개 사용자 정보에 접근하려는 경우
-   * @throws {PrismaDBError} 조회 중 오류 발생 시
+   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
   async findUserById(id: string, user?: UserData) {
     const { isPrivate, ...userData } = await this.userRepository.findUserById(id);
@@ -105,7 +105,7 @@ export class UserService {
    * @param email - 조회할 사용자 이메일
    * @param password - 비밀번호 포함 여부 (기본값: false)
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
-   * @throws {PrismaDBError} 조회 중 오류 발생 시
+   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
   async findUserByEmail(email: string, password: boolean = false) {
     return this.userRepository.findUserByEmail(email, password);
@@ -115,7 +115,7 @@ export class UserService {
    * 이메일로 사용자 존재 여부를 확인합니다.
    * @param email - 확인할 사용자 이메일
    * @returns 사용자 존재 여부 (true/false)
-   * @throws {PrismaDBError} 조회 중 오류 발생 시
+   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
   async findUserExistsByEmail(email: string) {
     return this.userRepository.findUserExistsByEmail(email);
@@ -126,7 +126,7 @@ export class UserService {
    * @param name - 검색할 사용자 이름 (부분 매칭)
    * @param pageParams.page - 페이지 번호 (기본값: 1)
    * @param pageParams.size - 페이지 크기 (기본값: 10)
-   * @throws {PrismaDBError} 조회 중 오류 발생 시
+   * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
   async findUsersByName(name: string, pageParams: PageParams) {
     return this.userRepository.findUsersByName(name, pageParams);
@@ -137,7 +137,7 @@ export class UserService {
    * @param id - 삭제할 사용자 ID
    * @returns 삭제된 사용자 정보 (ID, 이메일, 이름, 이미지)
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
-   * @throws {PrismaDBError} 삭제 중 오류 발생 시
+   * @throws {InternalServerErrorException} 삭제 중 오류 발생 시
    */
   async deleteUserById(id: string) {
     return this.userRepository.deleteUserById(id);
@@ -148,7 +148,7 @@ export class UserService {
    * @param email - 삭제할 사용자 이메일
    * @returns 삭제된 사용자 정보 (ID, 이메일, 이름, 이미지)
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
-   * @throws {PrismaDBError} 삭제 중 오류 발생 시
+   * @throws {InternalServerErrorException} 삭제 중 오류 발생 시
    */
   async deleteUserByEmail(email: string) {
     return this.userRepository.deleteUserByEmail(email);

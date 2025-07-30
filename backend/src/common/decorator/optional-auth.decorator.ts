@@ -3,7 +3,7 @@ import { SetMetadata } from '@nestjs/common';
 /**
  * 선택적 인증 메타데이터 키
  */
-export const OPTIONAL_AUTH_KEY = 'optionalAuth';
+export const OPTIONAL_AUTH_KEY = Symbol('optionalAuth');
 
 /**
  * 선택적 인증 데코레이터

@@ -30,7 +30,7 @@ export class AuthService {
    * @returns 검증된 사용자 정보
    * @throws {NotFoundException} 사용자를 찾을 수 없는 경우
    * @throws {UnauthorizedException} 비밀번호가 일치하지 않는 경우
-   * @throws {PrismaDBError} 인증 과정에서 오류 발생 시
+   * @throws {InternalServerErrorException} 인증 과정에서 오류 발생 시
    */
   async validateUser(email: string, password: string) {
     const user = await this.userService.findUserByEmail(email, true);
@@ -47,7 +47,7 @@ export class AuthService {
    *
    * @param user - 인증된 사용자 정보
    * @returns 로그인 결과 (Access Token, Refresh Token, 사용자 정보)
-   * @throws {PrismaDBError} 토큰 생성 실패 시
+   * @throws {InternalServerErrorException} 토큰 생성 실패 시
    */
   async login(user: UserData) {
     const accessToken = await this.tokenService.generateAccessToken(user.id);
@@ -74,8 +74,8 @@ export class AuthService {
    *
    * @param userDto - 회원가입 정보 (이메일, 비밀번호, 이름)
    * @returns 회원가입 및 로그인 결과 (Access Token, Refresh Token, 사용자 정보)
-   * @throws {BadRequestException} 이미 사용 중인 이메일인 경우
-   * @throws {PrismaDBError} 사용자 생성 또는 로그인 실패 시
+   * @throws {ConflictException} 이미 사용 중인 이메일인 경우
+   * @throws {InternalServerErrorException} 사용자 생성 또는 로그인 실패 시
    */
   async register(userDto: RegisterUserDto) {
     const hashedPassword = await this.hashPassword(userDto.password);
@@ -136,7 +136,7 @@ export class AuthService {
    *
    * @param refreshToken - 무효화할 Refresh Token
    * @throws {NotFoundException} 토큰을 찾을 수 없는 경우
-   * @throws {PrismaDBError} 토큰 삭제 실패 시
+   * @throws {InternalServerErrorException} 토큰 삭제 실패 시
    */
   async logout(refreshToken: string) {
     const token = await this.refreshTokenService.findRefreshTokenByToken(refreshToken);

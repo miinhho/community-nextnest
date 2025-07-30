@@ -29,7 +29,7 @@ export class FollowService {
    * @throws {BlockedError} 상대방이 나를 차단한 경우 (`throwError`가 `true` 일 때)
    * @throws {AlreadyFollowError} 이미 팔로우한 사용자인 경우 (toggle이 false일 때)
    * @throws {PrivateUserError} 비공개 사용자인 경우
-   * @throws {PrismaDBError} 팔로우 실패 시
+   * @throws {InternalServerErrorException} 팔로우 실패 시
    */
   async followUser({
     userId,
@@ -82,7 +82,7 @@ export class FollowService {
    *
    * @throws {NotFoundException} 대상 사용자를 찾을 수 없는 경우
    * @throws {NotFoundException} 팔로우 요청이 존재하지 않는 경우
-   * @throws {PrismaDBError} 팔로우 요청 수락 실패 시
+   * @throws {InternalServerErrorException} 팔로우 요청 수락 실패 시
    */
   async acceptFollowRequest(props: { userId: string; targetId: string }) {
     const isValidRequest = await this.followRepository.isFollowRequested({
@@ -105,7 +105,7 @@ export class FollowService {
    * @returns 팔로우 상태 (REJECTED 또는 ACCEPTED)
    *
    * @throws {NotFoundException} 대상 사용자를 찾을 수 없는 경우
-   * @throws {PrismaDBError} 팔로우 요청 실패 시
+   * @throws {InternalServerErrorException} 팔로우 요청 실패 시
    */
   async sendFollowRequest(props: { userId: string; targetId: string }) {
     await this.followRepository.createFollowRequest(props);
@@ -119,8 +119,8 @@ export class FollowService {
    *
    * @returns 팔로우 상태 (REJECTED)
    *
-   * @throws {NotFoundException} 대상 사용자를 찾을 수 없는 경우
-   * @throws {PrismaDBError} 팔로우 요청 거절 실패 시
+   * @throws {NotFoundException} 팔로우 요청을 찾을 수 없을 시
+   * @throws {InternalServerErrorException} 팔로우 요청 거절 실패 시
    */
   async rejectFollowRequest(props: { userId: string; targetId: string }) {
     await this.followRepository.deleteFollowRequest(props);
@@ -133,7 +133,7 @@ export class FollowService {
    * @param props.userId - 언팔로우를 요청하는 사용자 ID
    * @param props.targetId - 언팔로우할 대상 사용자 ID
    * @returns 팔로우 상태 (UNFOLLOW)
-   * @throws {PrismaDBError} 존재하지 않는 사용자이거나 언팔로우 실패 시
+   * @throws {InternalServerErrorException} 존재하지 않는 사용자이거나 언팔로우 실패 시
    */
   async unfollowUser(props: { userId: string; targetId: string }) {
     await this.followRepository.unfollowUser(props);
@@ -145,7 +145,7 @@ export class FollowService {
    * @param params.userId - 팔로우를 요청한 사용자 ID
    * @param params.targetId - 팔로우 대상 사용자 ID
    * @returns 팔로우 여부 (true: 팔로우 중, false: 팔로우하지 않음)
-   * @throws {PrismaDBError} 팔로우 상태 확인 실패 시
+   * @throws {InternalServerErrorException} 팔로우 상태 확인 실패 시
    */
   async isFollowing({ userId, targetId }: { userId: string; targetId: string }) {
     return this.followRepository.isFollowing({
@@ -157,7 +157,7 @@ export class FollowService {
   /**
    * 특정 사용자의 팔로워 수를 조회합니다.
    * @param userId - 팔로워 수를 조회할 사용자 ID
-   * @throws {PrismaDBError} 팔로워 수 조회 실패 시
+   * @throws {InternalServerErrorException} 팔로워 수 조회 실패 시
    */
   async getFollowersCount(userId: string) {
     return this.followRepository.getFollowersCount(userId);
@@ -166,7 +166,7 @@ export class FollowService {
   /**
    * 특정 사용자가 팔로우하는 사용자 수를 조회합니다.
    * @param userId - 팔로잉 수를 조회할 사용자 ID
-   * @throws {PrismaDBError} 팔로잉 수 조회 실패 시
+   * @throws {InternalServerErrorException} 팔로잉 수 조회 실패 시
    */
   async getFollowingCount(userId: string) {
     return this.followRepository.getFollowingCount(userId);
@@ -176,7 +176,7 @@ export class FollowService {
    * 특정 사용자의 팔로워 목록을 페이지네이션으로 조회합니다.
    * @param userId - 팔로워 목록을 조회할 사용자 ID
    * @param pageParams - 페이지네이션 파라미터
-   * @throws {PrismaDBError} 팔로워 목록 조회 실패 시
+   * @throws {InternalServerErrorException} 팔로워 목록 조회 실패 시
    */
   async getFollowers(userId: string, pageParams: PageParams) {
     return this.followRepository.getFollowers(userId, pageParams);
@@ -186,7 +186,7 @@ export class FollowService {
    * 특정 사용자가 팔로우하는 사용자 목록을 페이지네이션으로 조회합니다.
    * @param userId - 팔로잉 목록을 조회할 사용자 ID
    * @param pageParams - 페이지네이션 파라미터
-   * @throws {PrismaDBError} 팔로잉 목록 조회 실패 시
+   * @throws {InternalServerErrorException} 팔로잉 목록 조회 실패 시
    */
   async getFollowing(userId: string, pageParams: PageParams) {
     return this.followRepository.getFollowing(userId, pageParams);

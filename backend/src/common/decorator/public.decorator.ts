@@ -3,7 +3,7 @@ import { SetMetadata } from '@nestjs/common';
 /**
  * 공개 엔드포인트 메타데이터 키
  */
-export const IS_PUBLIC_KEY = 'isPublic';
+export const IS_PUBLIC_KEY = Symbol('isPublic');
 
 /**
  * 공개 엔드포인트 데코레이터

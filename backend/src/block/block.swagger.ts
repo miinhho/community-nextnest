@@ -3,6 +3,7 @@ import { applyDecorators } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBody,
+  ApiConflictResponse,
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiOperation,
@@ -36,7 +37,7 @@ export const ApiBlockUser = () =>
         },
       },
     }),
-    ApiBadRequestResponse({ description: '이미 차단된 사용자' }),
+    ApiConflictResponse({ description: '이미 차단된 사용자' }),
     ApiInternalServerErrorResponse({ description: '서버 오류' }),
   );
 

@@ -19,7 +19,7 @@ export class TokenService {
    *
    * @param userId - 토큰을 생성할 사용자 ID
    * @throws {NotFoundException} 사용자를 찾을 수 없는 경우
-   * @throws {PrismaDBError} 토큰 생성 실패 시
+   * @throws {InternalServerErrorException} 토큰 생성 실패 시
    */
   async generateAccessToken(userId: string) {
     const role = await this.userService.findUserRoleById(userId);
