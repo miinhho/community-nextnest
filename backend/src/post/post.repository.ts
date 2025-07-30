@@ -125,7 +125,8 @@ export class PostRepository {
         ...getBlockFilter(viewerId),
       },
     };
-    const [posts, totalCount] = await this.prisma.$transaction([
+
+    const [posts, totalCount] = await Promise.all([
       this.prisma.post.findMany({
         where: filter,
         select: {
@@ -163,7 +164,7 @@ export class PostRepository {
     const filter = {
       authorId: userId,
     };
-    const [posts, totalCount] = await this.prisma.$transaction([
+    const [posts, totalCount] = await Promise.all([
       this.prisma.post.findMany({
         where: filter,
         select: {
@@ -257,38 +258,39 @@ export class PostRepository {
         id: postId,
         ...getBlockFilter(userId),
       };
-      const [post] = await this.prisma.$transaction([
-        this.prisma.post.findUniqueOrThrow({
+      return this.prisma.$transaction(async (tx) => {
+        const post = await tx.post.findUniqueOrThrow({
           where: {
             ...filter,
           },
           select: {
             ...this.recommendService.recommendSelection,
           },
-        }),
-        this.prisma.postLikes.create({
+        });
+
+        await tx.postLikes.create({
           data: {
             userId,
             postId,
           },
           select: {},
-        }),
-      ]);
+        });
 
-      const newHotScore = this.recommendService.calculateHotScore({
-        ...post,
-        action: 'LIKE_ADD',
-      });
+        const newHotScore = this.recommendService.calculateHotScore({
+          ...post,
+          action: 'LIKE_ADD',
+        });
 
-      await this.prisma.post.update({
-        where: {
-          ...filter,
-        },
-        data: {
-          likeCount: { increment: 1 },
-          hotScore: newHotScore,
-        },
-        select: {},
+        await tx.post.update({
+          where: {
+            ...filter,
+          },
+          data: {
+            likeCount: { increment: 1 },
+            hotScore: newHotScore,
+          },
+          select: {},
+        });
       });
     } catch (err) {
       if (err.code === PrismaError.UniqueConstraintViolation) {
@@ -311,16 +313,17 @@ export class PostRepository {
     Default: '게시글 좋아요 취소에 실패했습니다.',
   })
   async minusPostLikes({ userId, postId }: { userId: string; postId: string }) {
-    const [post] = await this.prisma.$transaction([
-      this.prisma.post.findUniqueOrThrow({
+    return this.prisma.$transaction(async (tx) => {
+      const post = await tx.post.findUniqueOrThrow({
         where: {
           id: postId,
         },
         select: {
           ...this.recommendService.recommendSelection,
         },
-      }),
-      this.prisma.postLikes.delete({
+      });
+
+      await tx.postLikes.delete({
         where: {
           userId_postId: {
             userId,
@@ -328,21 +331,21 @@ export class PostRepository {
           },
         },
         select: {},
-      }),
-    ]);
+      });
 
-    const newHotScore = this.recommendService.calculateHotScore({
-      ...post,
-      action: 'LIKE_MINUS',
-    });
+      const newHotScore = this.recommendService.calculateHotScore({
+        ...post,
+        action: 'LIKE_MINUS',
+      });
 
-    await this.prisma.post.update({
-      where: { id: postId },
-      data: {
-        likeCount: { decrement: 1 },
-        hotScore: newHotScore,
-      },
-      select: {},
+      await tx.post.update({
+        where: { id: postId },
+        data: {
+          likeCount: { decrement: 1 },
+          hotScore: newHotScore,
+        },
+        select: {},
+      });
     });
   }
 
@@ -371,35 +374,35 @@ export class PostRepository {
     // userId 를 우선적으로 사용하고, 없으면 ipAddress와 userAgent를 사용
     const uniqueKey = userId ? { postId, userId } : { postId, ipAddress, userAgent };
     try {
-      const [post] = await this.prisma.$transaction([
-        this.prisma.post.findUniqueOrThrow({
+      return this.prisma.$transaction(async (tx) => {
+        const post = await tx.post.findUniqueOrThrow({
           where: {
             id: postId,
           },
           select: {
             ...this.recommendService.recommendSelection,
           },
-        }),
-        this.prisma.postView.create({
+        });
+        await tx.postView.create({
           data: {
             ...uniqueKey,
           },
           select: {},
-        }),
-      ]);
+        });
 
-      const newHotScore = this.recommendService.calculateHotScore({
-        ...post,
-        action: 'VIEW_ADD',
-      });
+        const newHotScore = this.recommendService.calculateHotScore({
+          ...post,
+          action: 'VIEW_ADD',
+        });
 
-      await this.prisma.post.update({
-        where: { id: postId },
-        data: {
-          viewCount: { increment: 1 },
-          hotScore: newHotScore,
-        },
-        select: {},
+        await tx.post.update({
+          where: { id: postId },
+          data: {
+            viewCount: { increment: 1 },
+            hotScore: newHotScore,
+          },
+          select: {},
+        });
       });
     } catch (err) {
       // 이미 조회한 게시글인 경우 무시

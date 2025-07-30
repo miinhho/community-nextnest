@@ -228,7 +228,7 @@ export class FollowRepository {
     Default: '팔로워 목록 조회 중 오류 발생',
   })
   async getFollowers(userId: string, { page = 1, size = 10 }: PageParams) {
-    const [followers, totalCount] = await this.prisma.$transaction([
+    const [followers, totalCount] = await Promise.all([
       this.prisma.follow.findMany({
         where: { followingId: userId },
         select: {
@@ -261,7 +261,7 @@ export class FollowRepository {
     Default: '팔로잉 목록 조회 중 오류 발생',
   })
   async getFollowing(userId: string, { page = 1, size = 10 }: PageParams) {
-    const [following, totalCount] = await this.prisma.$transaction([
+    const [following, totalCount] = await Promise.all([
       this.prisma.follow.findMany({
         where: { followerId: userId },
         select: {

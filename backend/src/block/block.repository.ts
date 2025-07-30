@@ -17,10 +17,11 @@ export class BlockRepository {
    * @throws {InternalServerErrorException} 차단 여부 확인 중 오류 발생 시
    */
   @PrismaErrorHandler({
+    RecordsNotFound: '존재하지 않는 사용자입니다.',
     Default: '차단 여부 확인 실패',
   })
   async isUserBlocked({ userId, targetId }: { userId: string; targetId: string }) {
-    const [userInfo, targetInfo] = await this.prisma.$transaction([
+    const [userInfo, targetInfo] = await Promise.all([
       this.prisma.user.findUniqueOrThrow({
         where: { id: userId },
         select: {
@@ -42,10 +43,6 @@ export class BlockRepository {
         },
       }),
     ]);
-
-    if (userInfo === null || targetInfo === null) {
-      throw new NotFoundException('존재하지 않는 사용자입니다.');
-    }
 
     return {
       userBlocked: userInfo.blocked !== null,
@@ -198,21 +195,19 @@ export class BlockRepository {
     userId: string;
     targetId: string;
   }) {
-    await this.prisma.$transaction([
-      this.prisma.follow.deleteMany({
-        where: {
-          OR: [
-            {
-              followerId: userId,
-              followingId: targetId,
-            },
-            {
-              followerId: targetId,
-              followingId: userId,
-            },
-          ],
-        },
-      }),
-    ]);
+    await this.prisma.follow.deleteMany({
+      where: {
+        OR: [
+          {
+            followerId: userId,
+            followingId: targetId,
+          },
+          {
+            followerId: targetId,
+            followingId: userId,
+          },
+        ],
+      },
+    });
   }
 }

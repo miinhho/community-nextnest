@@ -96,30 +96,24 @@ export class UserRepository {
     Default: '사용자 조회에 실패했습니다.',
   })
   async findUserById(id: string) {
-    const [user, followingCount, followerCount, postCount] =
-      await this.prisma.$transaction([
-        this.prisma.user.findUniqueOrThrow({
-          where: { id },
-          select: {
-            ...userSelections,
-            role: true,
-            email: true,
-            emailVerified: true,
-            createdAt: true,
-            updatedAt: true,
-            isPrivate: true,
-          },
-        }),
-        this.prisma.follow.count({
-          where: { followingId: id },
-        }),
-        this.prisma.follow.count({
-          where: { followerId: id },
-        }),
-        this.prisma.post.count({
-          where: { authorId: id },
-        }),
-      ]);
+    const [user, followingCount, followerCount, postCount] = await Promise.all([
+      this.prisma.user.findUniqueOrThrow({
+        where: { id },
+        select: {
+          ...userSelections,
+          role: true,
+          email: true,
+          emailVerified: true,
+          createdAt: true,
+          updatedAt: true,
+          isPrivate: true,
+        },
+      }),
+      this.prisma.follow.count({ where: { followingId: id } }),
+      this.prisma.follow.count({ where: { followerId: id } }),
+      this.prisma.post.count({ where: { authorId: id } }),
+    ]);
+
     return {
       ...user,
       followingCount,
@@ -183,7 +177,7 @@ export class UserRepository {
     Default: '사용자 조회에 실패했습니다.',
   })
   async findUsersByName(name: string, { page = 1, size = 10 }: PageParams) {
-    const [user, totalCount] = await this.prisma.$transaction([
+    const [user, totalCount] = await Promise.all([
       this.prisma.user.findMany({
         where: {
           name: {

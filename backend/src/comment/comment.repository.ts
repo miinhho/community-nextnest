@@ -33,8 +33,16 @@ export class CommentRepository {
     authorId: string;
     content: string;
   }) {
-    const result = await this.prisma.$transaction([
-      this.prisma.comment.create({
+    return this.prisma.$transaction(async (tx) => {
+      await tx.post.update({
+        where: { id: postId },
+        data: {
+          commentCount: { increment: 1 },
+        },
+        select: {},
+      });
+
+      return tx.comment.create({
         data: {
           content,
           authorId,
@@ -43,16 +51,8 @@ export class CommentRepository {
         select: {
           id: true,
         },
-      }),
-      this.prisma.post.update({
-        where: { id: postId },
-        data: {
-          commentCount: { increment: 1 },
-        },
-        select: {},
-      }),
-    ]);
-    return result[0];
+      });
+    });
   }
 
   /**
@@ -80,8 +80,16 @@ export class CommentRepository {
     commentId: string;
     content: string;
   }) {
-    const result = await this.prisma.$transaction([
-      this.prisma.comment.create({
+    return this.prisma.$transaction(async (tx) => {
+      await tx.post.update({
+        where: { id: postId },
+        data: {
+          commentCount: { increment: 1 },
+        },
+        select: {},
+      });
+
+      return tx.comment.create({
         data: {
           content,
           postId,
@@ -91,16 +99,8 @@ export class CommentRepository {
         select: {
           id: true,
         },
-      }),
-      this.prisma.post.update({
-        where: { id: postId },
-        data: {
-          commentCount: { increment: 1 },
-        },
-        select: {},
-      }),
-    ]);
-    return result[0];
+      });
+    });
   }
 
   /**
@@ -144,6 +144,7 @@ export class CommentRepository {
         },
       },
     };
+
     return this.prisma.comment.findUniqueOrThrow({
       where: {
         id,
@@ -182,7 +183,8 @@ export class CommentRepository {
       authorId: userId,
       ...getBlockFilter(viewerId),
     };
-    const [comments, totalCount] = await this.prisma.$transaction([
+
+    const [comments, totalCount] = await Promise.all([
       this.prisma.comment.findMany({
         where: filter,
         select: {
@@ -232,7 +234,8 @@ export class CommentRepository {
       parentId: null,
       ...getBlockFilter(viewerId),
     };
-    const [comments, totalCount] = await this.prisma.$transaction([
+
+    const [comments, totalCount] = await Promise.all([
       this.prisma.comment.findMany({
         where: filter,
         select: {
@@ -279,7 +282,7 @@ export class CommentRepository {
       parentId: commentId,
       ...getBlockFilter(viewerId),
     };
-    const [replies, totalCount] = await this.prisma.$transaction([
+    const [replies, totalCount] = await Promise.all([
       this.prisma.comment.findMany({
         where: filter,
         select: {
@@ -343,24 +346,23 @@ export class CommentRepository {
     Default: '댓글 삭제에 실패했습니다.',
   })
   async deleteCommentById({ commentId, postId }: { commentId: string; postId: string }) {
-    const result = await this.prisma.$transaction([
-      this.prisma.comment.delete({
+    return this.prisma.$transaction(async (tx) => {
+      await tx.post.update({
+        where: { id: postId },
+        data: {
+          commentCount: { decrement: 1 },
+        },
+        select: {},
+      });
+      return tx.comment.delete({
         where: { id: commentId },
         select: {
           postId: true,
           authorId: true,
           content: true,
         },
-      }),
-      this.prisma.post.update({
-        where: { id: postId },
-        data: {
-          commentCount: { decrement: 1 },
-        },
-        select: {},
-      }),
-    ]);
-    return result[0];
+      });
+    });
   }
 
   /**
@@ -377,29 +379,29 @@ export class CommentRepository {
   })
   async addCommentLike({ userId, commentId }: { userId: string; commentId: string }) {
     try {
-      await this.prisma.$transaction([
-        this.prisma.comment.findUniqueOrThrow({
+      return this.prisma.$transaction(async (tx) => {
+        await tx.comment.findUniqueOrThrow({
           where: {
             id: commentId,
             ...getBlockFilter(userId),
           },
           select: {},
-        }),
-        this.prisma.commentLikes.create({
+        });
+        await tx.commentLikes.create({
           data: {
             userId,
             commentId,
           },
           select: {},
-        }),
-        this.prisma.comment.update({
+        });
+        await tx.comment.update({
           where: { id: commentId },
           data: {
             likesCount: { increment: 1 },
           },
           select: {},
-        }),
-      ]);
+        });
+      });
     } catch (err) {
       if (err.code === PrismaError.UniqueConstraintViolation) {
         throw new AlreadyLikeError(commentId, userId);
@@ -421,8 +423,8 @@ export class CommentRepository {
     Default: '댓글 좋아요 취소에 실패했습니다.',
   })
   async minusCommentLike({ userId, commentId }: { userId: string; commentId: string }) {
-    await this.prisma.$transaction([
-      this.prisma.commentLikes.delete({
+    return this.prisma.$transaction(async (tx) => {
+      await tx.commentLikes.delete({
         where: {
           userId_commentId: {
             userId,
@@ -430,15 +432,15 @@ export class CommentRepository {
           },
         },
         select: {},
-      }),
-      this.prisma.comment.update({
+      });
+      await tx.comment.update({
         where: { id: commentId },
         data: {
           likesCount: { decrement: 1 },
         },
         select: {},
-      }),
-    ]);
+      });
+    });
   }
 
   /**
@@ -468,20 +470,20 @@ export class CommentRepository {
       ? { commentId, userId }
       : { commentId, ipAddress, userAgent };
     try {
-      await this.prisma.$transaction([
-        this.prisma.commentView.create({
+      return this.prisma.$transaction(async (tx) => {
+        await tx.commentView.create({
           data: {
             ...uniqueKey,
           },
-        }),
-        this.prisma.comment.update({
+        });
+        await tx.comment.update({
           where: { id: commentId },
           data: {
             viewCount: { increment: 1 },
           },
           select: {},
-        }),
-      ]);
+        });
+      });
     } catch (err) {
       // 이미 조회한 댓글인 경우 무시
       if (err.code === PrismaError.UniqueConstraintViolation) {

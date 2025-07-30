@@ -104,7 +104,7 @@ export class NotifyRepository {
     Default: '알림 목록 조회 중 오류 발생',
   })
   async findNotifiesByUserId(userId: string, { page = 1, size = 10 }: PageParams) {
-    const [notifies, totalCount] = await this.prisma.$transaction([
+    const [notifies, totalCount] = await Promise.all([
       this.prisma.notification.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
@@ -168,14 +168,15 @@ export class NotifyRepository {
     postId: string;
     viewerId: string;
   }) {
-    const [post, like] = await this.prisma.$transaction([
-      this.prisma.post.findUniqueOrThrow({
+    return this.prisma.$transaction(async (tx) => {
+      const post = await tx.post.findUniqueOrThrow({
         where: { id: postId },
         select: {
           content: true,
         },
-      }),
-      this.prisma.postLikes.findUniqueOrThrow({
+      });
+
+      const like = await tx.postLikes.findUniqueOrThrow({
         where: {
           userId_postId: {
             userId: viewerId,
@@ -190,20 +191,21 @@ export class NotifyRepository {
             },
           },
         },
-      }),
-    ]);
+      });
 
-    const content = truncateContent(post.content, NotificationType.POST_LIKE);
-    await this.prisma.notification.create({
-      data: {
-        type: NotificationType.POST_LIKE,
-        image: like.user.image,
-        title: `${like.user.name} 님이 좋아요를 눌렀습니다.`,
-        content,
-        postId,
-        userId,
-      },
-      select: {},
+      const content = truncateContent(post.content, NotificationType.POST_LIKE);
+
+      await tx.notification.create({
+        data: {
+          type: NotificationType.POST_LIKE,
+          image: like.user.image,
+          title: `${like.user.name} 님이 좋아요를 눌렀습니다.`,
+          content,
+          postId,
+          userId,
+        },
+        select: {},
+      });
     });
   }
 
@@ -225,30 +227,32 @@ export class NotifyRepository {
     userId: string;
     commentId: string;
   }) {
-    const comment = await this.prisma.comment.findUniqueOrThrow({
-      where: { id: commentId },
-      select: {
-        content: true,
-        author: {
-          select: {
-            name: true,
-            image: true,
+    return this.prisma.$transaction(async (tx) => {
+      const comment = await tx.comment.findUniqueOrThrow({
+        where: { id: commentId },
+        select: {
+          content: true,
+          author: {
+            select: {
+              name: true,
+              image: true,
+            },
           },
         },
-      },
-    });
+      });
+      const content = truncateContent(comment.content, NotificationType.POST_COMMENT);
 
-    const content = truncateContent(comment.content, NotificationType.POST_COMMENT);
-    await this.prisma.notification.create({
-      data: {
-        type: NotificationType.POST_COMMENT,
-        image: comment.author.image,
-        title: `${comment.author.name} 님이 댓글을 남겼습니다.`,
-        content,
-        commentId,
-        userId,
-      },
-      select: {},
+      await tx.notification.create({
+        data: {
+          type: NotificationType.POST_COMMENT,
+          image: comment.author.image,
+          title: `${comment.author.name} 님이 댓글을 남겼습니다.`,
+          content,
+          commentId,
+          userId,
+        },
+        select: {},
+      });
     });
   }
 
@@ -273,14 +277,15 @@ export class NotifyRepository {
     commentId: string;
     viewerId: string;
   }) {
-    const [comment, like] = await this.prisma.$transaction([
-      this.prisma.comment.findUniqueOrThrow({
+    return this.prisma.$transaction(async (tx) => {
+      const comment = await tx.comment.findUniqueOrThrow({
         where: { id: commentId },
         select: {
           content: true,
         },
-      }),
-      this.prisma.commentLikes.findUniqueOrThrow({
+      });
+
+      const like = await tx.commentLikes.findUniqueOrThrow({
         where: { userId_commentId: { userId: viewerId, commentId } },
         select: {
           user: {
@@ -290,20 +295,20 @@ export class NotifyRepository {
             },
           },
         },
-      }),
-    ]);
+      });
+      const content = truncateContent(comment.content, NotificationType.COMMENT_LIKE);
 
-    const content = truncateContent(comment.content, NotificationType.COMMENT_LIKE);
-    await this.prisma.notification.create({
-      data: {
-        type: NotificationType.COMMENT_LIKE,
-        title: `${like.user.name} 님이 댓글에 좋아요를 눌렀습니다.`,
-        image: like.user.image,
-        content,
-        commentId,
-        userId,
-      },
-      select: {},
+      await tx.notification.create({
+        data: {
+          type: NotificationType.COMMENT_LIKE,
+          title: `${like.user.name} 님이 댓글에 좋아요를 눌렀습니다.`,
+          image: like.user.image,
+          content,
+          commentId,
+          userId,
+        },
+        select: {},
+      });
     });
   }
 
@@ -328,30 +333,32 @@ export class NotifyRepository {
     commentId: string;
     replyId: string;
   }) {
-    const reply = await this.prisma.comment.findUniqueOrThrow({
-      where: { id: replyId, parentId: commentId },
-      select: {
-        content: true,
-        author: {
-          select: {
-            name: true,
-            image: true,
+    return this.prisma.$transaction(async (tx) => {
+      const reply = await tx.comment.findUniqueOrThrow({
+        where: { id: replyId, parentId: commentId },
+        select: {
+          content: true,
+          author: {
+            select: {
+              name: true,
+              image: true,
+            },
           },
         },
-      },
-    });
+      });
+      const content = truncateContent(reply.content, NotificationType.COMMENT_REPLY);
 
-    const content = truncateContent(reply.content, NotificationType.COMMENT_REPLY);
-    await this.prisma.notification.create({
-      data: {
-        type: NotificationType.COMMENT_REPLY,
-        title: `${reply.author.name} 님이 댓글에 답글을 남겼습니다.`,
-        image: reply.author.image,
-        content,
-        commentId,
-        userId,
-      },
-      select: {},
+      await tx.notification.create({
+        data: {
+          type: NotificationType.COMMENT_REPLY,
+          title: `${reply.author.name} 님이 댓글에 답글을 남겼습니다.`,
+          image: reply.author.image,
+          content,
+          commentId,
+          userId,
+        },
+        select: {},
+      });
     });
   }
 
@@ -373,24 +380,26 @@ export class NotifyRepository {
     userId: string;
     followerId: string;
   }) {
-    const follower = await this.prisma.user.findUniqueOrThrow({
-      where: { id: followerId },
-      select: {
-        name: true,
-        image: true,
-      },
-    });
+    return this.prisma.$transaction(async (tx) => {
+      const follower = await tx.user.findUniqueOrThrow({
+        where: { id: followerId },
+        select: {
+          name: true,
+          image: true,
+        },
+      });
 
-    await this.prisma.notification.create({
-      data: {
-        type: NotificationType.FOLLOW,
-        title: `새로운 팔로워`,
-        content: `${follower.name} 님이 팔로우하였습니다.`,
-        image: follower.image,
-        userId,
-        followerId,
-      },
-      select: {},
+      await tx.notification.create({
+        data: {
+          type: NotificationType.FOLLOW,
+          title: `새로운 팔로워`,
+          content: `${follower.name} 님이 팔로우하였습니다.`,
+          image: follower.image,
+          userId,
+          followerId,
+        },
+        select: {},
+      });
     });
   }
 
