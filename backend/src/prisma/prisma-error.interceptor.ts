@@ -26,12 +26,14 @@ const defaultErrorMessage: PrismaErrorInfoType = {
 export class PrismaErrorInterceptor implements NestInterceptor {
   private readonly logger = new Logger(PrismaErrorInterceptor.name);
 
+  constructor(private reflector: Reflector) {}
+
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       catchError((error) => {
         const methodName = context.getHandler().name;
         const className = context.getClass().name;
-        const errorMessage = getPrismaErrorMessage(context, error.code);
+        const errorMessage = this.getPrismaErrorMessage(context, error.code);
 
         if (error.code === PrismaError.RecordsNotFound) {
           this.logger.warn(`Record not found in ${className}.${methodName}`, error.meta);
@@ -56,31 +58,30 @@ export class PrismaErrorInterceptor implements NestInterceptor {
       }),
     );
   }
-}
 
-const getPrismaErrorMessage = (context: ExecutionContext, errorCode: string) => {
-  const extractPrismaErrorInfo = () => {
-    const handler = context.getHandler();
-    const reflector = new Reflector();
-    return reflector.get<PrismaErrorInfoType>(PRISMA_ERROR_INFO_KEY, handler);
-  };
+  private getPrismaErrorMessage(context: ExecutionContext, errorCode: string) {
+    const extractPrismaErrorInfo = () => {
+      const handler = context.getHandler();
+      return this.reflector.get<PrismaErrorInfoType>(PRISMA_ERROR_INFO_KEY, handler);
+    };
 
-  const getPrismaErrorKey = () => {
-    for (const errorKey in PrismaError) {
-      if (PrismaError[errorKey] === errorCode) {
-        return errorCode;
+    const getPrismaErrorKey = () => {
+      for (const errorKey in PrismaError) {
+        if (PrismaError[errorKey] === errorCode) {
+          return errorCode;
+        }
       }
-    }
-  };
+    };
 
-  const errorInfo = extractPrismaErrorInfo();
-  const errorKey = getPrismaErrorKey()!;
+    const errorInfo = extractPrismaErrorInfo();
+    const errorKey = getPrismaErrorKey()!;
 
-  const errorMessage: string =
-    errorInfo[errorKey] ||
-    defaultErrorMessage[errorKey] ||
-    errorInfo['Default'] ||
-    defaultErrorMessage['Default'];
+    const errorMessage: string =
+      errorInfo[errorKey] ||
+      defaultErrorMessage[errorKey] ||
+      errorInfo['Default'] ||
+      defaultErrorMessage['Default'];
 
-  return errorMessage;
-};
+    return errorMessage;
+  }
+}
