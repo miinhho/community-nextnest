@@ -1,6 +1,6 @@
 import { userSelections } from '@/common/select';
 import { PageParams, toPageData } from '@/common/utils/page';
-import { PrismaErrorHandler } from '@/prisma/prisma-error-handler.decorator';
+import { PrismaErrorHandler } from '@/prisma/prisma-error.interceptor';
 import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 

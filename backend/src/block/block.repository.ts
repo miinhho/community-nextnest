@@ -1,6 +1,6 @@
-import { PrismaErrorHandler } from '@/prisma/prisma-error-handler.decorator';
+import { PrismaErrorHandler } from '@/prisma/prisma-error.interceptor';
 import { PrismaService } from '@/prisma/prisma.service';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class BlockRepository {

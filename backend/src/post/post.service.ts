@@ -1,8 +1,8 @@
 import { BlockService } from '@/block/block.service';
+import { ClientInfoType } from '@/common/decorator/client-info.decorator';
 import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
-import { ClientInfo } from '@/common/utils/header';
 import { PageParams } from '@/common/utils/page';
 import { PostRepository } from '@/post/post.repository';
 import { PrivateAuthError } from '@/private/error/private-auth.error';
@@ -51,7 +51,7 @@ export class PostService {
   async findPostById(
     id: string,
     user?: UserData,
-    { ipAddress, userAgent }: Partial<ClientInfo> = {},
+    { ipAddress, userAgent }: Partial<ClientInfoType> = {},
   ) {
     const post = await this.postRepository.findPostById(id);
 

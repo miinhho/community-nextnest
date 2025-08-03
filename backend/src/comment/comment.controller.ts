@@ -12,14 +12,14 @@ import {
 import { CreateCommentDto, UpdateCommentDto } from '@/comment/dto/comment.dto';
 import { ReplyContentDto } from '@/comment/dto/reply.dto';
 import { CommentOwner } from '@/comment/guard/comment-owner.guard';
+import { ClientInfo, ClientInfoType } from '@/common/decorator/client-info.decorator';
 import { IdParam } from '@/common/decorator/id.decorator';
 import { OptionalAuth } from '@/common/decorator/optional-auth.decorator';
 import { PageQuery } from '@/common/decorator/page-query.decorator';
 import { User } from '@/common/decorator/user.decorator';
 import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
-import { getClientInfo } from '@/common/utils/header';
-import { Body, Controller, Delete, Get, Headers, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
 import { CommentService } from './comment.service';
 
 @Controller()
@@ -79,9 +79,8 @@ export class CommentController {
   async getCommentById(
     @IdParam() id: string,
     @User() user?: UserData,
-    @Headers() headers?: any,
+    @ClientInfo() clientInfo?: ClientInfoType,
   ) {
-    const clientInfo = getClientInfo(headers);
     const comment = await this.commentService.findCommentById(id, user, clientInfo);
     return {
       success: true,

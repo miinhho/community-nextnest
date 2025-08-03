@@ -1,3 +1,4 @@
+import { ClientInfo, ClientInfoType } from '@/common/decorator/client-info.decorator';
 import { IdParam } from '@/common/decorator/id.decorator';
 import { OptionalAuth } from '@/common/decorator/optional-auth.decorator';
 import { PageQuery } from '@/common/decorator/page-query.decorator';
@@ -5,7 +6,6 @@ import { Public } from '@/common/decorator/public.decorator';
 import { User } from '@/common/decorator/user.decorator';
 import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
-import { getClientInfo } from '@/common/utils/header';
 import { PostOwner } from '@/post/guard/post-owner.guard';
 import {
   ApiCreatePost,
@@ -16,7 +16,7 @@ import {
   ApiTogglePostLike,
   ApiUpdatePost,
 } from '@/post/post.swagger';
-import { Body, Controller, Delete, Get, Headers, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
 import { PostContentDto } from './dto/post.dto';
 import { PostService } from './post.service';
 
@@ -43,9 +43,8 @@ export class PostController {
   async findPostById(
     @IdParam() id: string,
     @User() user?: UserData,
-    @Headers() headers?: any,
+    @ClientInfo() clientInfo?: ClientInfoType,
   ) {
-    const clientInfo = getClientInfo(headers);
     const post = await this.postService.findPostById(id, user, clientInfo);
     return {
       success: true,

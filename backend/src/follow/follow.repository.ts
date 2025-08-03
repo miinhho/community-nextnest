@@ -2,7 +2,7 @@ import { userSelections } from '@/common/select';
 import { PageParams, toPageData } from '@/common/utils/page';
 import { AlreadyFollowRequestError } from '@/follow/error/already-follow-request.error';
 import { AlreadyFollowError } from '@/follow/error/already-follow.error';
-import { PrismaErrorHandler } from '@/prisma/prisma-error-handler.decorator';
+import { PrismaErrorHandler } from '@/prisma/prisma-error.interceptor';
 import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';

@@ -2,7 +2,7 @@ import { getBlockFilter } from '@/block/utils/block-filter';
 import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { commentSelections, postSelections, userSelections } from '@/common/select';
 import { PageParams, toPageData } from '@/common/utils/page';
-import { PrismaErrorHandler } from '@/prisma/prisma-error-handler.decorator';
+import { PrismaErrorHandler } from '@/prisma/prisma-error.interceptor';
 import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';

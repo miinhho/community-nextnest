@@ -3,7 +3,7 @@ import {
   NOTIFY_POST_CONTENT_LEN,
 } from '@/common/utils/content';
 import { PageParams, toPageData } from '@/common/utils/page';
-import { PrismaErrorHandler } from '@/prisma/prisma-error-handler.decorator';
+import { PrismaErrorHandler } from '@/prisma/prisma-error.interceptor';
 import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { NotificationType } from '@prisma/client';

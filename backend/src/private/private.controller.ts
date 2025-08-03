@@ -14,7 +14,7 @@ export class PrivateController {
   @ApiUpdateUserPrivacy()
   async updateUserPrivacy(
     @IdParam() id: string,
-    @Body('isPrivate', new ParseBoolPipe()) isPrivate: boolean,
+    @Body('isPrivate', ParseBoolPipe) isPrivate: boolean,
   ) {
     await this.privateService.updateUserPrivacy(id, isPrivate);
     return {

@@ -1,8 +1,8 @@
 import { CommentRepository } from '@/comment/comment.repository';
+import { ClientInfoType } from '@/common/decorator/client-info.decorator';
 import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
-import { ClientInfo } from '@/common/utils/header';
 import { PageParams } from '@/common/utils/page';
 import { Injectable } from '@nestjs/common';
 
@@ -62,7 +62,7 @@ export class CommentService {
   async findCommentById(
     id: string,
     user?: UserData,
-    { ipAddress, userAgent }: Partial<ClientInfo> = {},
+    { ipAddress, userAgent }: Partial<ClientInfoType> = {},
   ) {
     // 24시간 이내 조회 여부 확인
     const isExistingView = await this.commentRepository.isExistingCommentView({
