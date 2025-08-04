@@ -1,5 +1,5 @@
 import { UserData } from '@/common/user';
-import { PageParams } from '@/common/utils/page';
+import { PageQueryType } from '@/common/utils/page';
 import { NotifyRepository } from '@/notify/notify.repository';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 
@@ -38,11 +38,11 @@ export class NotifyService {
    * 페이지네이션을 지원하며, 기본적으로 최신 알림부터 반환합니다.
    *
    * @param userId - 사용자 ID
-   * @param pageParams - 페이지 정보 (page, size)
+   * @param pageParams - 페이지네이션 정보 (page, size)
    * @throws {ForbiddenException} - 다른 사용자의 알림을 조회하려고 할 때
    * @throws {InternalServerErrorException} - 알림 생성 중 오류 발생 시
    */
-  async findNotifiesByUserId(userId: string, pageParams: PageParams, user: UserData) {
+  async findNotifiesByUserId(userId: string, pageParams: PageQueryType, user: UserData) {
     if (userId !== user.id) {
       throw new ForbiddenException('다른 사용자의 알림을 조회할 수 없습니다.');
     }

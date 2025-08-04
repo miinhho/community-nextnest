@@ -13,7 +13,7 @@ export const POST_COMMENT_KEY = 'postComment'
 interface PostListData {
   posts: PostSchema[]
 }
-export const postListQueryFn = async ({ page = 1, size = 10 }: PageParams) => {
+export const postListQueryFn = async ({ page = 0, size = 10 }: PageParams) => {
   const response = await apiGet<PostListData>(`post?page=${page}&size=${size}`)
   return {
     posts: response.data.posts,
@@ -110,7 +110,7 @@ interface PostCommentData {
   postId: string
   comments: CommentSchema[]
 }
-export const postCommentQueryFn = async (postId: string, { page = 1, size = 10 }: PageParams) => {
+export const postCommentQueryFn = async (postId: string, { page = 0, size = 10 }: PageParams) => {
   const response = await apiGet<PostCommentData>(`post/${postId}/comment?page=${page}&size=${size}`)
   return {
     comments: response.data.comments,

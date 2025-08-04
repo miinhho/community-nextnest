@@ -1,4 +1,5 @@
 import { apiGet, apiPatch } from '@/lib/axios'
+import { INITIAL_PAGE } from '@/lib/constant'
 import { PageParams } from '@/lib/types/page.types'
 import { BaseTimestamp, CommentSchema, PostSchema, UserSchema } from '@/lib/types/schema.types'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -33,7 +34,10 @@ export const useUserQuery = (userId: string) =>
 interface UserFollowersData {
   followers: UserSchema[]
 }
-export const userFollowersQueryFn = async (userId: string, { page = 1, size = 10 }: PageParams) => {
+export const userFollowersQueryFn = async (
+  userId: string,
+  { page, size }: PageParams = INITIAL_PAGE,
+) => {
   const response = await apiGet<UserFollowersData>(
     `user/${userId}/followers?page=${page}&size=${size}`,
   )
@@ -52,7 +56,10 @@ export const useUserFollowersQuery = (userId: string, params: PageParams) =>
 interface UserFollowingData {
   following: UserSchema[]
 }
-export const userFollowingQueryFn = async (userId: string, { page = 1, size = 10 }: PageParams) => {
+export const userFollowingQueryFn = async (
+  userId: string,
+  { page, size }: PageParams = INITIAL_PAGE,
+) => {
   const response = await apiGet<UserFollowingData>(
     `user/${userId}/following?page=${page}&size=${size}`,
   )
@@ -71,7 +78,10 @@ export const useUserFollowingQuery = (userId: string, params: PageParams) =>
 interface UserPostData {
   posts: Omit<PostSchema, 'author'>[]
 }
-export const userPostQueryFn = async (userId: string, { page = 1, size = 10 }: PageParams) => {
+export const userPostQueryFn = async (
+  userId: string,
+  { page, size }: PageParams = INITIAL_PAGE,
+) => {
   const response = await apiGet<UserPostData>(`user/${userId}/posts?page=${page}&size=${size}`)
   return {
     posts: response.data.posts,
@@ -88,7 +98,10 @@ export const useUserPostQuery = (userId: string, params: PageParams) =>
 interface UserCommentData {
   comments: CommentSchema & { post: Omit<PostSchema, 'author'> }[]
 }
-export const userCommentQueryFn = async (userId: string, { page = 1, size = 10 }: PageParams) => {
+export const userCommentQueryFn = async (
+  userId: string,
+  { page, size }: PageParams = INITIAL_PAGE,
+) => {
   const response = await apiGet<UserCommentData>(
     `user/${userId}/comments?page=${page}&size=${size}`,
   )

@@ -5,13 +5,3 @@ export interface PageParams {
   page?: number
   size?: number
 }
-
-/**
- * 페이지 메타데이터를 포함하는 인터페이스
- */
-export interface PageMeta {
-  totalCount: number
-  pageCount: number
-  currentPage: number
-  pageSize: number
-}

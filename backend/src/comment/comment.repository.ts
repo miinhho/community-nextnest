@@ -1,7 +1,7 @@
 import { getBlockFilter } from '@/block/utils/block-filter';
 import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { commentSelections, postSelections, userSelections } from '@/common/select';
-import { PageParams, toPageData } from '@/common/utils/page';
+import { INITIAL_PAGE, PageQueryType, toPageData } from '@/common/utils/page';
 import { PrismaErrorHandler } from '@/prisma/prisma-error.interceptor';
 import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
@@ -167,8 +167,7 @@ export class CommentRepository {
   /**
    * 특정 사용자가 작성한 댓글 목록을 페이지네이션으로 조회합니다.
    * @param userId - 사용자 ID
-   * @param params.page - 페이지 번호 (기본값: 1)
-   * @param params.size - 페이지 크기 (기본값: 10)
+   * @param pageParams - 페이지네이션 정보 (page, size)
    * @throws {InternalServerErrorException} 댓글 조회 실패 시
    */
   @PrismaErrorHandler({
@@ -176,39 +175,31 @@ export class CommentRepository {
   })
   async findCommentsByUserId(
     userId: string,
-    { page = 1, size = 10 }: PageParams,
+    { page, size }: PageQueryType = INITIAL_PAGE,
     viewerId?: string,
   ) {
-    const filter = {
-      authorId: userId,
-      ...getBlockFilter(viewerId),
-    };
-
-    const [comments, totalCount] = await Promise.all([
-      this.prisma.comment.findMany({
-        where: filter,
-        select: {
-          ...commentSelections,
-          post: {
-            select: {
-              ...postSelections,
-            },
+    const comments = await this.prisma.comment.findMany({
+      where: {
+        authorId: userId,
+        ...getBlockFilter(viewerId),
+      },
+      select: {
+        ...commentSelections,
+        post: {
+          select: {
+            ...postSelections,
           },
         },
-        skip: (page - 1) * size,
-        take: size,
-        orderBy: {
-          createdAt: 'desc',
-        },
-      }),
-      this.prisma.comment.count({
-        where: filter,
-      }),
-    ]);
+      },
+      skip: page * size,
+      take: size,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
 
     return toPageData<typeof comments>({
       data: comments,
-      totalCount,
       page,
       size,
     });
@@ -217,8 +208,7 @@ export class CommentRepository {
   /**
    * 특정 게시글의 최상위 댓글 목록을 페이지네이션으로 조회합니다.
    * @param postId - 게시글 ID
-   * @param params.page - 페이지 번호 (기본값: 1)
-   * @param params.size - 페이지 크기 (기본값: 10)
+   * @param pageParams - 페이지네이션 정보 (page, size)
    * @throws {InternalServerErrorException} 댓글 조회 실패 시
    */
   @PrismaErrorHandler({
@@ -226,38 +216,30 @@ export class CommentRepository {
   })
   async findCommentsByPostId(
     postId: string,
-    { page = 1, size = 10 }: PageParams,
+    { page, size }: PageQueryType = INITIAL_PAGE,
     viewerId?: string,
   ) {
-    const filter = {
-      postId,
-      parentId: null,
-      ...getBlockFilter(viewerId),
-    };
-
-    const [comments, totalCount] = await Promise.all([
-      this.prisma.comment.findMany({
-        where: filter,
-        select: {
-          ...commentSelections,
-          author: {
-            select: {
-              ...userSelections,
-            },
+    const comments = await this.prisma.comment.findMany({
+      where: {
+        postId,
+        parentId: null,
+        ...getBlockFilter(viewerId),
+      },
+      select: {
+        ...commentSelections,
+        author: {
+          select: {
+            ...userSelections,
           },
         },
-        skip: (page - 1) * size,
-        take: size,
-        orderBy: { createdAt: 'desc' },
-      }),
-      this.prisma.comment.count({
-        where: filter,
-      }),
-    ]);
+      },
+      skip: page * size,
+      take: size,
+      orderBy: { createdAt: 'desc' },
+    });
 
     return toPageData<typeof comments>({
       data: comments,
-      totalCount,
       page,
       size,
     });
@@ -266,8 +248,7 @@ export class CommentRepository {
   /**
    * 특정 댓글의 답글 목록을 페이지네이션으로 조회합니다.
    * @param commentId - 댓글 ID
-   * @param params.page - 페이지 번호 (기본값: 1)
-   * @param params.size - 페이지 크기 (기본값: 10)
+   * @param pageParams - 페이지네이션 정보 (page, size)
    * @throws {InternalServerErrorException} 답글 조회 실패 시
    */
   @PrismaErrorHandler({
@@ -275,40 +256,33 @@ export class CommentRepository {
   })
   async findRepliesByCommentId(
     commentId: string,
-    { page = 1, size = 10 }: PageParams,
+    { page, size }: PageQueryType = INITIAL_PAGE,
     viewerId?: string,
   ) {
-    const filter = {
-      parentId: commentId,
-      ...getBlockFilter(viewerId),
-    };
-    const [replies, totalCount] = await Promise.all([
-      this.prisma.comment.findMany({
-        where: filter,
-        select: {
-          replies: {
-            select: {
-              ...commentSelections,
-              author: {
-                select: {
-                  ...userSelections,
-                },
+    const replies = await this.prisma.comment.findMany({
+      where: {
+        parentId: commentId,
+        ...getBlockFilter(viewerId),
+      },
+      select: {
+        replies: {
+          select: {
+            ...commentSelections,
+            author: {
+              select: {
+                ...userSelections,
               },
             },
-            orderBy: { createdAt: 'desc' },
           },
+          orderBy: { createdAt: 'desc' },
         },
-        skip: (page - 1) * size,
-        take: size,
-      }),
-      this.prisma.comment.count({
-        where: filter,
-      }),
-    ]);
+      },
+      skip: page * size,
+      take: size,
+    });
 
     return toPageData<typeof replies>({
       data: replies,
-      totalCount,
       page,
       size,
     });

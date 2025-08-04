@@ -1,5 +1,5 @@
 import { UserData } from '@/common/user';
-import { PageParams } from '@/common/utils/page';
+import { PageQueryType } from '@/common/utils/page';
 import { PrivateService } from '@/private/private.service';
 import { UserRepository } from '@/user/user.repository';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
@@ -124,11 +124,10 @@ export class UserService {
   /**
    * 이름으로 사용자를 검색합니다 (페이지네이션 적용).
    * @param name - 검색할 사용자 이름 (부분 매칭)
-   * @param pageParams.page - 페이지 번호 (기본값: 1)
-   * @param pageParams.size - 페이지 크기 (기본값: 10)
+   * @param pageParams - 페이지네이션 정보 (page, size)
    * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
-  async findUsersByName(name: string, pageParams: PageParams) {
+  async findUsersByName(name: string, pageParams: PageQueryType) {
     return this.userRepository.findUsersByName(name, pageParams);
   }
 

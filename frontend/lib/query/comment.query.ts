@@ -1,4 +1,5 @@
 import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/axios'
+import { INITIAL_PAGE } from '@/lib/constant'
 import { PageParams } from '@/lib/types/page.types'
 import { CommentSchema } from '@/lib/types/schema.types'
 import { LikeStatus } from '@/lib/types/status.types'
@@ -29,7 +30,10 @@ export const useCommentQuery = (commentId: string) =>
 interface RepliesData {
   replies: CommentSchema[]
 }
-export const repliesQueryFn = async (commentId: string, { page = 1, size = 10 }: PageParams) => {
+export const repliesQueryFn = async (
+  commentId: string,
+  { page, size }: PageParams = INITIAL_PAGE,
+) => {
   const response = await apiGet<RepliesData>(
     `comment/${commentId}/replies?page=${page}&size=${size}`,
   )

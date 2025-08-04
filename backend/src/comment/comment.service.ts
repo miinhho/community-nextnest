@@ -3,7 +3,7 @@ import { ClientInfoType } from '@/common/decorator/client-info.decorator';
 import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
-import { PageParams } from '@/common/utils/page';
+import { PageQueryType } from '@/common/utils/page';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -88,35 +88,35 @@ export class CommentService {
   /**
    * 특정 사용자가 작성한 댓글 목록을 페이지네이션으로 조회합니다.
    * @param userId - 사용자 ID
-   * @param pageParams - 페이지네이션 파라미터
+   * @param pageParams - 페이지네이션 정보 (page, size)
    * @throws {NotFoundException} 사용자를 찾을 수 없는 경우
    * @throws {InternalServerErrorException} 댓글 조회 실패 시
    */
-  async findCommentsByUserId(userId: string, pageParams: PageParams, user?: UserData) {
+  async findCommentsByUserId(userId: string, pageParams: PageQueryType, user?: UserData) {
     return this.commentRepository.findCommentsByUserId(userId, pageParams, user?.id);
   }
 
   /**
    * 특정 게시글의 최상위 댓글 목록을 페이지네이션으로 조회합니다.
    * @param postId - 게시글 ID
-   * @param pageParams - 페이지네이션 파라미터
+   * @param pageParams - 페이지네이션 정보 (page, size)
    * @throws {NotFoundException} 게시글을 찾을 수 없는 경우
    * @throws {InternalServerErrorException} 댓글 조회 실패 시
    */
-  async findCommentsByPostId(postId: string, pageParams: PageParams, user?: UserData) {
+  async findCommentsByPostId(postId: string, pageParams: PageQueryType, user?: UserData) {
     return this.commentRepository.findCommentsByPostId(postId, pageParams, user?.id);
   }
 
   /**
    * 특정 댓글의 답글 목록을 페이지네이션으로 조회합니다.
    * @param commentId - 댓글 ID
-   * @param pageParams - 페이지네이션 파라미터
+   * @param pageParams - 페이지네이션 정보 (page, size)
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
    * @throws {InternalServerErrorException} 답글 조회 실패 시
    */
   async findRepliesByCommentId(
     commentId: string,
-    pageParams: PageParams,
+    pageParams: PageQueryType,
     user?: UserData,
   ) {
     return this.commentRepository.findRepliesByCommentId(commentId, pageParams, user?.id);

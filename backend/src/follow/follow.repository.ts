@@ -1,5 +1,5 @@
 import { userSelections } from '@/common/select';
-import { PageParams, toPageData } from '@/common/utils/page';
+import { INITIAL_PAGE, PageQueryType, toPageData } from '@/common/utils/page';
 import { AlreadyFollowRequestError } from '@/follow/error/already-follow-request.error';
 import { AlreadyFollowError } from '@/follow/error/already-follow.error';
 import { PrismaErrorHandler } from '@/prisma/prisma-error.interceptor';
@@ -227,24 +227,20 @@ export class FollowRepository {
   @PrismaErrorHandler({
     Default: '팔로워 목록 조회 중 오류 발생',
   })
-  async getFollowers(userId: string, { page = 1, size = 10 }: PageParams) {
-    const [followers, totalCount] = await Promise.all([
-      this.prisma.follow.findMany({
-        where: { followingId: userId },
-        select: {
-          follower: {
-            select: userSelections,
-          },
+  async getFollowers(userId: string, { page, size }: PageQueryType = INITIAL_PAGE) {
+    const followers = await this.prisma.follow.findMany({
+      where: { followingId: userId },
+      select: {
+        follower: {
+          select: userSelections,
         },
-        skip: (page - 1) * size,
-        take: size,
-      }),
-      this.prisma.follow.count({ where: { followingId: userId } }),
-    ]);
+      },
+      skip: page * size,
+      take: size,
+    });
 
     return toPageData<typeof followers>({
       data: followers,
-      totalCount,
       page,
       size,
     });
@@ -253,31 +249,26 @@ export class FollowRepository {
   /**
    * 특정 사용자가 팔로우하는 사용자 목록을 페이지네이션으로 조회합니다.
    * @param userId - 팔로잉 목록을 조회할 사용자 ID
-   * @param params.page - 페이지 번호 (기본값: 1)
-   * @param params.size - 페이지 크기 (기본값: 10)
+   * @param params - 페이지네이션 정보 (page, size)
    * @throws {InternalServerErrorException} 팔로잉 목록 조회 실패 시
    */
   @PrismaErrorHandler({
     Default: '팔로잉 목록 조회 중 오류 발생',
   })
-  async getFollowing(userId: string, { page = 1, size = 10 }: PageParams) {
-    const [following, totalCount] = await Promise.all([
-      this.prisma.follow.findMany({
-        where: { followerId: userId },
-        select: {
-          following: {
-            select: userSelections,
-          },
+  async getFollowing(userId: string, { page, size }: PageQueryType = INITIAL_PAGE) {
+    const following = await this.prisma.follow.findMany({
+      where: { followerId: userId },
+      select: {
+        following: {
+          select: userSelections,
         },
-        skip: (page - 1) * size,
-        take: size,
-      }),
-      this.prisma.follow.count({ where: { followerId: userId } }),
-    ]);
+      },
+      skip: page * size,
+      take: size,
+    });
 
     return toPageData<typeof following>({
       data: following,
-      totalCount,
       page,
       size,
     });

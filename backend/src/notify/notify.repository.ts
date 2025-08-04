@@ -2,7 +2,7 @@ import {
   NOTIFY_COMMENT_CONTENT_LEN,
   NOTIFY_POST_CONTENT_LEN,
 } from '@/common/utils/content';
-import { PageParams, toPageData } from '@/common/utils/page';
+import { INITIAL_PAGE, PageQueryType, toPageData } from '@/common/utils/page';
 import { PrismaErrorHandler } from '@/prisma/prisma-error.interceptor';
 import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
@@ -97,53 +97,50 @@ export class NotifyRepository {
    *
    * 페이지네이션을 지원하며, 기본적으로 최신 알림부터 반환합니다.
    * @param userId - 사용자 ID
-   * @param pageParams - 페이지 정보 (page, size)
+   * @param pageParams - 페이지네이션 정보 (page, size)
    * @throws {InternalServerErrorException} - 알림 생성 중 오류 발생 시
    */
   @PrismaErrorHandler({
     Default: '알림 목록 조회 중 오류 발생',
   })
-  async findNotifiesByUserId(userId: string, { page = 1, size = 10 }: PageParams) {
-    const [notifies, totalCount] = await Promise.all([
-      this.prisma.notification.findMany({
-        where: { userId },
-        orderBy: { createdAt: 'desc' },
-        skip: (page - 1) * size,
-        take: size,
-        select: {
-          id: true,
-          type: true,
-          image: true,
-          title: true,
-          content: true,
-          isRead: true,
-          user: {
-            select: {
-              id: true,
-              name: true,
-            },
+  async findNotifiesByUserId(
+    userId: string,
+    { page, size }: PageQueryType = INITIAL_PAGE,
+  ) {
+    const notifies = await this.prisma.notification.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      skip: page * size,
+      take: size,
+      select: {
+        id: true,
+        type: true,
+        image: true,
+        title: true,
+        content: true,
+        isRead: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
           },
-          postId: true,
-          commentId: true,
-          follower: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          createdAt: true,
         },
-      }),
-      this.prisma.notification.count({
-        where: { userId },
-      }),
-    ]);
+        postId: true,
+        commentId: true,
+        follower: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        createdAt: true,
+      },
+    });
 
     return toPageData<typeof notifies>({
       data: notifies,
       page,
       size,
-      totalCount,
     });
   }
 

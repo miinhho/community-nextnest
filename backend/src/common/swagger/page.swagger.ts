@@ -28,7 +28,7 @@ export const pageMetaSchema = {
  * ```typescript
  * ＠ApiPageQuery()
  * ＠Get()
- * async getPosts(＠Query() pageQuery: PageQuery) {
+ * async getPosts(＠Query() pageQuery: PageQueryType) {
  *   // 페이지네이션 파라미터가 Swagger에 문서화됨
  * }
  * ```

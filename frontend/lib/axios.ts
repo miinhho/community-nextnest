@@ -2,7 +2,7 @@
 'use client'
 
 import { ApiError } from '@/lib/error/api-error'
-import { PageMeta } from '@/lib/types/page.types'
+import { PageParams } from '@/lib/types/page.types'
 import { recursiveDateParse } from '@/lib/utils/parsing'
 import axios, { AxiosResponse, HttpStatusCode } from 'axios'
 import createAuthRefreshInterceptor from 'axios-auth-refresh'
@@ -11,7 +11,7 @@ export interface ApiResponse<T = any, D = any> extends AxiosResponse<T, D> {
   success: boolean
   message?: string
   error?: string
-  meta?: PageMeta
+  meta?: PageParams
 }
 
 export const fetcher = axios.create({

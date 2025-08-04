@@ -15,6 +15,7 @@ import {
 } from '@/follow/follow.swagger';
 import { Controller, Delete, Get, Post } from '@nestjs/common';
 import { FollowService } from './follow.service';
+import { PageQueryType } from '@/common/utils/page';
 
 @Controller()
 export class FollowController {
@@ -95,7 +96,7 @@ export class FollowController {
   @Public()
   @Get('user/:id/followers')
   @ApiGetUserFollowers()
-  async getUserFollowers(@IdParam() id: string, @PageQuery() pageQuery: PageQuery) {
+  async getUserFollowers(@IdParam() id: string, @PageQuery() pageQuery: PageQueryType) {
     const { data: followers, meta } = await this.followService.getFollowers(
       id,
       pageQuery,
@@ -112,7 +113,7 @@ export class FollowController {
   @Public()
   @Get('user/:id/following')
   @ApiGetUserFollowing()
-  async getUserFollowing(@IdParam() id: string, @PageQuery() pageQuery: PageQuery) {
+  async getUserFollowing(@IdParam() id: string, @PageQuery() pageQuery: PageQueryType) {
     const { data: following, meta } = await this.followService.getFollowing(
       id,
       pageQuery,

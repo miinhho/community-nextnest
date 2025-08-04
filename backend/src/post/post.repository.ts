@@ -1,7 +1,7 @@
 import { getBlockFilter } from '@/block/utils/block-filter';
 import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { postSelections, userSelections } from '@/common/select';
-import { PageParams, toPageData } from '@/common/utils/page';
+import { INITIAL_PAGE, PageQueryType, toPageData } from '@/common/utils/page';
 import { PrismaErrorHandler } from '@/prisma/prisma-error.interceptor';
 import { PrismaService } from '@/prisma/prisma.service';
 import { PostRecommendService } from '@/recommend/post-recommend.service';
@@ -111,80 +111,66 @@ export class PostRepository {
 
   /**
    * 페이지네이션을 적용하여 게시글 목록을 조회합니다.
-   * @param params.page - 페이지 번호 (기본값: 1)
-   * @param params.size - 페이지 크기 (기본값: 10)
+   * @param params - 페이지네이션 정보 (page, size)
    * @throws {InternalServerErrorException} 목록 조회 중 오류 발생 시
    */
   @PrismaErrorHandler({
     Default: '게시글 목록 조회에 실패했습니다.',
   })
-  async findPostsByPage({ page = 1, size = 10 }: PageParams, viewerId?: string) {
-    const filter = {
-      author: {
-        isPrivate: false,
-        ...getBlockFilter(viewerId),
+  async findPostsByPage({ page, size }: PageQueryType = INITIAL_PAGE, viewerId?: string) {
+    const posts = await this.prisma.post.findMany({
+      where: {
+        author: {
+          isPrivate: false,
+          ...getBlockFilter(viewerId),
+        },
       },
-    };
-
-    const [posts, totalCount] = await Promise.all([
-      this.prisma.post.findMany({
-        where: filter,
-        select: {
-          ...postSelections,
-          commentCount: true,
-          author: {
-            select: {
-              ...userSelections,
-            },
+      select: {
+        ...postSelections,
+        commentCount: true,
+        author: {
+          select: {
+            ...userSelections,
           },
         },
-        skip: (page - 1) * size,
-        take: size,
-        orderBy: {
-          hotScore: 'desc',
-        },
-      }),
-      this.prisma.post.count({ where: filter }),
-    ]);
+      },
+      skip: page * size,
+      take: size,
+      orderBy: {
+        hotScore: 'desc',
+      },
+    });
 
-    return toPageData<typeof posts>({ data: posts, totalCount, page, size });
+    return toPageData<typeof posts>({ data: posts, page, size });
   }
 
   /**
    * 특정 사용자가 작성한 게시글 목록을 페이지네이션으로 조회합니다.
    * @param userId - 조회할 사용자 ID
-   * @param params.page - 페이지 번호 (기본값: 1)
-   * @param params.size - 페이지 크기 (기본값: 10)
+   * @param params - 페이지네이션 정보 (page, size)
    * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
   @PrismaErrorHandler({
     Default: '사용자 게시글 조회에 실패했습니다.',
   })
-  async findPostsByUserId(userId: string, { page = 1, size = 10 }: PageParams) {
-    const filter = {
-      authorId: userId,
-    };
-    const [posts, totalCount] = await Promise.all([
-      this.prisma.post.findMany({
-        where: filter,
-        select: {
-          ...postSelections,
-          commentCount: true,
-        },
-        skip: (page - 1) * size,
-        take: size,
-        orderBy: {
-          createdAt: 'desc',
-        },
-      }),
-      this.prisma.post.count({
-        where: filter,
-      }),
-    ]);
+  async findPostsByUserId(userId: string, { page, size }: PageQueryType = INITIAL_PAGE) {
+    const posts = await this.prisma.post.findMany({
+      where: {
+        authorId: userId,
+      },
+      select: {
+        ...postSelections,
+        commentCount: true,
+      },
+      skip: page * size,
+      take: size,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
 
     return toPageData<typeof posts>({
       data: posts,
-      totalCount,
       page,
       size,
     });

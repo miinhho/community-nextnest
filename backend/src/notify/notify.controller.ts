@@ -3,6 +3,7 @@ import { PageQuery } from '@/common/decorator/page-query.decorator';
 import { User } from '@/common/decorator/user.decorator';
 import { ApiNotifyTags } from '@/common/swagger/tags.swagger';
 import { UserData } from '@/common/user';
+import { PageQueryType } from '@/common/utils/page';
 import { NotifyService } from '@/notify/notify.service';
 import { ApiGetNotifiesByUserId, ApiGetNotifyById } from '@/notify/notify.swagger';
 import { Controller, Get, Patch } from '@nestjs/common';
@@ -26,7 +27,7 @@ export class NotifyController {
   @ApiGetNotifiesByUserId()
   async getNotifiesByUserId(
     @IdParam() id: string,
-    @PageQuery() pageQuery: PageQuery,
+    @PageQuery() pageQuery: PageQueryType,
     @User() user: UserData,
   ) {
     const { data: notifies, meta } = await this.notifyService.findNotifiesByUserId(

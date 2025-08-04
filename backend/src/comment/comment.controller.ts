@@ -21,6 +21,7 @@ import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
 import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
 import { CommentService } from './comment.service';
+import { PageQueryType } from '@/common/utils/page';
 
 @Controller()
 export class CommentController {
@@ -93,7 +94,7 @@ export class CommentController {
   @ApiGetCommentsByPostId()
   async getCommentsByPostId(
     @IdParam() id: string,
-    @PageQuery() pageQuery: PageQuery,
+    @PageQuery() pageQuery: PageQueryType,
     @User() user?: UserData,
   ) {
     const { data: comments, meta } = await this.commentService.findCommentsByPostId(
@@ -116,7 +117,7 @@ export class CommentController {
   @ApiGetCommentsByUserId()
   async getCommentsByUserId(
     @IdParam() id: string,
-    @PageQuery() pageQuery: PageQuery,
+    @PageQuery() pageQuery: PageQueryType,
     @User() user?: UserData,
   ) {
     const { data: comments, meta } = await this.commentService.findCommentsByUserId(
@@ -138,7 +139,7 @@ export class CommentController {
   @ApiGetCommentReplies()
   async getCommentReplies(
     @IdParam() id: string,
-    @PageQuery() pageQuery: PageQuery,
+    @PageQuery() pageQuery: PageQueryType,
     @User() user?: UserData,
   ) {
     const replies = await this.commentService.findRepliesByCommentId(id, pageQuery, user);

@@ -19,6 +19,7 @@ import {
 import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
 import { PostContentDto } from './dto/post.dto';
 import { PostService } from './post.service';
+import { PageQueryType } from '@/common/utils/page';
 
 @Controller()
 export class PostController {
@@ -59,7 +60,7 @@ export class PostController {
   @ApiGetUserPosts()
   async getUserPosts(
     @IdParam() id: string,
-    @PageQuery() pageQuery: PageQuery,
+    @PageQuery() pageQuery: PageQueryType,
     @User() user?: UserData,
   ) {
     const { data: posts, meta } = await this.postService.findPostsByUserId(
@@ -79,7 +80,7 @@ export class PostController {
   @Public()
   @Get('post')
   @ApiFindPosts()
-  async findPosts(@PageQuery() pageQuery: PageQuery) {
+  async findPosts(@PageQuery() pageQuery: PageQueryType) {
     const { data: posts, meta } = await this.postService.findPostsByPage(pageQuery);
     return {
       success: true,

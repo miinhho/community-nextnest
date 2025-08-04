@@ -1,6 +1,6 @@
 import { BlockService } from '@/block/block.service';
 import { FollowStatus } from '@/common/status';
-import { PageParams } from '@/common/utils/page';
+import { PageQueryType } from '@/common/utils/page';
 import { AlreadyFollowError } from '@/follow/error/already-follow.error';
 import { FollowRepository } from '@/follow/follow.repository';
 import { PrivateUserError } from '@/private/error/private-user.error';
@@ -175,20 +175,20 @@ export class FollowService {
   /**
    * 특정 사용자의 팔로워 목록을 페이지네이션으로 조회합니다.
    * @param userId - 팔로워 목록을 조회할 사용자 ID
-   * @param pageParams - 페이지네이션 파라미터
+   * @param pageParams - 페이지네이션 정보 (page, size)
    * @throws {InternalServerErrorException} 팔로워 목록 조회 실패 시
    */
-  async getFollowers(userId: string, pageParams: PageParams) {
+  async getFollowers(userId: string, pageParams: PageQueryType) {
     return this.followRepository.getFollowers(userId, pageParams);
   }
 
   /**
    * 특정 사용자가 팔로우하는 사용자 목록을 페이지네이션으로 조회합니다.
    * @param userId - 팔로잉 목록을 조회할 사용자 ID
-   * @param pageParams - 페이지네이션 파라미터
+   * @param pageParams - 페이지네이션 정보 (page, size)
    * @throws {InternalServerErrorException} 팔로잉 목록 조회 실패 시
    */
-  async getFollowing(userId: string, pageParams: PageParams) {
+  async getFollowing(userId: string, pageParams: PageQueryType) {
     return this.followRepository.getFollowing(userId, pageParams);
   }
 }

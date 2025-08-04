@@ -1,5 +1,5 @@
 import { userSelections } from '@/common/select';
-import { PageParams, toPageData } from '@/common/utils/page';
+import { INITIAL_PAGE, PageQueryType, toPageData } from '@/common/utils/page';
 import { PrismaErrorHandler } from '@/prisma/prisma-error.interceptor';
 import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
@@ -169,38 +169,27 @@ export class UserRepository {
   /**
    * 이름으로 사용자를 검색합니다 (페이지네이션 적용).
    * @param name - 검색할 사용자 이름 (부분 매칭)
-   * @param params.page - 페이지 번호 (기본값: 1)
-   * @param params.size - 페이지 크기 (기본값: 10)
+   * @param pageParams - 페이지네이션 정보 (page, size)
    * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
   @PrismaErrorHandler({
     Default: '사용자 조회에 실패했습니다.',
   })
-  async findUsersByName(name: string, { page = 1, size = 10 }: PageParams) {
-    const [user, totalCount] = await Promise.all([
-      this.prisma.user.findMany({
-        where: {
-          name: {
-            startsWith: name,
-          },
+  async findUsersByName(name: string, { page, size }: PageQueryType = INITIAL_PAGE) {
+    const user = await this.prisma.user.findMany({
+      where: {
+        name: {
+          startsWith: name,
         },
-        select: {
-          ...userSelections,
-        },
-        skip: (page - 1) * size,
-      }),
-      this.prisma.user.count({
-        where: {
-          name: {
-            startsWith: name,
-          },
-        },
-      }),
-    ]);
+      },
+      select: {
+        ...userSelections,
+      },
+      skip: page * size,
+    });
 
     return toPageData<typeof user>({
       data: user,
-      totalCount,
       page,
       size,
     });

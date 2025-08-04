@@ -3,7 +3,7 @@ import { ClientInfoType } from '@/common/decorator/client-info.decorator';
 import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
-import { PageParams } from '@/common/utils/page';
+import { PageQueryType } from '@/common/utils/page';
 import { PostRepository } from '@/post/post.repository';
 import { PrivateAuthError } from '@/private/error/private-auth.error';
 import { PrivateService } from '@/private/private.service';
@@ -96,19 +96,17 @@ export class PostService {
 
   /**
    * 페이지네이션을 적용하여 게시글 목록을 조회합니다.
-   * @param pageParams.page - 페이지 번호 (기본값: 1)
-   * @param pageParams.size - 페이지 크기 (기본값: 10)
+   * @param pageParams - 페이지네이션 파라미터
    * @throws {InternalServerErrorException} 목록 조회 중 오류 발생 시
    */
-  async findPostsByPage(pageParams: PageParams, user?: UserData) {
+  async findPostsByPage(pageParams: PageQueryType, user?: UserData) {
     return this.postRepository.findPostsByPage(pageParams, user?.id);
   }
 
   /**
    * 특정 사용자가 작성한 게시글 목록을 페이지네이션으로 조회합니다.
    * @param userId - 조회할 사용자 ID
-   * @param pageParams.page - 페이지 번호 (기본값: 1)
-   * @param pageParams.size - 페이지 크기 (기본값: 10)
+   * @param pageParams - 페이지네이션 파라미터
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
    * @throws {PrivateAuthError} 비공개 사용자에 접근하려는 경우
    * @throws {PrivateDeniedError} 비공개 게시글에 접근하려는 경우
@@ -116,7 +114,7 @@ export class PostService {
    * @throws {BlockedError} 상대방이 나를 차단한 경우
    * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
-  async findPostsByUserId(userId: string, pageParams: PageParams, user?: UserData) {
+  async findPostsByUserId(userId: string, pageParams: PageQueryType, user?: UserData) {
     // 비공개 사용자 여부 확인
     const isPrivate = await this.privateService.isUserPrivate(userId);
     if (isPrivate) {

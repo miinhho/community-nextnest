@@ -1,4 +1,5 @@
 import MainPost from '@/components/post/MainPost'
+import { INITIAL_PAGE } from '@/lib/constant'
 import { getQueryClient } from '@/lib/query'
 import { POST_COMMENT_KEY, POST_KEY, postCommentQueryFn, postQueryFn } from '@/lib/query/post.query'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
@@ -19,7 +20,7 @@ export default async function PostPage({ params: { id } }: PostPageProps) {
     }),
     queryClient.prefetchQuery({
       queryKey: [POST_COMMENT_KEY, id],
-      queryFn: () => postCommentQueryFn(id, { page: 1, size: 10 }),
+      queryFn: () => postCommentQueryFn(id, INITIAL_PAGE),
     }),
   ])
 
