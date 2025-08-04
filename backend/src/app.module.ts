@@ -23,8 +23,10 @@ import { UserModule } from './user/user.module';
     ConfigModule.forRoot({
       envFilePath:
         process.env.NODE_ENV === 'production'
-          ? '.env.production.local'
-          : '.env.development.local',
+          ? '.env.production'
+          : process.env.NODE_ENV === 'test'
+            ? '.env.test.local'
+            : '.env.development.local',
       load: [jwt, app, swagger, recommend],
       isGlobal: true,
       cache: true,
