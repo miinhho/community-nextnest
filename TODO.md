@@ -1,5 +1,4 @@
 Backend:
-  - [ ] 핫한 게시글 캐싱 추가
   - [ ] Unit 테스트 및 E2E 테스트 추가
     - [ ] prisma seed 추가
     - [ ] auth service 테스트
@@ -11,6 +10,7 @@ Backend:
     - [ ] private controller 테스트
     - [ ] post-recommend service 테스트
     - [ ] user controller 테스트
+  - [ ] Sentry 모니터링 추가
   - [ ] Web push 를 이용한 백그라운드 알림
   - [ ] AWS S3 나 Cloudflare CDN 을 활용한 이미지 파일 저장
   - [ ] WebSocket 을 사용한 채팅
