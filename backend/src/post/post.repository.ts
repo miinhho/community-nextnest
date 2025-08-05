@@ -2,9 +2,9 @@ import { getBlockFilter } from '@/block/utils/block-filter';
 import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { postSelections, userSelections } from '@/common/select';
 import { INITIAL_PAGE, PageQueryType, toPageData } from '@/common/utils/page';
+import { PostRecommendService } from '@/post/recommend/post-recommend.service';
 import { PrismaErrorHandler } from '@/prisma/prisma-error.interceptor';
 import { PrismaService } from '@/prisma/prisma.service';
-import { PostRecommendService } from '@/recommend/post-recommend.service';
 import { Injectable } from '@nestjs/common';
 import { PrismaError } from 'prisma-error-enum';
 

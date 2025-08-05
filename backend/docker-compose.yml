@@ -23,6 +23,21 @@ services:
         max-file: '3'
     networks:
       - app-network
+  redis:
+    image: redis:alpine
+    container_name: community-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+    networks:
+      - app-network
   nginx:
     image: nginx:alpine
     container_name: community-nginx
@@ -54,3 +69,7 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  redis_data:
+    driver: local

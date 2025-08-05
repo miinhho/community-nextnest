@@ -1,22 +1,21 @@
+/* eslint-disable @typescript-eslint/require-await */
+import { AuthModule } from '@/auth/auth.module';
 import { JwtAuthGuard } from '@/auth/guard/jwt.guard';
 import { BlockModule } from '@/block/block.module';
-import app from '@/config/app.config';
-import jwt from '@/config/jwt.config';
-import recommend from '@/config/recommend.config';
-import swagger from '@/config/swagger.config';
+import { CommentModule } from '@/comment/comment.module';
+import config from '@/config';
+import { FollowModule } from '@/follow/follow.module';
 import { HealthModule } from '@/health/health.module';
 import { NotifyModule } from '@/notify/notify.module';
 import { NotifySocketModule } from '@/notify/socket/notify-socket.module';
+import { PostModule } from '@/post/post.module';
 import { PrivateModule } from '@/private/private.module';
+import { UserModule } from '@/user/user.module';
+import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { Module, ValidationPipe } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { AuthModule } from './auth/auth.module';
-import { CommentModule } from './comment/comment.module';
-import { FollowModule } from './follow/follow.module';
-import { PostModule } from './post/post.module';
-import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -27,11 +26,23 @@ import { UserModule } from './user/user.module';
           : process.env.NODE_ENV === 'test'
             ? '.env.test.local'
             : '.env.development.local',
-      load: [jwt, app, swagger, recommend],
+      load: config,
       isGlobal: true,
       cache: true,
     }),
     EventEmitterModule.forRoot(),
+    RedisModule.forRootAsync({
+      useFactory: async (configService: ConfigService) => {
+        return {
+          readyLog: true,
+          config: {
+            url: configService.get<string>('redis.url'),
+            password: configService.get<string>('redis.password'),
+          },
+        };
+      },
+      inject: [ConfigService],
+    }),
     PostModule,
     UserModule,
     CommentModule,

@@ -1,4 +1,4 @@
-import { SwaggerAuthName } from '@/config/swagger.config';
+import { SwaggerAuthName } from '@/common/swagger/auth-info.swagger';
 import { ConsoleLogger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -27,10 +27,19 @@ async function bootstrap() {
 
   if (!isProduction) {
     const swaggerDocument = new DocumentBuilder()
-      .setTitle(config.get('swagger.title')!)
-      .setDescription(config.get('swagger.description')!)
-      .setVersion(config.get('swagger.version')!)
-      .addBearerAuth(config.get('swagger.bearerAuth'), SwaggerAuthName)
+      .setTitle('Community API')
+      .setDescription('API documentation for the Community application')
+      .setVersion('1.0')
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          in: 'header',
+          description: 'JWT 토큰을 입력하세요',
+        },
+        SwaggerAuthName,
+      )
       .build();
     const documentFactory = () =>
       SwaggerModule.createDocument(app, swaggerDocument, {
