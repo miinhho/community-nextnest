@@ -1,4 +1,5 @@
 import { BlockModule } from '@/block/block.module';
+import { PostCacheService } from '@/post/cache/post-cache.service';
 import { PostOwnerGuard } from '@/post/guard/post-owner.guard';
 import { PostRepository } from '@/post/post.repository';
 import { PostRecommendService } from '@/post/recommend/post-recommend.service';
@@ -11,7 +12,13 @@ import { PostService } from './post.service';
 @Module({
   imports: [PrismaModule, PrivateModule, BlockModule],
   controllers: [PostController],
-  providers: [PostService, PostRepository, PostOwnerGuard, PostRecommendService],
+  providers: [
+    PostService,
+    PostRepository,
+    PostOwnerGuard,
+    PostRecommendService,
+    PostCacheService,
+  ],
   exports: [PostService, PostRepository],
 })
 export class PostModule {}

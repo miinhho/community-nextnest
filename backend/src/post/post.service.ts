@@ -3,8 +3,10 @@ import { ClientInfoType } from '@/common/decorator/client-info.decorator';
 import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
-import { PageQueryType } from '@/common/utils/page';
+import { PageData, PageQueryType } from '@/common/utils/page';
+import { PostCacheService } from '@/post/cache/post-cache.service';
 import { PostRepository } from '@/post/post.repository';
+import { PagedPost } from '@/post/post.types';
 import { PrivateAuthError } from '@/private/error/private-auth.error';
 import { PrivateService } from '@/private/private.service';
 import { Injectable } from '@nestjs/common';
@@ -16,12 +18,11 @@ export class PostService {
     private readonly postRepository: PostRepository,
     private readonly privateService: PrivateService,
     private readonly blockService: BlockService,
+    private readonly postCacheService: PostCacheService,
   ) {}
 
   /**
    * 새로운 게시글을 생성합니다.
-   * @param props.authorId - 작성자 ID
-   * @param props.content - 게시글 내용
    * @returns 생성된 게시글의 ID를 포함하는 객체
    * @throws {InternalServerErrorException} 게시글 작성 중 오류 발생 시
    */
@@ -31,18 +32,15 @@ export class PostService {
 
   /**
    * 기존 게시글을 수정합니다.
-   * @param props.id - 수정할 게시글 ID
-   * @param props.content - 새로운 게시글 내용
    * @throws {NotFoundException} 존재하지 않는 게시글인 경우
    * @throws {InternalServerErrorException} 게시글 수정 중 오류 발생 시
    */
-  async updatePost(props: { id: string; content: string }) {
+  async updatePost(props: { postId: string; content: string }) {
     return this.postRepository.updatePost(props);
   }
 
   /**
    * ID를 통해 특정 게시글을 조회합니다.
-   * @param id - 조회할 게시글 ID
    * @throws {NotFoundException} 게시글을 찾을 수 없는 경우
    * @throws {UnauthorizedException} 비공개 게시글에 접근하려는 경우
    * @throws {ForbiddenException} 해당 게시글에 접근할 수 없는 경우
@@ -96,17 +94,47 @@ export class PostService {
 
   /**
    * 페이지네이션을 적용하여 게시글 목록을 조회합니다.
-   * @param pageParams - 페이지네이션 파라미터
+   *
+   * 캐시된 게시글이 충분한 경우 캐시에서 조회하고, 그렇지 않은 경우 데이터베이스에서 조회합니다.
    * @throws {InternalServerErrorException} 목록 조회 중 오류 발생 시
    */
-  async findPostsByPage(pageParams: PageQueryType, user?: UserData) {
-    return this.postRepository.findPostsByPage(pageParams, user?.id);
+  async findPostsByPage(
+    pageParams: PageQueryType,
+    user?: UserData,
+  ): Promise<PageData<PagedPost[]>> {
+    const cachedPostSize = await this.postCacheService.getHotPostSize();
+    if (cachedPostSize >= (pageParams.page + 1) * pageParams.size) {
+      // 캐시된 핫 게시글이 충분한 경우 캐시에서 조회
+      const cachedPosts = await this.postCacheService.getHotPosts(
+        pageParams.page * pageParams.size,
+        (pageParams.page + 1) * pageParams.size - 1,
+      );
+      return {
+        data: cachedPosts,
+        meta: {
+          ...pageParams,
+        },
+      };
+    }
+
+    const posts = await this.postRepository.findPostsByPage(pageParams, user?.id);
+    // 캐시된 핫 게시글 업데이트
+    await this.postCacheService.setHotPost(posts.data);
+    // hotScore 필드 제거
+    const filteredPosts: PagedPost[] = posts.data.map(({ hotScore, ...post }) => ({
+      ...post,
+    }));
+
+    return {
+      data: filteredPosts,
+      meta: {
+        ...posts.meta,
+      },
+    };
   }
 
   /**
    * 특정 사용자가 작성한 게시글 목록을 페이지네이션으로 조회합니다.
-   * @param userId - 조회할 사용자 ID
-   * @param pageParams - 페이지네이션 파라미터
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
    * @throws {PrivateAuthError} 비공개 사용자에 접근하려는 경우
    * @throws {PrivateDeniedError} 비공개 게시글에 접근하려는 경우
@@ -146,8 +174,6 @@ export class PostService {
 
   /**
    * ID를 통해 게시글을 삭제합니다.
-   * @param postId - 삭제할 게시글 ID
-   * @returns 삭제된 게시글의 정보
    * @throws {NotFoundException} 존재하지 않는 게시글인 경우
    * @throws {InternalServerErrorException} 삭제 중 오류 발생 시
    */

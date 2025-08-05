@@ -1,3 +1,5 @@
+import { Comment, Post, User } from '@prisma/client';
+
 /**
  * 댓글 조회 시 선택할 필드들을 정의하는 객체
  *
@@ -9,6 +11,10 @@ export const commentSelections = {
   likesCount: true,
   createdAt: true,
   updatedAt: true,
+};
+
+export type CommonComment = {
+  [K in keyof typeof commentSelections]: Comment[K];
 };
 
 /**
@@ -24,6 +30,10 @@ export const postSelections = {
   updatedAt: true,
 };
 
+export type CommonPost = {
+  [K in keyof typeof postSelections]: Post[K];
+};
+
 /**
  * 사용자 조회 시 선택할 필드들을 정의하는 객체
  *
@@ -34,4 +44,8 @@ export const userSelections = {
   id: true,
   name: true,
   image: true,
+};
+
+export type CommonUser = {
+  [K in keyof typeof userSelections]: User[K];
 };

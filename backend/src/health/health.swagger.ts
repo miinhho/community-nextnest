@@ -33,6 +33,15 @@ export const ApiCheck = () =>
                   },
                 },
               },
+              redis: {
+                type: 'object',
+                properties: {
+                  status: {
+                    type: 'string',
+                    example: 'up',
+                  },
+                },
+              },
             },
           },
           error: {
@@ -43,6 +52,15 @@ export const ApiCheck = () =>
             type: 'object',
             properties: {
               database: {
+                type: 'object',
+                properties: {
+                  status: {
+                    type: 'string',
+                    example: 'up',
+                  },
+                },
+              },
+              redis: {
                 type: 'object',
                 properties: {
                   status: {
@@ -79,10 +97,6 @@ export const ApiCheck = () =>
                     type: 'string',
                     example: 'down',
                   },
-                  message: {
-                    type: 'string',
-                    example: 'Connection failed',
-                  },
                 },
               },
             },
@@ -97,9 +111,14 @@ export const ApiCheck = () =>
                     type: 'string',
                     example: 'down',
                   },
-                  message: {
+                },
+              },
+              redis: {
+                type: 'object',
+                properties: {
+                  status: {
                     type: 'string',
-                    example: 'Connection failed',
+                    example: 'down',
                   },
                 },
               },

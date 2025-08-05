@@ -2,6 +2,7 @@ import { getBlockFilter } from '@/block/utils/block-filter';
 import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { postSelections, userSelections } from '@/common/select';
 import { INITIAL_PAGE, PageQueryType, toPageData } from '@/common/utils/page';
+import { PagedPostHotScore } from '@/post/post.types';
 import { PostRecommendService } from '@/post/recommend/post-recommend.service';
 import { PrismaErrorHandler } from '@/prisma/prisma-error.interceptor';
 import { PrismaService } from '@/prisma/prisma.service';
@@ -17,9 +18,6 @@ export class PostRepository {
 
   /**
    * 새로운 게시글을 생성합니다.
-   * @param params.authorId - 작성자 ID
-   * @param params.content - 게시글 내용
-   * @returns 생성된 게시글의 ID를 포함하는 객체
    * @throws {InternalServerErrorException} 게시글 작성 중 오류 발생 시
    */
   @PrismaErrorHandler({
@@ -39,8 +37,6 @@ export class PostRepository {
 
   /**
    * 기존 게시글을 수정합니다.
-   * @param params.id - 수정할 게시글 ID
-   * @param params.content - 새로운 게시글 내용
    * @throws {NotFoundException} 존재하지 않는 게시글인 경우
    * @throws {InternalServerErrorException} 게시글 수정 중 오류 발생 시
    */
@@ -48,9 +44,9 @@ export class PostRepository {
     RecordsNotFound: '존재하지 않는 게시글입니다.',
     Default: '게시글 수정에 실패했습니다.',
   })
-  async updatePost({ id, content }: { id: string; content: string }) {
+  async updatePost({ postId, content }: { postId: string; content: string }) {
     await this.prisma.post.update({
-      where: { id },
+      where: { id: postId },
       data: { content },
       select: {},
     });
@@ -58,7 +54,6 @@ export class PostRepository {
 
   /**
    * ID를 통해 특정 게시글을 조회합니다.
-   * @param id - 조회할 게시글 ID
    * @param viewerId - 게시글을 조회하는 사용자의 ID (선택)
    * @throws {NotFoundException} 게시글을 찾을 수 없는 경우
    * @throws {InternalServerErrorException} 게시글 조회 중 오류 발생 시
@@ -67,10 +62,10 @@ export class PostRepository {
     RecordsNotFound: '게시글을 찾을 수 없습니다.',
     Default: '게시글 조회에 실패했습니다.',
   })
-  async findPostById(id: string, viewerId?: string) {
+  async findPostById(postId: string, viewerId?: string) {
     return this.prisma.post.findUniqueOrThrow({
       where: {
-        id,
+        id: postId,
         ...getBlockFilter(viewerId),
       },
       select: {
@@ -93,7 +88,6 @@ export class PostRepository {
 
   /**
    * 게시글의 작성자 ID를 조회합니다.
-   * @param id - 게시글 ID
    * @throws {NotFoundException} 존재하지 않는 게시글인 경우
    * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
@@ -101,9 +95,9 @@ export class PostRepository {
     RecordsNotFound: '존재하지 않는 게시글입니다.',
     Default: '게시글 작성자 조회에 실패했습니다',
   })
-  async findPostAuthorId(id: string) {
+  async findPostAuthorId(postId: string) {
     const post = await this.prisma.post.findUniqueOrThrow({
-      where: { id },
+      where: { id: postId },
       select: { authorId: true },
     });
     return post.authorId;
@@ -111,7 +105,6 @@ export class PostRepository {
 
   /**
    * 페이지네이션을 적용하여 게시글 목록을 조회합니다.
-   * @param params - 페이지네이션 정보 (page, size)
    * @throws {InternalServerErrorException} 목록 조회 중 오류 발생 시
    */
   @PrismaErrorHandler({
@@ -127,6 +120,7 @@ export class PostRepository {
       },
       select: {
         ...postSelections,
+        hotScore: true,
         commentCount: true,
         author: {
           select: {
@@ -141,13 +135,10 @@ export class PostRepository {
       },
     });
 
-    return toPageData<typeof posts>({ data: posts, page, size });
+    return toPageData<PagedPostHotScore[]>({ data: posts, page, size });
   }
-
   /**
    * 특정 사용자가 작성한 게시글 목록을 페이지네이션으로 조회합니다.
-   * @param userId - 조회할 사용자 ID
-   * @param params - 페이지네이션 정보 (page, size)
    * @throws {InternalServerErrorException} 조회 중 오류 발생 시
    */
   @PrismaErrorHandler({
