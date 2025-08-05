@@ -6,6 +6,7 @@ import { Public } from '@/common/decorator/public.decorator';
 import { User } from '@/common/decorator/user.decorator';
 import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
+import { PageQueryType } from '@/common/utils/page';
 import { PostOwner } from '@/post/guard/post-owner.guard';
 import {
   ApiCreatePost,
@@ -19,7 +20,6 @@ import {
 import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
 import { PostContentDto } from './dto/post.dto';
 import { PostService } from './post.service';
-import { PageQueryType } from '@/common/utils/page';
 
 @Controller()
 export class PostController {
@@ -100,7 +100,7 @@ export class PostController {
     @User() user: UserData,
   ) {
     await this.postService.updatePost({
-      id: postId,
+      postId,
       content,
     });
     return {
