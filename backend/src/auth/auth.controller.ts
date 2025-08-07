@@ -37,7 +37,7 @@ export class AuthController {
     this.REFRESH_COOKIE_OPTIONS = {
       httpOnly: true,
       secure: this.appConfig.isProduction,
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: this.jwtConfig.refreshExpiration,
       path: '/',
     };
@@ -45,7 +45,7 @@ export class AuthController {
     this.ACCESS_COOKIE_OPTIONS = {
       httpOnly: true,
       secure: this.appConfig.isProduction,
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: this.jwtConfig.accessExpiration,
       path: '/',
     };

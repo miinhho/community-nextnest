@@ -2,7 +2,7 @@ FROM node:22.14.0-alpine
 
 RUN corepack enable pnpm
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
 COPY . .
 
