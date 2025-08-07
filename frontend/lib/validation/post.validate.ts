@@ -1,5 +1,5 @@
 import { CONTENT_LEN } from '@/lib/constant'
-import { z } from 'zod/v4'
+import { z } from 'zod'
 
 export const postContentData = z.object({
   content: z

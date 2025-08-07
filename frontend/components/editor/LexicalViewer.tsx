@@ -16,7 +16,7 @@ interface LexicalViewerProps {
 /**
  * @param json - 에디터에 불러올 json 데이터
  */
-export const LexicalViewer = ({ json }: LexicalViewerProps) => {
+const LexicalViewer = ({ json }: LexicalViewerProps) => {
   return (
     <LexicalComposer initialConfig={viewerConfig}>
       <div
@@ -46,3 +46,5 @@ export const LexicalViewer = ({ json }: LexicalViewerProps) => {
     </LexicalComposer>
   )
 }
+
+export default LexicalViewer

@@ -17,6 +17,12 @@ const eslintConfig = [
     'plugin:@tanstack/query/recommended',
     'prettier',
   ),
+  ...compat.config({
+    extends: ['next'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'warn',
+    }
+  })
 ]
 
 export default eslintConfig

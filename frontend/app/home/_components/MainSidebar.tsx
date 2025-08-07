@@ -1,7 +1,7 @@
 'use client'
 
-import { MainNavbar } from '@/app/main/_components/MainNavbar'
-import { MainUserProfile } from '@/app/main/_components/MainUserProfile'
+import { MainNavbar } from '@/app/home/_components/MainNavbar'
+import { MainUserProfile } from '@/app/home/_components/MainUserProfile'
 import { useUserInfo } from '@/hooks/useUserInfo'
 import { TailWindClasses } from '@/lib/types/component-util.types'
 import { cn } from '@/lib/utils'

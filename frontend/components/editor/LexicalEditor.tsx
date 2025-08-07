@@ -23,7 +23,7 @@ interface LexicalEditorProps {
 /**
  * @param json - 에디터에 불러올 json 데이터
  */
-export const LexicalEditor = ({ json }: LexicalEditorProps) => {
+const LexicalEditor = ({ json }: LexicalEditorProps) => {
   return (
     <LexicalComposer initialConfig={editorConfig}>
       <div
@@ -65,3 +65,5 @@ export const LexicalEditor = ({ json }: LexicalEditorProps) => {
     </LexicalComposer>
   )
 }
+
+export default LexicalEditor

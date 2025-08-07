@@ -3,7 +3,7 @@
 import CommentButton from '@/components/button/CommentButton'
 import LikeButton from '@/components/button/LikeButton'
 import ShareButton from '@/components/button/ShareButton'
-import { LexicalViewer } from '@/components/editor/LexicalViewer'
+import LexicalViewer from '@/components/editor/LexicalViewer'
 import PostUserAvator from '@/components/post/PostUserAvatar'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { usePostLikeQuery, usePostQuery } from '@/lib/query/post.query'

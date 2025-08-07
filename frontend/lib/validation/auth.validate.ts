@@ -1,4 +1,4 @@
-import { z } from 'zod/v4'
+import { z } from 'zod'
 
 const alphabetNumbericRegex = /^(?=.*[a-zA-Z])(?=.*\d).+$/
 const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/
