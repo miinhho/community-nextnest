@@ -62,8 +62,6 @@ model Follow {
   following User @relation("following", fields: [followingId], references: [id])
 
   @@unique([followerId, followingId])
-  @@index([followerId])
-  @@index([followingId])
   @@map("follows")
 }
 
@@ -80,8 +78,6 @@ model FollowRequest {
   receiver User @relation("follow_request_receiver", fields: [receiverId], references: [id], onDelete: Cascade)
 
   @@unique([senderId, receiverId])
-  @@index([senderId])
-  @@index([receiverId])
   @@map("follow_requests")
 }
 
@@ -107,8 +103,6 @@ model Notification {
   follower User?    @relation("notification_follower", fields: [followerId], references: [id], onDelete: Cascade)
 
   @@index([userId, isRead])
-  @@index([userId, createdAt])
-  @@index([type, createdAt])
   @@map("notifications")
 }
 
@@ -123,8 +117,6 @@ model Blocking {
   blocked User @relation("blocked", fields: [blockedId], references: [id])
 
   @@unique([blockerId, blockedId])
-  @@index([blockerId])
-  @@index([blockedId])
   @@map("blockings")
 }
 
@@ -163,8 +155,6 @@ model Post {
   notification Notification[]
 
   @@index([authorId])
-  @@index([createdAt])
-  @@index([commentCount, createdAt])
   @@map("posts")
 }
 
@@ -189,10 +179,7 @@ model Comment {
   replies      Comment[]      @relation("comment_reply")
   notification Notification[]
 
-  @@index([postId, createdAt])
-  @@index([postId, parentId, createdAt])
   @@index([authorId])
-  @@index([parentId])
   @@map("comments")
 }
 
@@ -213,9 +200,6 @@ model PostView {
 
   @@unique([postId, userId], name: "post_user_view")
   @@unique([postId, ipAddress, userAgent], name: "post_ip_view")
-  @@index([postId])
-  @@index([userId])
-  @@index([ipAddress])
   @@map("post_views")
 }
 
@@ -231,8 +215,6 @@ model PostLikes {
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([userId, postId], name: "userId_postId")
-  @@index([userId])
-  @@index([postId])
   @@map("post_likes")
 }
 
@@ -250,9 +232,6 @@ model CommentView {
 
   @@unique([commentId, userId], name: "comment_user_view")
   @@unique([commentId, ipAddress, userAgent], name: "comment_ip_view")
-  @@index([commentId])
-  @@index([userId])
-  @@index([ipAddress])
   @@map("comment_views")
 }
 
@@ -265,8 +244,6 @@ model CommentLikes {
   comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
 
   @@unique([userId, commentId], name: "userId_commentId")
-  @@index([userId])
-  @@index([commentId])
   @@map("comment_likes")
 }
 
