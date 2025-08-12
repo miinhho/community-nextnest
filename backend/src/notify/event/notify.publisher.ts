@@ -3,6 +3,7 @@ import {
   CommentLikeNotifyPayload,
   CommentReplyNotifyPayload,
   FollowNotifyPayload,
+  FollowRequestAcceptedNotifyPayload,
   FollowRequestNotifyPayload,
   NotifyPayload,
   PostCommentNotifyPayload,
@@ -62,7 +63,10 @@ export class NotifyPublisher {
   /**
    * 팔로우 요청 수락 알림 이벤트를 발행합니다.
    */
-  followRequestAcceptedNotify(requesterId: string, payload: FollowRequestNotifyPayload) {
+  followRequestAcceptedNotify(
+    requesterId: string,
+    payload: FollowRequestAcceptedNotifyPayload,
+  ) {
     this.publish(requesterId, NotificationType.FOLLOW_REQUEST_ACCEPTED, payload);
   }
 
