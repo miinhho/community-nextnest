@@ -1,12 +1,4 @@
 import {
-  CommentLikeNotifyEvent,
-  CommentReplyNotifyEvent,
-  FollowNotifyEvent,
-  PostCommentNotifyEvent,
-  PostLikeNotifyEvent,
-  SystemNotifyEvent,
-} from '@/notify/event/notify.event';
-import {
   COMMENT_LIKE_NOTIFY,
   COMMENT_REPLY_NOTIFY,
   FOLLOW_NOTIFY,
@@ -15,7 +7,15 @@ import {
   POST_COMMENT_NOTIFY,
   POST_LIKE_NOTIFY,
   SYSTEM_NOTIFY,
-} from '@/notify/event/notify.key';
+} from '@/notify/event/types/notify.key';
+import {
+  CommentLikeNotifyEvent,
+  CommentReplyNotifyEvent,
+  FollowNotifyEvent,
+  PostCommentNotifyEvent,
+  PostLikeNotifyEvent,
+  SystemNotifyEvent,
+} from '@/notify/event/types/notify.payload';
 import { NotifyService } from '@/notify/notify.service';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
