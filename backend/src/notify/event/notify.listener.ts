@@ -20,20 +20,20 @@ import {
   PostLikeNotifyPayload,
   SystemNotifyPayload,
 } from '@/notify/event/types/notify.payload';
-import { NotifyService } from '@/notify/notify.service';
+import { NotifyRepository } from '@/notify/notify.repository';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 
 @Injectable()
 export class NotifyEventListener {
-  constructor(private readonly notifyService: NotifyService) {}
+  constructor(private readonly notifyRepository: NotifyRepository) {}
 
   /**
    * 게시글 좋아요 알림을 처리합니다.
    */
   @OnEvent(POST_LIKE_NOTIFY)
   async handlePostLikeNotify(userId: string, payload: PostLikeNotifyPayload) {
-    await this.notifyService.createPostLikeNotify({
+    await this.notifyRepository.createPostLikeNotify({
       userId,
       ...payload,
     });
@@ -44,7 +44,7 @@ export class NotifyEventListener {
    */
   @OnEvent(POST_COMMENT_NOTIFY)
   async handlePostCommentNotify(userId: string, payload: PostCommentNotifyPayload) {
-    await this.notifyService.createCommentNotify({
+    await this.notifyRepository.createCommentNotify({
       userId,
       ...payload,
     });
@@ -55,7 +55,7 @@ export class NotifyEventListener {
    */
   @OnEvent(COMMENT_LIKE_NOTIFY)
   async handleCommentLikeNotify(userId: string, payload: CommentLikeNotifyPayload) {
-    await this.notifyService.createCommentLikeNotify({
+    await this.notifyRepository.createCommentLikeNotify({
       userId,
       ...payload,
     });
@@ -66,7 +66,7 @@ export class NotifyEventListener {
    */
   @OnEvent(COMMENT_REPLY_NOTIFY)
   async handleCommentReplyNotify(userId: string, payload: CommentReplyNotifyPayload) {
-    await this.notifyService.createReplyNotify({
+    await this.notifyRepository.createReplyNotify({
       userId,
       ...payload,
     });
@@ -77,7 +77,7 @@ export class NotifyEventListener {
    */
   @OnEvent(FOLLOW_NOTIFY)
   async handleFollowNotify(userId: string, payload: FollowNotifyPayload) {
-    await this.notifyService.createFollowNotify({
+    await this.notifyRepository.createFollowNotify({
       userId,
       ...payload,
     });
@@ -88,7 +88,7 @@ export class NotifyEventListener {
    */
   @OnEvent(FOLLOW_REQUEST_NOTIFY)
   async handleFollowRequestNotify(userId: string, payload: FollowRequestNotifyPayload) {
-    await this.notifyService.createFollowRequestNotify({
+    await this.notifyRepository.createFollowRequestNotify({
       userId,
       ...payload,
     });
@@ -102,7 +102,7 @@ export class NotifyEventListener {
     requesterId: string,
     payload: FollowRequestAcceptedNotifyPayload,
   ) {
-    await this.notifyService.createFollowAcceptNotify({
+    await this.notifyRepository.createFollowAcceptNotify({
       requesterId,
       ...payload,
     });
@@ -113,7 +113,7 @@ export class NotifyEventListener {
    */
   @OnEvent(SYSTEM_NOTIFY)
   async handleSystemNotify(userId: string, payload: SystemNotifyPayload) {
-    await this.notifyService.createSystemNotify({
+    await this.notifyRepository.createSystemNotify({
       userId,
       ...payload,
     });
@@ -124,7 +124,7 @@ export class NotifyEventListener {
    */
   @OnEvent(MARK_AS_READ_NOTIFY)
   async handleMarkAsRead(userId: string, notifyId: string) {
-    await this.notifyService.markAsRead(notifyId, userId);
+    await this.notifyRepository.markAsRead(notifyId, userId);
   }
 
   /**
@@ -132,6 +132,6 @@ export class NotifyEventListener {
    */
   @OnEvent(MARK_ALL_AS_READ_NOTIFY)
   async handleMarkAllAsRead(userId: string) {
-    await this.notifyService.markAllAsRead(userId);
+    await this.notifyRepository.markAllAsRead(userId);
   }
 }

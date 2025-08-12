@@ -1,6 +1,5 @@
 import { BlockService } from '@/block/block.service';
 import { FollowStatus } from '@/common/status';
-import { PageQueryType } from '@/common/utils/page';
 import { AlreadyFollowError } from '@/follow/error/already-follow.error';
 import { FollowRepository } from '@/follow/follow.repository';
 import { NotifyPublisher } from '@/notify/event/notify.publisher';
@@ -154,57 +153,5 @@ export class FollowService {
   async unfollowUser(props: { userId: string; targetId: string }) {
     await this.followRepository.unfollowUser(props);
     return FollowStatus.UNFOLLOW;
-  }
-
-  /**
-   * 두 사용자 간의 팔로우 관계를 확인합니다.
-   * @param params.userId - 팔로우를 요청한 사용자 ID
-   * @param params.targetId - 팔로우 대상 사용자 ID
-   * @returns 팔로우 여부 (true: 팔로우 중, false: 팔로우하지 않음)
-   * @throws {InternalServerErrorException} 팔로우 상태 확인 실패 시
-   */
-  async isFollowing({ userId, targetId }: { userId: string; targetId: string }) {
-    return this.followRepository.isFollowing({
-      userId,
-      targetId,
-    });
-  }
-
-  /**
-   * 특정 사용자의 팔로워 수를 조회합니다.
-   * @param userId - 팔로워 수를 조회할 사용자 ID
-   * @throws {InternalServerErrorException} 팔로워 수 조회 실패 시
-   */
-  async getFollowersCount(userId: string) {
-    return this.followRepository.getFollowersCount(userId);
-  }
-
-  /**
-   * 특정 사용자가 팔로우하는 사용자 수를 조회합니다.
-   * @param userId - 팔로잉 수를 조회할 사용자 ID
-   * @throws {InternalServerErrorException} 팔로잉 수 조회 실패 시
-   */
-  async getFollowingCount(userId: string) {
-    return this.followRepository.getFollowingCount(userId);
-  }
-
-  /**
-   * 특정 사용자의 팔로워 목록을 페이지네이션으로 조회합니다.
-   * @param userId - 팔로워 목록을 조회할 사용자 ID
-   * @param pageParams - 페이지네이션 정보 (page, size)
-   * @throws {InternalServerErrorException} 팔로워 목록 조회 실패 시
-   */
-  async getFollowers(userId: string, pageParams: PageQueryType) {
-    return this.followRepository.getFollowers(userId, pageParams);
-  }
-
-  /**
-   * 특정 사용자가 팔로우하는 사용자 목록을 페이지네이션으로 조회합니다.
-   * @param userId - 팔로잉 목록을 조회할 사용자 ID
-   * @param pageParams - 페이지네이션 정보 (page, size)
-   * @throws {InternalServerErrorException} 팔로잉 목록 조회 실패 시
-   */
-  async getFollowing(userId: string, pageParams: PageQueryType) {
-    return this.followRepository.getFollowing(userId, pageParams);
   }
 }

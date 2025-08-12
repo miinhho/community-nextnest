@@ -17,7 +17,7 @@ export class PrivateRepository {
     RecordsNotFound: '해당 사용자를 찾을 수 없습니다.',
     Default: '사용자 공개 여부 업데이트에 실패했습니다.',
   })
-  async updateUserPrivacyById(id: string, isPrivate: boolean) {
+  async updateUserPrivacy(id: string, isPrivate: boolean) {
     await this.prisma.user.update({
       where: { id },
       data: {

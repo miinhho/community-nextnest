@@ -1,5 +1,6 @@
 import { IdParam } from '@/common/decorator/id.decorator';
 import { Public } from '@/common/decorator/public.decorator';
+import { PrivateRepository } from '@/private/private.repository';
 import { PrivateService } from '@/private/private.service';
 import { ApiGetUserIsPrivate, ApiUpdateUserPrivacy } from '@/private/private.swagger';
 import { UserOwner } from '@/user/guard/user-owner.guard';
@@ -7,7 +8,10 @@ import { Body, Controller, Get, ParseBoolPipe, Post } from '@nestjs/common';
 
 @Controller()
 export class PrivateController {
-  constructor(private readonly privateService: PrivateService) {}
+  constructor(
+    private readonly privateService: PrivateService,
+    private readonly privateRepository: PrivateRepository,
+  ) {}
 
   @UserOwner()
   @Post('user/:id/privacy')
@@ -16,7 +20,7 @@ export class PrivateController {
     @IdParam() id: string,
     @Body('isPrivate', ParseBoolPipe) isPrivate: boolean,
   ) {
-    await this.privateService.updateUserPrivacy(id, isPrivate);
+    await this.privateRepository.updateUserPrivacy(id, isPrivate);
     return {
       success: true,
     };

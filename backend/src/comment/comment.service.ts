@@ -3,7 +3,6 @@ import { ClientInfoType } from '@/common/decorator/client-info.decorator';
 import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
-import { PageQueryType } from '@/common/utils/page';
 import { NotifyPublisher } from '@/notify/event/notify.publisher';
 import { Injectable } from '@nestjs/common';
 
@@ -57,17 +56,6 @@ export class CommentService {
   }
 
   /**
-   * 댓글 내용을 수정합니다.
-   * @param props.commentId - 댓글 ID
-   * @param props.content - 수정할 내용
-   * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 댓글 수정 실패 시
-   */
-  async updateComment(props: { commentId: string; content: string }) {
-    await this.commentRepository.updateComment(props);
-  }
-
-  /**
    * ID로 댓글을 조회합니다.
    * @param id - 댓글 ID
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
@@ -97,39 +85,6 @@ export class CommentService {
     }
 
     return this.commentRepository.findCommentById(id, user?.id);
-  }
-
-  /**
-   * 특정 사용자가 작성한 댓글 목록을 페이지네이션으로 조회합니다.
-   * @param userId - 사용자 ID
-   * @param pageParams - 페이지네이션 정보 (page, size)
-   * @throws {NotFoundException} 사용자를 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 댓글 조회 실패 시
-   */
-  async findCommentsByUserId(userId: string, pageParams: PageQueryType, user?: UserData) {
-    return this.commentRepository.findCommentsByUserId(userId, pageParams, user?.id);
-  }
-
-  /**
-   * 특정 게시글의 최상위 댓글 목록을 페이지네이션으로 조회합니다.
-   * @param postId - 게시글 ID
-   * @param pageParams - 페이지네이션 정보 (page, size)
-   * @throws {NotFoundException} 게시글을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 댓글 조회 실패 시
-   */
-  async findCommentsByPostId(postId: string, pageParams: PageQueryType, user?: UserData) {
-    return this.commentRepository.findCommentsByPostId(postId, pageParams, user?.id);
-  }
-
-  /**
-   * 특정 댓글의 답글 목록을 페이지네이션으로 조회합니다.
-   * @param commentId - 댓글 ID
-   * @param pageParams - 페이지네이션 정보 (page, size)
-   * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
-   * @throws {InternalServerErrorException} 답글 조회 실패 시
-   */
-  async findRepliesByCommentId(commentId: string, pageParams: PageQueryType, user?: UserData) {
-    return this.commentRepository.findRepliesByCommentId(commentId, pageParams, user?.id);
   }
 
   /**

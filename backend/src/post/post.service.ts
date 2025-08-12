@@ -24,24 +24,6 @@ export class PostService {
   ) {}
 
   /**
-   * 새로운 게시글을 생성합니다.
-   * @returns 생성된 게시글의 ID를 포함하는 객체
-   * @throws {InternalServerErrorException} 게시글 작성 중 오류 발생 시
-   */
-  async createPost(props: { authorId: string; content: string }) {
-    return this.postRepository.createPost(props);
-  }
-
-  /**
-   * 기존 게시글을 수정합니다.
-   * @throws {NotFoundException} 존재하지 않는 게시글인 경우
-   * @throws {InternalServerErrorException} 게시글 수정 중 오류 발생 시
-   */
-  async updatePost(props: { postId: string; content: string }) {
-    return this.postRepository.updatePost(props);
-  }
-
-  /**
    * ID를 통해 특정 게시글을 조회합니다.
    * @throws {NotFoundException} 게시글을 찾을 수 없는 경우
    * @throws {UnauthorizedException} 비공개 게시글에 접근하려는 경우
@@ -172,15 +154,6 @@ export class PostService {
     }
 
     return this.postRepository.findPostsByUserId(userId, pageParams);
-  }
-
-  /**
-   * ID를 통해 게시글을 삭제합니다.
-   * @throws {NotFoundException} 존재하지 않는 게시글인 경우
-   * @throws {InternalServerErrorException} 삭제 중 오류 발생 시
-   */
-  async deletePostById(postId: string) {
-    return this.postRepository.deletePostById(postId);
   }
 
   /**

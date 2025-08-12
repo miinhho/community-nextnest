@@ -7,17 +7,6 @@ export class PrivateService {
   constructor(private readonly privateRepository: PrivateRepository) {}
 
   /**
-   * 사용자 공개 여부를 업데이트합니다.
-   * @param id - 업데이트할 사용자 ID
-   * @param isPrivate - 공개 여부 (true: 비공개, false: 공개)
-   * @throws {NotFoundException} 존재하지 않는 사용자인 경우
-   * @throws {InternalServerErrorException} 업데이트 중 오류 발생 시
-   */
-  async updateUserPrivacy(id: string, isPrivate: boolean) {
-    return this.privateRepository.updateUserPrivacyById(id, isPrivate);
-  }
-
-  /**
    * ID를 통해 사용자 공개 여부를 조회합니다.
    * @param id - 조회할 사용자 ID
    * @returns 사용자 공개 여부 (true: 비공개, false: 공개)

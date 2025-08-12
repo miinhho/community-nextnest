@@ -8,6 +8,7 @@ import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
 import { PageQueryType } from '@/common/utils/page';
 import { PostOwner } from '@/post/guard/post-owner.guard';
+import { PostRepository } from '@/post/post.repository';
 import {
   ApiCreatePost,
   ApiDeletePost,
@@ -23,18 +24,35 @@ import { PostService } from './post.service';
 
 @Controller()
 export class PostController {
-  constructor(private readonly postService: PostService) {}
+  constructor(
+    private readonly postService: PostService,
+    private readonly postRepository: PostRepository,
+  ) {}
 
   @Post('post')
   @ApiCreatePost()
   async createPost(@Body() { content }: PostContentDto, @User() user: UserData) {
-    const postId = await this.postService.createPost({
+    const postId = await this.postRepository.createPost({
       authorId: user.id,
       content,
     });
     return {
       success: true,
       data: { postId, authorId: user.id },
+    };
+  }
+
+  @Public()
+  @Get('post')
+  @ApiFindPosts()
+  async findPosts(@PageQuery() pageQuery: PageQueryType) {
+    const { data: posts, meta } = await this.postService.findPostsByPage(pageQuery);
+    return {
+      success: true,
+      data: {
+        posts,
+        meta,
+      },
     };
   }
 
@@ -55,38 +73,6 @@ export class PostController {
     };
   }
 
-  @OptionalAuth()
-  @Get('user/:id/posts')
-  @ApiGetUserPosts()
-  async getUserPosts(
-    @IdParam() id: string,
-    @PageQuery() pageQuery: PageQueryType,
-    @User() user?: UserData,
-  ) {
-    const { data: posts, meta } = await this.postService.findPostsByUserId(id, pageQuery, user);
-    return {
-      success: true,
-      data: {
-        posts,
-        meta,
-      },
-    };
-  }
-
-  @Public()
-  @Get('post')
-  @ApiFindPosts()
-  async findPosts(@PageQuery() pageQuery: PageQueryType) {
-    const { data: posts, meta } = await this.postService.findPostsByPage(pageQuery);
-    return {
-      success: true,
-      data: {
-        posts,
-        meta,
-      },
-    };
-  }
-
   @PostOwner()
   @Put('post/:id')
   @ApiUpdatePost()
@@ -95,7 +81,7 @@ export class PostController {
     @Body() { content }: PostContentDto,
     @User() user: UserData,
   ) {
-    await this.postService.updatePost({
+    await this.postRepository.updatePost({
       postId,
       content,
     });
@@ -113,7 +99,7 @@ export class PostController {
   @Delete('post/:id')
   @ApiDeletePost()
   async deletePost(@IdParam() id: string) {
-    const deletedPost = await this.postService.deletePostById(id);
+    const deletedPost = await this.postRepository.deletePostById(id);
     return {
       success: true,
       data: {
@@ -148,5 +134,23 @@ export class PostController {
           },
         };
     }
+  }
+
+  @OptionalAuth()
+  @Get('user/:id/posts')
+  @ApiGetUserPosts()
+  async getUserPosts(
+    @IdParam() id: string,
+    @PageQuery() pageQuery: PageQueryType,
+    @User() user?: UserData,
+  ) {
+    const { data: posts, meta } = await this.postService.findPostsByUserId(id, pageQuery, user);
+    return {
+      success: true,
+      data: {
+        posts,
+        meta,
+      },
+    };
   }
 }

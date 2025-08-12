@@ -4,27 +4,25 @@ import { User } from '@/common/decorator/user.decorator';
 import { ApiNotifyTags } from '@/common/swagger/tags.swagger';
 import { UserData } from '@/common/user';
 import { PageQueryType } from '@/common/utils/page';
-import { MARK_ALL_AS_READ_NOTIFY, MARK_AS_READ_NOTIFY } from '@/notify/event/types/notify.key';
+import { NotifyRepository } from '@/notify/notify.repository';
 import { NotifyService } from '@/notify/notify.service';
 import { ApiGetNotifiesByUserId, ApiGetNotifyById } from '@/notify/notify.swagger';
 import { Controller, Get, Patch } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @ApiNotifyTags()
 @Controller('notify')
 export class NotifyController {
   constructor(
     private readonly notifyService: NotifyService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly notifyRepository: NotifyRepository,
   ) {}
 
-  @Get(':id')
-  @ApiGetNotifyById()
-  async getNotifyById(@IdParam() id: string, @User() user: UserData) {
-    const notify = await this.notifyService.findNotifyById(id, user);
+  @Patch('user/read-all')
+  @ApiGetNotifiesByUserId()
+  async readAllNotifiesByUserId(@User() user: UserData) {
+    await this.notifyRepository.markAllAsRead(user.id);
     return {
       success: true,
-      data: notify,
     };
   }
 
@@ -49,21 +47,20 @@ export class NotifyController {
     };
   }
 
-  @Patch(':id/read')
+  @Get(':id')
   @ApiGetNotifyById()
-  async readNotifyById(@IdParam() id: string, @User() user: UserData) {
-    await this.notifyService.markAsRead(id, user.id);
-    this.eventEmitter.emit(MARK_AS_READ_NOTIFY, user.id, id);
+  async getNotifyById(@IdParam() id: string, @User() user: UserData) {
+    const notify = await this.notifyService.findNotifyById(id, user);
     return {
       success: true,
+      data: notify,
     };
   }
 
-  @Patch('user/read-all')
-  @ApiGetNotifiesByUserId()
-  async readAllNotifiesByUserId(@User() user: UserData) {
-    await this.notifyService.markAllAsRead(user.id);
-    this.eventEmitter.emit(MARK_ALL_AS_READ_NOTIFY, user.id);
+  @Patch(':id/read')
+  @ApiGetNotifyById()
+  async readNotifyById(@IdParam() id: string, @User() user: UserData) {
+    await this.notifyRepository.markAsRead(id, user.id);
     return {
       success: true,
     };

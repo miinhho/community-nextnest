@@ -4,6 +4,8 @@ import { Public } from '@/common/decorator/public.decorator';
 import { User } from '@/common/decorator/user.decorator';
 import { FollowStatus } from '@/common/status';
 import { UserData } from '@/common/user';
+import { PageQueryType } from '@/common/utils/page';
+import { FollowRepository } from '@/follow/follow.repository';
 import {
   ApiGetUserFollowers,
   ApiGetUserFollowersCount,
@@ -15,11 +17,13 @@ import {
 } from '@/follow/follow.swagger';
 import { Controller, Delete, Get, Post } from '@nestjs/common';
 import { FollowService } from './follow.service';
-import { PageQueryType } from '@/common/utils/page';
 
 @Controller()
 export class FollowController {
-  constructor(private readonly followService: FollowService) {}
+  constructor(
+    private readonly followService: FollowService,
+    private readonly followRepository: FollowRepository,
+  ) {}
 
   @Post('user/:id/follow')
   @ApiToggleFollowUser()
@@ -75,7 +79,7 @@ export class FollowController {
   @Get('user/:id/following-count')
   @ApiGetUserFollowingCount()
   async getUserFollowingCount(@IdParam() id: string) {
-    const followingCount = await this.followService.getFollowingCount(id);
+    const followingCount = await this.followRepository.getFollowingCount(id);
     return {
       success: true,
       data: { followingCount },
@@ -86,7 +90,7 @@ export class FollowController {
   @Get('user/:id/followers-count')
   @ApiGetUserFollowersCount()
   async getUserFollowersCount(@IdParam() id: string) {
-    const followersCount = await this.followService.getFollowersCount(id);
+    const followersCount = await this.followRepository.getFollowersCount(id);
     return {
       success: true,
       data: { followersCount },
@@ -97,7 +101,7 @@ export class FollowController {
   @Get('user/:id/followers')
   @ApiGetUserFollowers()
   async getUserFollowers(@IdParam() id: string, @PageQuery() pageQuery: PageQueryType) {
-    const { data: followers, meta } = await this.followService.getFollowers(id, pageQuery);
+    const { data: followers, meta } = await this.followRepository.getFollowers(id, pageQuery);
     return {
       success: true,
       data: {
@@ -111,7 +115,7 @@ export class FollowController {
   @Get('user/:id/following')
   @ApiGetUserFollowing()
   async getUserFollowing(@IdParam() id: string, @PageQuery() pageQuery: PageQueryType) {
-    const { data: following, meta } = await this.followService.getFollowing(id, pageQuery);
+    const { data: following, meta } = await this.followRepository.getFollowing(id, pageQuery);
     return {
       success: true,
       data: {
