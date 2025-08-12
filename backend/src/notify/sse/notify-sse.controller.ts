@@ -4,8 +4,10 @@ import {
   MARK_ALL_AS_READ_NOTIFY,
   MARK_AS_READ_NOTIFY,
   NOTIFY_EVENT_KEYS,
+  NotifyEventKey,
 } from '@/notify/event/types/notify.key';
 import { NotifyPayload } from '@/notify/event/types/notify.payload';
+import { ApiNotifySse } from '@/notify/sse/notify-sse.swagger';
 import {
   BadRequestException,
   Controller,
@@ -19,10 +21,7 @@ import { Request } from 'express';
 import { interval, map, merge, Subject, takeUntil } from 'rxjs';
 
 interface NotifyMessage {
-  type:
-    | (typeof NOTIFY_EVENT_KEYS)[number]
-    | typeof MARK_AS_READ_NOTIFY
-    | typeof MARK_ALL_AS_READ_NOTIFY;
+  type: NotifyEventKey;
   data: any;
 }
 
@@ -77,6 +76,7 @@ export class NotifySseController implements OnModuleInit {
   }
 
   @Sse('sse')
+  @ApiNotifySse()
   stream(@User() { id: userId }: UserData, @Req() req: Request) {
     if (!this.clients.has(userId)) {
       this.clients.set(userId, new Set());

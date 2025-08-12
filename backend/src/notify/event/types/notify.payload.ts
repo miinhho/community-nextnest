@@ -1,7 +1,7 @@
 /**
  * 게시글 좋아요 알림 이벤트 payload
  */
-export interface PostLikeNotifyEvent {
+export interface PostLikeNotifyPayload {
   postId: string;
   viewerId: string;
 }
@@ -9,14 +9,14 @@ export interface PostLikeNotifyEvent {
 /**
  * 게시글 댓글 알림 이벤트 payload
  */
-export interface PostCommentNotifyEvent {
+export interface PostCommentNotifyPayload {
   commentId: string;
 }
 
 /**
  * 댓글 좋아요 알림 이벤트 payload
  */
-export interface CommentLikeNotifyEvent {
+export interface CommentLikeNotifyPayload {
   commentId: string;
   viewerId: string;
 }
@@ -24,7 +24,7 @@ export interface CommentLikeNotifyEvent {
 /**
  * 댓글 답글 알림 이벤트 payload
  */
-export interface CommentReplyNotifyEvent {
+export interface CommentReplyNotifyPayload {
   commentId: string;
   replyId: string;
 }
@@ -32,14 +32,28 @@ export interface CommentReplyNotifyEvent {
 /**
  * 팔로우 알림 이벤트 payload
  */
-export interface FollowNotifyEvent {
+export interface FollowNotifyPayload {
   followerId: string;
+}
+
+/**
+ * 팔로우 요청 알림 이벤트 payload
+ */
+export interface FollowRequestNotifyPayload {
+  requesterId: string;
+}
+
+/**
+ * 팔로우 요청 수락 알림 이벤트 payload
+ */
+export interface FollowRequestAcceptedNotifyPayload {
+  accepterId: string;
 }
 
 /**
  * 시스템 알림 이벤트 payload
  */
-export interface SystemNotifyEvent {
+export interface SystemNotifyPayload {
   title: string;
   content: string;
 }
@@ -48,9 +62,11 @@ export interface SystemNotifyEvent {
  * 알림 이벤트 payload 타입
  */
 export type NotifyPayload =
-  | PostLikeNotifyEvent
-  | PostCommentNotifyEvent
-  | CommentLikeNotifyEvent
-  | CommentReplyNotifyEvent
-  | FollowNotifyEvent
-  | SystemNotifyEvent;
+  | PostLikeNotifyPayload
+  | PostCommentNotifyPayload
+  | CommentLikeNotifyPayload
+  | CommentReplyNotifyPayload
+  | FollowNotifyPayload
+  | FollowRequestNotifyPayload
+  | FollowRequestAcceptedNotifyPayload
+  | SystemNotifyPayload;

@@ -11,7 +11,6 @@ export class NotifyService {
    * 알림 ID로 알림을 조회합니다.
    *
    * 알림 타입에 따라 필요한 필드만 선택적으로 반환합니다.
-   * @param id - 알림 ID
    *
    * @throws {NotFoundException} - 알림을 찾을 수 없는 경우
    * @throws {ForbiddenException} - 사용자가 해당 알림을 조회할 권한이 없는 경우
@@ -22,6 +21,8 @@ export class NotifyService {
    * @type `COMMENT_LIKE`: 댓글 좋아요 알림
    * @type `COMMENT_REPLY`: 댓글 답글 알림
    * @type `FOLLOW`: 팔로우 알림
+   * @type `FOLLOW_REQUEST`: 팔로우 요청 알림
+   * @type `FOLLOW_REQUEST_ACCEPTED`: 팔로우 요청 수락 알림
    * @type `SYSTEM`: 시스템 알림
    */
   async findNotifyById(id: string, user: UserData) {
@@ -62,7 +63,7 @@ export class NotifyService {
     postId: string;
     viewerId: string;
   }) {
-    return this.notifyRepository.createPostLikeNotify(props);
+    await this.notifyRepository.createPostLikeNotify(props);
   }
 
   /**
@@ -73,7 +74,7 @@ export class NotifyService {
    * @throws {InternalServerErrorException} - 알림 생성 중 오류 발생 시
    */
   async createCommentNotify(props: { userId: string; commentId: string }) {
-    return this.notifyRepository.createCommentNotify(props);
+    await this.notifyRepository.createCommentNotify(props);
   }
 
   /**
@@ -89,7 +90,7 @@ export class NotifyService {
     commentId: string;
     viewerId: string;
   }) {
-    return this.notifyRepository.createCommentLikeNotify(props);
+    await this.notifyRepository.createCommentLikeNotify(props);
   }
 
   /**
@@ -101,7 +102,7 @@ export class NotifyService {
    * @throws {InternalServerErrorException} - 알림 생성 중 오류 발생 시
    */
   async createReplyNotify(props: { userId: string; commentId: string; replyId: string }) {
-    return this.notifyRepository.createReplyNotify(props);
+    await this.notifyRepository.createReplyNotify(props);
   }
 
   /**
@@ -112,7 +113,29 @@ export class NotifyService {
    * @throws {InternalServerErrorException} - 알림 생성 중 오류 발생 시
    */
   async createFollowNotify(props: { userId: string; followerId: string }) {
-    return this.notifyRepository.createFollowNotify(props);
+    await this.notifyRepository.createFollowNotify(props);
+  }
+
+  /**
+   * 팔로우 요청 알림을 생성합니다.
+   * @param userId - 알림을 받을 사용자 ID
+   * @param requesterId - 팔로우 요청을 보낸 사용자 ID
+   * @throws {NotFoundException} - 사용자 또는 팔로우 요청 유저를 찾을 수 없는 경우
+   * @throws {InternalServerErrorException} - 알림 생성 중 오류 발생 시
+   */
+  async createFollowRequestNotify(props: { userId: string; requesterId: string }) {
+    await this.notifyRepository.createFollowRequestNotify(props);
+  }
+
+  /**
+   * 팔로우 수락 알림을 생성합니다.
+   * @param requesterId - 팔로우 요청을 보낸 사용자 ID
+   * @param accepterId - 팔로우 요청을 수락한 사용자 ID
+   * @throws {NotFoundException} - 팔로우 수락 유저를 찾을 수 없는 경우
+   * @throws {InternalServerErrorException} - 알림 생성 중 오류 발생 시
+   */
+  async createFollowAcceptNotify(props: { requesterId: string; accepterId: string }) {
+    await this.notifyRepository.createFollowAcceptNotify(props);
   }
 
   /**
@@ -123,7 +146,7 @@ export class NotifyService {
    * @throws {InternalServerErrorException} - 알림 생성 중 오류 발생 시
    */
   async createSystemNotify(props: { userId: string; title: string; content: string }) {
-    return this.notifyRepository.createSystemNotify(props);
+    await this.notifyRepository.createSystemNotify(props);
   }
 
   /**
@@ -133,7 +156,7 @@ export class NotifyService {
    * @throws {InternalServerErrorException} - 알림 업데이트 중 오류 발생 시
    */
   async markAsRead(id: string, userId: string) {
-    return this.notifyRepository.markAsRead(id, userId);
+    await this.notifyRepository.markAsRead(id, userId);
   }
 
   /**
@@ -142,6 +165,6 @@ export class NotifyService {
    * @throws {InternalServerErrorException} - 알림 업데이트 중 오류 발생 시
    */
   async markAllAsRead(userId: string) {
-    return this.notifyRepository.markAllAsRead(userId);
+    await this.notifyRepository.markAllAsRead(userId);
   }
 }

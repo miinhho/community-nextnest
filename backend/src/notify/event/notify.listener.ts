@@ -2,6 +2,8 @@ import {
   COMMENT_LIKE_NOTIFY,
   COMMENT_REPLY_NOTIFY,
   FOLLOW_NOTIFY,
+  FOLLOW_REQUEST_ACCEPT_NOTIFY,
+  FOLLOW_REQUEST_NOTIFY,
   MARK_ALL_AS_READ_NOTIFY,
   MARK_AS_READ_NOTIFY,
   POST_COMMENT_NOTIFY,
@@ -9,12 +11,14 @@ import {
   SYSTEM_NOTIFY,
 } from '@/notify/event/types/notify.key';
 import {
-  CommentLikeNotifyEvent,
-  CommentReplyNotifyEvent,
-  FollowNotifyEvent,
-  PostCommentNotifyEvent,
-  PostLikeNotifyEvent,
-  SystemNotifyEvent,
+  CommentLikeNotifyPayload,
+  CommentReplyNotifyPayload,
+  FollowNotifyPayload,
+  FollowRequestAcceptedNotifyPayload,
+  FollowRequestNotifyPayload,
+  PostCommentNotifyPayload,
+  PostLikeNotifyPayload,
+  SystemNotifyPayload,
 } from '@/notify/event/types/notify.payload';
 import { NotifyService } from '@/notify/notify.service';
 import { Injectable } from '@nestjs/common';
@@ -28,7 +32,7 @@ export class NotifyEventListener {
    * 게시글 좋아요 알림을 처리합니다.
    */
   @OnEvent(POST_LIKE_NOTIFY)
-  async handlePostLikeNotify(userId: string, payload: PostLikeNotifyEvent) {
+  async handlePostLikeNotify(userId: string, payload: PostLikeNotifyPayload) {
     await this.notifyService.createPostLikeNotify({
       userId,
       ...payload,
@@ -39,7 +43,7 @@ export class NotifyEventListener {
    * 게시글 댓글 알림을 처리합니다.
    */
   @OnEvent(POST_COMMENT_NOTIFY)
-  async handlePostCommentNotify(userId: string, payload: PostCommentNotifyEvent) {
+  async handlePostCommentNotify(userId: string, payload: PostCommentNotifyPayload) {
     await this.notifyService.createCommentNotify({
       userId,
       ...payload,
@@ -50,7 +54,7 @@ export class NotifyEventListener {
    * 댓글 좋아요 알림을 처리합니다.
    */
   @OnEvent(COMMENT_LIKE_NOTIFY)
-  async handleCommentLikeNotify(userId: string, payload: CommentLikeNotifyEvent) {
+  async handleCommentLikeNotify(userId: string, payload: CommentLikeNotifyPayload) {
     await this.notifyService.createCommentLikeNotify({
       userId,
       ...payload,
@@ -61,7 +65,7 @@ export class NotifyEventListener {
    * 댓글 답글 알림을 처리합니다.
    */
   @OnEvent(COMMENT_REPLY_NOTIFY)
-  async handleCommentReplyNotify(userId: string, payload: CommentReplyNotifyEvent) {
+  async handleCommentReplyNotify(userId: string, payload: CommentReplyNotifyPayload) {
     await this.notifyService.createReplyNotify({
       userId,
       ...payload,
@@ -72,9 +76,34 @@ export class NotifyEventListener {
    * 팔로우 알림을 처리합니다.
    */
   @OnEvent(FOLLOW_NOTIFY)
-  async handleFollowNotify(userId: string, payload: FollowNotifyEvent) {
+  async handleFollowNotify(userId: string, payload: FollowNotifyPayload) {
     await this.notifyService.createFollowNotify({
       userId,
+      ...payload,
+    });
+  }
+
+  /**
+   * 팔로우 요청 알림을 처리합니다.
+   */
+  @OnEvent(FOLLOW_REQUEST_NOTIFY)
+  async handleFollowRequestNotify(userId: string, payload: FollowRequestNotifyPayload) {
+    await this.notifyService.createFollowRequestNotify({
+      userId,
+      ...payload,
+    });
+  }
+
+  /**
+   * 팔로우 요청 수락 알림을 처리합니다.
+   */
+  @OnEvent(FOLLOW_REQUEST_ACCEPT_NOTIFY)
+  async handleFollowRequestAcceptedNotify(
+    requesterId: string,
+    payload: FollowRequestAcceptedNotifyPayload,
+  ) {
+    await this.notifyService.createFollowAcceptNotify({
+      requesterId,
       ...payload,
     });
   }
@@ -83,7 +112,7 @@ export class NotifyEventListener {
    * 시스템 알림을 처리합니다.
    */
   @OnEvent(SYSTEM_NOTIFY)
-  async handleSystemNotify(userId: string, payload: SystemNotifyEvent) {
+  async handleSystemNotify(userId: string, payload: SystemNotifyPayload) {
     await this.notifyService.createSystemNotify({
       userId,
       ...payload,

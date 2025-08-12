@@ -4,11 +4,15 @@ import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
 import { PageQueryType } from '@/common/utils/page';
+import { NotifyPublisher } from '@/notify/event/notify.publisher';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CommentService {
-  constructor(private readonly commentRepository: CommentRepository) {}
+  constructor(
+    private readonly commentRepository: CommentRepository,
+    private readonly notifyPublisher: NotifyPublisher,
+  ) {}
 
   /**
    * 새 댓글을 생성합니다.
@@ -20,7 +24,12 @@ export class CommentService {
    * @throws {InternalServerErrorException} 댓글 작성 실패 시
    */
   async createComment(props: { postId: string; authorId: string; content: string }) {
-    return this.commentRepository.createComment(props);
+    const { id: commentId } = await this.commentRepository.createComment(props);
+    // 댓글 작성 후 게시글 작성자에게 댓글 알림 발행
+    this.notifyPublisher.publishCommentNofify(props.authorId, {
+      commentId,
+    });
+    return commentId;
   }
 
   /**

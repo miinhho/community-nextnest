@@ -26,6 +26,8 @@ export class NotifyRepository {
    * @type `COMMENT_LIKE`: 댓글 좋아요 알림
    * @type `COMMENT_REPLY`: 댓글 답글 알림
    * @type `FOLLOW`: 팔로우 알림
+   * @type `FOLLOW_REQUEST`: 팔로우 요청 알림
+   * @type `FOLLOW_REQUEST_ACCEPTED`: 팔로우 요청 수락 알림
    * @type `SYSTEM`: 시스템 알림
    */
   @PrismaErrorHandler({
@@ -83,6 +85,8 @@ export class NotifyRepository {
           commentId: notify.commentId,
         };
       case NotificationType.FOLLOW:
+      case NotificationType.FOLLOW_REQUEST:
+      case NotificationType.FOLLOW_REQUEST_ACCEPTED:
         return {
           ...defaultNotifyData,
           follower: notify.follower,
@@ -165,7 +169,7 @@ export class NotifyRepository {
     postId: string;
     viewerId: string;
   }) {
-    return this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx) => {
       const post = await tx.post.findUniqueOrThrow({
         where: { id: postId },
         select: {
@@ -224,7 +228,7 @@ export class NotifyRepository {
     userId: string;
     commentId: string;
   }) {
-    return this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx) => {
       const comment = await tx.comment.findUniqueOrThrow({
         where: { id: commentId },
         select: {
@@ -274,7 +278,7 @@ export class NotifyRepository {
     commentId: string;
     viewerId: string;
   }) {
-    return this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx) => {
       const comment = await tx.comment.findUniqueOrThrow({
         where: { id: commentId },
         select: {
@@ -330,7 +334,7 @@ export class NotifyRepository {
     commentId: string;
     replyId: string;
   }) {
-    return this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx) => {
       const reply = await tx.comment.findUniqueOrThrow({
         where: { id: replyId, parentId: commentId },
         select: {
@@ -363,11 +367,11 @@ export class NotifyRepository {
    * 팔로우 알림을 생성합니다.
    * @param userId - 알림을 받을 사용자 ID
    * @param followerId - 팔로우한 사용자 ID
-   * @throws {NotFoundException} - 사용자 또는 팔로워를 찾을 수 없는 경우
+   * @throws {NotFoundException} - 팔로워를 찾을 수 없는 경우
    * @throws {InternalServerErrorException} - 알림 생성 중 오류 발생 시
    */
   @PrismaErrorHandler({
-    RecordsNotFound: '사용자 또는 팔로워를 찾을 수 없습니다.',
+    RecordsNotFound: '팔로워를 찾을 수 없습니다.',
     Default: '팔로우 알람 생성 중 오류 발생',
   })
   async createFollowNotify({
@@ -377,7 +381,7 @@ export class NotifyRepository {
     userId: string;
     followerId: string;
   }) {
-    return this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx) => {
       const follower = await tx.user.findUniqueOrThrow({
         where: { id: followerId },
         select: {
@@ -394,6 +398,86 @@ export class NotifyRepository {
           image: follower.image,
           userId,
           followerId,
+        },
+        select: {},
+      });
+    });
+  }
+
+  /**
+   * 팔로우 요청 알림을 생성합니다.
+   * @param userId - 알림을 받을 사용자 ID
+   * @param requesterId - 팔로우 요청을 보낸 사용자 ID
+   * @throws {NotFoundException} - 사용자 또는 팔로우 요청 유저를 찾을 수 없는 경우
+   * @throws {InternalServerErrorException} - 알림 생성 중 오류 발생 시
+   */
+  @PrismaErrorHandler({
+    RecordsNotFound: '사용자 또는 팔로우 요청 유저를 찾을 수 없습니다.',
+    Default: '팔로우 요청 알람 생성 중 오류 발생',
+  })
+  async createFollowRequestNotify({
+    userId,
+    requesterId,
+  }: {
+    userId: string;
+    requesterId: string;
+  }) {
+    await this.prisma.$transaction(async (tx) => {
+      const requester = await tx.user.findUniqueOrThrow({
+        where: { id: requesterId },
+        select: {
+          name: true,
+          image: true,
+        },
+      });
+      await tx.notification.create({
+        data: {
+          type: NotificationType.FOLLOW_REQUEST,
+          title: `팔로우 요청`,
+          content: `${requester.name} 님이 팔로우 요청을 보냈습니다.`,
+          image: requester.image,
+          userId,
+          followerId: requesterId,
+        },
+        select: {},
+      });
+    });
+  }
+
+  /**
+   * 팔로우 수락 알림을 생성합니다.
+   * @param requesterId - 팔로우 요청을 보낸 사용자 ID
+   * @param accepterId - 팔로우 요청을 수락한 사용자 ID
+   * @throws {NotFoundException} - 팔로우 수락 유저를 찾을 수 없는 경우
+   * @throws {InternalServerErrorException} - 알림 생성 중 오류 발생 시
+   */
+  @PrismaErrorHandler({
+    RecordsNotFound: '팔로우 수락 유저를 찾을 수 없습니다.',
+    Default: '팔로우 수락 알람 생성 중 오류 발생',
+  })
+  async createFollowAcceptNotify({
+    requesterId,
+    accepterId,
+  }: {
+    requesterId: string;
+    accepterId: string;
+  }) {
+    await this.prisma.$transaction(async (tx) => {
+      const accepter = await tx.user.findUniqueOrThrow({
+        where: { id: accepterId },
+        select: {
+          name: true,
+          image: true,
+        },
+      });
+      await tx.notification.create({
+        data: {
+          type: NotificationType.FOLLOW_REQUEST_ACCEPTED,
+          title: `팔로우 승인`,
+          content: `${accepter.name} 님이 팔로우 요청을 승인하였습니다.`,
+          image: accepter.image,
+          userId: requesterId,
+          followerId: accepterId,
         },
         select: {},
       });
