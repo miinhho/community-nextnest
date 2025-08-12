@@ -1,3 +1,5 @@
+import '../instrument';
+
 import { setUpSwagger } from '@/common/swagger';
 import { ConsoleLogger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';

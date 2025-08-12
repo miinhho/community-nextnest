@@ -69,3 +69,7 @@ nginx/ssl/*.key
 nginx/ssl/*.crt
 nginx/logs/
 
+
+# Sentry Config File
+.sentryclirc
+instrument.ts
