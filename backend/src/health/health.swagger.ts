@@ -1,9 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
-import {
-  ApiOkResponse,
-  ApiOperation,
-  ApiServiceUnavailableResponse,
-} from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiServiceUnavailableResponse } from '@nestjs/swagger';
 
 export const ApiCheck = () =>
   applyDecorators(

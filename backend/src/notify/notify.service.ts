@@ -58,11 +58,7 @@ export class NotifyService {
    * @throws {NotFoundException} - 게시글 또는 사용자를 찾을 수 없는 경우
    * @throws {InternalServerErrorException} - 알림 생성 중 오류 발생 시
    */
-  async createPostLikeNotify(props: {
-    userId: string;
-    postId: string;
-    viewerId: string;
-  }) {
+  async createPostLikeNotify(props: { userId: string; postId: string; viewerId: string }) {
     await this.notifyRepository.createPostLikeNotify(props);
   }
 
@@ -85,11 +81,7 @@ export class NotifyService {
    * @throws {NotFoundException} - 댓글 또는 사용자를 찾을 수 없는 경우
    * @throws {InternalServerErrorException} - 알림 생성 중 오류 발생 시
    */
-  async createCommentLikeNotify(props: {
-    userId: string;
-    commentId: string;
-    viewerId: string;
-  }) {
+  async createCommentLikeNotify(props: { userId: string; commentId: string; viewerId: string }) {
     await this.notifyRepository.createCommentLikeNotify(props);
   }
 

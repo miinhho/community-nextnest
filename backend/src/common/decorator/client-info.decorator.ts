@@ -34,10 +34,8 @@ export type ClientInfoType = {
  * }
  * ```
  */
-export const ClientInfo = createParamDecorator(
-  (_data: unknown, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest();
-    const headers = request.headers;
-    return getClientInfo(headers);
-  },
-);
+export const ClientInfo = createParamDecorator((_data: unknown, ctx: ExecutionContext) => {
+  const request = ctx.switchToHttp().getRequest();
+  const headers = request.headers;
+  return getClientInfo(headers);
+});

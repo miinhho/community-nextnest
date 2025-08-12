@@ -395,8 +395,7 @@ export class CommentRepository {
    * @throws {InternalServerErrorException} 좋아요 취소 실패 시
    */
   @PrismaErrorHandler({
-    RecordsNotFound:
-      '댓글이 없거나, 해당 댓글에 좋아요를 누르지 않아서 취소할 수 없습니다.',
+    RecordsNotFound: '댓글이 없거나, 해당 댓글에 좋아요를 누르지 않아서 취소할 수 없습니다.',
     Default: '댓글 좋아요 취소에 실패했습니다.',
   })
   async minusCommentLike({ userId, commentId }: { userId: string; commentId: string }) {
@@ -443,9 +442,7 @@ export class CommentRepository {
     userAgent?: string;
   }) {
     // userId 를 우선적으로 사용하고, 없으면 ipAddress와 userAgent를 사용
-    const uniqueKey = userId
-      ? { commentId, userId }
-      : { commentId, ipAddress, userAgent };
+    const uniqueKey = userId ? { commentId, userId } : { commentId, ipAddress, userAgent };
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.commentView.create({
@@ -494,9 +491,7 @@ export class CommentRepository {
     userAgent?: string;
   }) {
     // userId 를 우선적으로 사용하고, 없으면 ipAddress와 userAgent를 사용
-    const uniqueKey = userId
-      ? { commentId, userId }
-      : { commentId, ipAddress, userAgent };
+    const uniqueKey = userId ? { commentId, userId } : { commentId, ipAddress, userAgent };
 
     // 24시간 이내에 조회한 기록이 있는지 확인
     const view = await this.prisma.commentView.findFirst({

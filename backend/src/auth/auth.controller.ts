@@ -58,8 +58,7 @@ export class AuthController {
     @Body() registerUserDto: RegisterUserDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { user, accessToken, refreshToken } =
-      await this.authService.register(registerUserDto);
+    const { user, accessToken, refreshToken } = await this.authService.register(registerUserDto);
 
     this.setRefreshTokenCookie(res, refreshToken);
     this.setAccessTokenCookie(res, accessToken);
@@ -77,11 +76,7 @@ export class AuthController {
   @ApiLogin()
   @Post('login')
   async login(@User() user: UserData, @Res({ passthrough: true }) res: Response) {
-    const {
-      refreshToken,
-      accessToken,
-      user: userData,
-    } = await this.authService.login(user);
+    const { refreshToken, accessToken, user: userData } = await this.authService.login(user);
     this.setRefreshTokenCookie(res, refreshToken);
     this.setAccessTokenCookie(res, accessToken);
 
@@ -111,8 +106,7 @@ export class AuthController {
   @ApiRefresh()
   async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const oldRefreshToken = this.extractRefreshToken(req);
-    const { refreshToken, accessToken } =
-      await this.authService.refreshTokens(oldRefreshToken);
+    const { refreshToken, accessToken } = await this.authService.refreshTokens(oldRefreshToken);
 
     this.setRefreshTokenCookie(res, refreshToken);
     this.setAccessTokenCookie(res, accessToken);

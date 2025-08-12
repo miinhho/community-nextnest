@@ -11,9 +11,7 @@ export class PrivateDeniedError extends ForbiddenException {
    * @param targetId - 접근하려는 대상 게시글의 ID
    */
   constructor(userId: string, targetId: string) {
-    super(
-      `비공개 사용자의 게시글에 접근할 수 없습니다. userId: ${userId}, targetId: ${targetId}`,
-    );
+    super(`비공개 사용자의 게시글에 접근할 수 없습니다. userId: ${userId}, targetId: ${targetId}`);
     this.name = 'PrivateAccessDeniedError';
   }
 }

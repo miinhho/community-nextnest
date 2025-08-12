@@ -21,10 +21,7 @@ export class BlockController {
 
   @Delete()
   @ApiUnblockUser()
-  async unblockUser(
-    @Body('targetId') targetId: string,
-    @User() { id: userId }: UserData,
-  ) {
+  async unblockUser(@Body('targetId') targetId: string, @User() { id: userId }: UserData) {
     await this.blockService.unblockUser({ userId, targetId });
     return {
       success: true,

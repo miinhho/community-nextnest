@@ -49,10 +49,7 @@ export class PrismaErrorInterceptor implements NestInterceptor {
         }
 
         if (error.code === PrismaError.UniqueConstraintViolation) {
-          this.logger.warn(
-            `Unique constraint violation in ${className}.${methodName}`,
-            error.meta,
-          );
+          this.logger.warn(`Unique constraint violation in ${className}.${methodName}`, error.meta);
           return throwError(() => new ConflictException(errorMessage));
         }
 

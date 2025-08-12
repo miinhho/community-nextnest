@@ -63,11 +63,7 @@ export class PostController {
     @PageQuery() pageQuery: PageQueryType,
     @User() user?: UserData,
   ) {
-    const { data: posts, meta } = await this.postService.findPostsByUserId(
-      id,
-      pageQuery,
-      user,
-    );
+    const { data: posts, meta } = await this.postService.findPostsByUserId(id, pageQuery, user);
     return {
       success: true,
       data: {

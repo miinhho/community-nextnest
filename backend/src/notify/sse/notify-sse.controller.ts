@@ -8,14 +8,7 @@ import {
 } from '@/notify/event/types/notify.key';
 import { NotifyPayload } from '@/notify/event/types/notify.payload';
 import { ApiNotifySse } from '@/notify/sse/notify-sse.swagger';
-import {
-  BadRequestException,
-  Controller,
-  Logger,
-  OnModuleInit,
-  Req,
-  Sse,
-} from '@nestjs/common';
+import { BadRequestException, Controller, Logger, OnModuleInit, Req, Sse } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Request } from 'express';
 import { interval, map, merge, Subject, takeUntil } from 'rxjs';

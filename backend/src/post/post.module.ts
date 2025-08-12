@@ -1,4 +1,5 @@
 import { BlockModule } from '@/block/block.module';
+import { NotifyPublisher } from '@/notify/event/notify.publisher';
 import { PostCacheService } from '@/post/cache/post-cache.service';
 import { PostOwnerGuard } from '@/post/guard/post-owner.guard';
 import { PostRepository } from '@/post/post.repository';
@@ -18,6 +19,7 @@ import { PostService } from './post.service';
     PostOwnerGuard,
     PostRecommendService,
     PostCacheService,
+    NotifyPublisher,
   ],
   exports: [PostService, PostRepository],
 })

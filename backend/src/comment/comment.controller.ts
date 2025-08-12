@@ -29,10 +29,7 @@ export class CommentController {
 
   @Post('comment')
   @ApiCreateComment()
-  async createComment(
-    @Body() { postId, content }: CreateCommentDto,
-    @User() user: UserData,
-  ) {
+  async createComment(@Body() { postId, content }: CreateCommentDto, @User() user: UserData) {
     const commentId = await this.commentService.createComment({
       postId,
       authorId: user.id,

@@ -105,8 +105,7 @@ export class AuthService {
     const payload = this.tokenService.verifyRefreshToken(refreshToken);
     const userId = payload.sub;
 
-    const storedToken =
-      await this.refreshTokenService.findRefreshTokenByToken(refreshToken);
+    const storedToken = await this.refreshTokenService.findRefreshTokenByToken(refreshToken);
 
     if (new Date(storedToken.expiresAt) < new Date()) {
       await this.refreshTokenService.revokeRefreshToken(storedToken.id);

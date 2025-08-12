@@ -4,6 +4,7 @@ import { AlreadyLikeError } from '@/common/error/already-like.error';
 import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
 import { PageData, PageQueryType } from '@/common/utils/page';
+import { NotifyPublisher } from '@/notify/event/notify.publisher';
 import { PostCacheService } from '@/post/cache/post-cache.service';
 import { PostRepository } from '@/post/post.repository';
 import { PagedPost } from '@/post/post.types';
@@ -19,6 +20,7 @@ export class PostService {
     private readonly privateService: PrivateService,
     private readonly blockService: BlockService,
     private readonly postCacheService: PostCacheService,
+    private readonly notifyPublisher: NotifyPublisher,
   ) {}
 
   /**
@@ -205,7 +207,7 @@ export class PostService {
       const { id: userId, role } = user;
 
       // 사용자 유효성 및 게시글 비공개 여부 검증
-      const { isPrivate, authorId } = await this.postRepository.isPostPrivate(postId);
+      const { isPrivate, authorId } = await this.postRepository.findIsPostPrivate(postId);
       if (isPrivate && role !== Role.ADMIN) {
         await this.privateService.isUserAvailable(
           {
@@ -227,6 +229,12 @@ export class PostService {
 
       await this.postRepository.addPostLikes({
         userId,
+        postId,
+      });
+
+      // 게시글 작성자에게 좋아요 알림 발행
+      this.notifyPublisher.postLikeNotify(authorId, {
+        viewerId: userId,
         postId,
       });
       return LikeStatus.PLUS;

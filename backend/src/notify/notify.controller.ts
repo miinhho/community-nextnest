@@ -4,10 +4,7 @@ import { User } from '@/common/decorator/user.decorator';
 import { ApiNotifyTags } from '@/common/swagger/tags.swagger';
 import { UserData } from '@/common/user';
 import { PageQueryType } from '@/common/utils/page';
-import {
-  MARK_ALL_AS_READ_NOTIFY,
-  MARK_AS_READ_NOTIFY,
-} from '@/notify/event/types/notify.key';
+import { MARK_ALL_AS_READ_NOTIFY, MARK_AS_READ_NOTIFY } from '@/notify/event/types/notify.key';
 import { NotifyService } from '@/notify/notify.service';
 import { ApiGetNotifiesByUserId, ApiGetNotifyById } from '@/notify/notify.swagger';
 import { Controller, Get, Patch } from '@nestjs/common';

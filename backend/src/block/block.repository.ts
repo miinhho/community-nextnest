@@ -60,13 +60,7 @@ export class BlockRepository {
   @PrismaErrorHandler({
     Default: '차단 여부 확인 실패',
   })
-  async eachUserBlocked({
-    userId,
-    otherUserId,
-  }: {
-    userId: string;
-    otherUserId: string;
-  }) {
+  async eachUserBlocked({ userId, otherUserId }: { userId: string; otherUserId: string }) {
     const block = await this.prisma.blocking.findFirst({
       where: {
         OR: [
@@ -188,13 +182,7 @@ export class BlockRepository {
   @PrismaErrorHandler({
     Default: '차단 관계 정리 실패',
   })
-  private async cleanUpRelation({
-    userId,
-    targetId,
-  }: {
-    userId: string;
-    targetId: string;
-  }) {
+  private async cleanUpRelation({ userId, targetId }: { userId: string; targetId: string }) {
     await this.prisma.follow.deleteMany({
       where: {
         OR: [

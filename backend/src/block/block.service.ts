@@ -21,8 +21,7 @@ export class BlockService {
    * @throws {InternalServerErrorException} 차단 여부 확인 중 오류 발생 시
    */
   async isUserBlocked(props: { userId: string; targetId: string }, throwError = false) {
-    const { userBlocked, targetBlocked } =
-      await this.blockRepository.isUserBlocked(props);
+    const { userBlocked, targetBlocked } = await this.blockRepository.isUserBlocked(props);
 
     if (throwError) {
       if (userBlocked) {

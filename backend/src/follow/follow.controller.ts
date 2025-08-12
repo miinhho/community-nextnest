@@ -97,10 +97,7 @@ export class FollowController {
   @Get('user/:id/followers')
   @ApiGetUserFollowers()
   async getUserFollowers(@IdParam() id: string, @PageQuery() pageQuery: PageQueryType) {
-    const { data: followers, meta } = await this.followService.getFollowers(
-      id,
-      pageQuery,
-    );
+    const { data: followers, meta } = await this.followService.getFollowers(id, pageQuery);
     return {
       success: true,
       data: {
@@ -114,10 +111,7 @@ export class FollowController {
   @Get('user/:id/following')
   @ApiGetUserFollowing()
   async getUserFollowing(@IdParam() id: string, @PageQuery() pageQuery: PageQueryType) {
-    const { data: following, meta } = await this.followService.getFollowing(
-      id,
-      pageQuery,
-    );
+    const { data: following, meta } = await this.followService.getFollowing(id, pageQuery);
     return {
       success: true,
       data: {

@@ -5,12 +5,7 @@ import { ApiUserTags } from '@/common/swagger/tags.swagger';
 import { UserData } from '@/common/user';
 import { UpdateUserDto } from '@/user/dto/user.dto';
 import { UserOwner } from '@/user/guard/user-owner.guard';
-import {
-  ApiDeleteUser,
-  ApiGetMyInfo,
-  ApiGetUserById,
-  ApiUpdateUser,
-} from '@/user/user.swagger';
+import { ApiDeleteUser, ApiGetMyInfo, ApiGetUserById, ApiUpdateUser } from '@/user/user.swagger';
 import { Body, Controller, Delete, Get, Patch } from '@nestjs/common';
 import { UserService } from './user.service';
 

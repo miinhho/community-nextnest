@@ -240,8 +240,7 @@ export const ApiGetCommentById = () =>
     ApiJwtAuth(),
     ApiOperation({
       summary: '댓글 조회',
-      description:
-        'ID로 특정 댓글의 상세 정보를 조회합니다. 차단된 사용자의 댓글은 제외됩니다.',
+      description: 'ID로 특정 댓글의 상세 정보를 조회합니다. 차단된 사용자의 댓글은 제외됩니다.',
     }),
     ApiParam({
       name: 'id',

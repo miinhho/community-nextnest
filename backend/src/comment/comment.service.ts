@@ -128,11 +128,7 @@ export class CommentService {
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
    * @throws {InternalServerErrorException} 답글 조회 실패 시
    */
-  async findRepliesByCommentId(
-    commentId: string,
-    pageParams: PageQueryType,
-    user?: UserData,
-  ) {
+  async findRepliesByCommentId(commentId: string, pageParams: PageQueryType, user?: UserData) {
     return this.commentRepository.findRepliesByCommentId(commentId, pageParams, user?.id);
   }
 

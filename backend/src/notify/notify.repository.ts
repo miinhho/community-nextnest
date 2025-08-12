@@ -1,7 +1,4 @@
-import {
-  NOTIFY_COMMENT_CONTENT_LEN,
-  NOTIFY_POST_CONTENT_LEN,
-} from '@/common/utils/content';
+import { NOTIFY_COMMENT_CONTENT_LEN, NOTIFY_POST_CONTENT_LEN } from '@/common/utils/content';
 import { INITIAL_PAGE, PageQueryType, toPageData } from '@/common/utils/page';
 import { PrismaErrorHandler } from '@/prisma/prisma-error.interceptor';
 import { PrismaService } from '@/prisma/prisma.service';
@@ -107,10 +104,7 @@ export class NotifyRepository {
   @PrismaErrorHandler({
     Default: '알림 목록 조회 중 오류 발생',
   })
-  async findNotifiesByUserId(
-    userId: string,
-    { page, size }: PageQueryType = INITIAL_PAGE,
-  ) {
+  async findNotifiesByUserId(userId: string, { page, size }: PageQueryType = INITIAL_PAGE) {
     const notifies = await this.prisma.notification.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
@@ -221,13 +215,7 @@ export class NotifyRepository {
     RecordsNotFound: '게시글 또는 사용자를 찾을 수 없습니다.',
     Default: '게시글 알림 생성 중 오류 발생',
   })
-  async createCommentNotify({
-    userId,
-    commentId,
-  }: {
-    userId: string;
-    commentId: string;
-  }) {
+  async createCommentNotify({ userId, commentId }: { userId: string; commentId: string }) {
     await this.prisma.$transaction(async (tx) => {
       const comment = await tx.comment.findUniqueOrThrow({
         where: { id: commentId },
@@ -374,13 +362,7 @@ export class NotifyRepository {
     RecordsNotFound: '팔로워를 찾을 수 없습니다.',
     Default: '팔로우 알람 생성 중 오류 발생',
   })
-  async createFollowNotify({
-    userId,
-    followerId,
-  }: {
-    userId: string;
-    followerId: string;
-  }) {
+  async createFollowNotify({ userId, followerId }: { userId: string; followerId: string }) {
     await this.prisma.$transaction(async (tx) => {
       const follower = await tx.user.findUniqueOrThrow({
         where: { id: followerId },

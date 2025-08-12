@@ -21,15 +21,7 @@ export class UserRepository {
     UniqueConstraintViolation: '이미 사용 중인 이메일입니다.',
     Default: '유저 생성에 실패했습니다.',
   })
-  async createUser({
-    email,
-    password,
-    name,
-  }: {
-    email: string;
-    password: string;
-    name: string;
-  }) {
+  async createUser({ email, password, name }: { email: string; password: string; name: string }) {
     return this.prisma.user.create({
       data: {
         email,

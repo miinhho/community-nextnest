@@ -11,8 +11,7 @@ export const FOLLOW_REQUEST_ACCEPT_NOTIFY =
   `notify.${NotificationType.FOLLOW_REQUEST_ACCEPTED}` as const;
 export const SYSTEM_NOTIFY = `notify.${NotificationType.SYSTEM}` as const;
 export const MARK_AS_READ_NOTIFY = `notify.${NotificationType.MARK_AS_READ}` as const;
-export const MARK_ALL_AS_READ_NOTIFY =
-  `notify.${NotificationType.MARK_ALL_AS_READ}` as const;
+export const MARK_ALL_AS_READ_NOTIFY = `notify.${NotificationType.MARK_ALL_AS_READ}` as const;
 
 // 알림 이벤트 키 타입
 export type NotifyEventKey =

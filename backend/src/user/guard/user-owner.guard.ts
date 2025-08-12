@@ -1,10 +1,5 @@
 import { isAdmin, UserData } from '@/common/user';
-import {
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-  UseGuards,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, ForbiddenException, UseGuards } from '@nestjs/common';
 
 /**
  * 리소스에 대한 접근 권한을 확인하여 본인 또는 관리자만 접근할 수 있도록 제한합니다.

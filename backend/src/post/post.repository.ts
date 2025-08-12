@@ -178,7 +178,7 @@ export class PostRepository {
     RecordsNotFound: '존재하지 않는 게시글입니다.',
     Default: '게시글 비공개 여부 조회에 실패했습니다.',
   })
-  async isPostPrivate(postId: string) {
+  async findIsPostPrivate(postId: string) {
     const post = await this.prisma.post.findUniqueOrThrow({
       where: { id: postId },
       select: {
@@ -235,7 +235,7 @@ export class PostRepository {
         id: postId,
         ...getBlockFilter(userId),
       };
-      return this.prisma.$transaction(async (tx) => {
+      await this.prisma.$transaction(async (tx) => {
         const post = await tx.post.findUniqueOrThrow({
           where: {
             ...filter,
@@ -285,12 +285,11 @@ export class PostRepository {
    * @throws {InternalServerErrorException} 좋아요 취소 중 오류 발생 시
    */
   @PrismaErrorHandler({
-    RecordsNotFound:
-      '게시물이 없거나, 해당 게시물에 좋아요를 누르지 않아서 취소할 수 없습니다.',
+    RecordsNotFound: '게시물이 없거나, 해당 게시물에 좋아요를 누르지 않아서 취소할 수 없습니다.',
     Default: '게시글 좋아요 취소에 실패했습니다.',
   })
   async minusPostLikes({ userId, postId }: { userId: string; postId: string }) {
-    return this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx) => {
       const post = await tx.post.findUniqueOrThrow({
         where: {
           id: postId,

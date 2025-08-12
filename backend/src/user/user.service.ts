@@ -83,9 +83,7 @@ export class UserService {
     }
 
     if (!user) {
-      throw new UnauthorizedException(
-        '사용자 정보에 접근할 수 없습니다. 인증이 필요합니다.',
-      );
+      throw new UnauthorizedException('사용자 정보에 접근할 수 없습니다. 인증이 필요합니다.');
     }
 
     // 비공개 사용자 정보에 접근하려는 경우
