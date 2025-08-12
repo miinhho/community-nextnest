@@ -26,7 +26,7 @@ export class CommentService {
   async createComment(props: { postId: string; authorId: string; content: string }) {
     const { id: commentId } = await this.commentRepository.createComment(props);
     // 댓글 작성 후 게시글 작성자에게 댓글 알림 발행
-    this.notifyPublisher.publishCommentNofify(props.authorId, {
+    this.notifyPublisher.commentNofify(props.authorId, {
       commentId,
     });
     return commentId;
@@ -48,7 +48,12 @@ export class CommentService {
     commentId: string;
     content: string;
   }) {
-    return this.commentRepository.createCommentReply(props);
+    const { id: replyId } = await this.commentRepository.createCommentReply(props);
+    // 답글 작성 후 부모 댓글 작성자에게 답글 알림 발행
+    this.notifyPublisher.commentReplyNotify(props.authorId, {
+      replyId,
+      commentId: props.commentId,
+    });
   }
 
   /**
@@ -166,8 +171,13 @@ export class CommentService {
     toggle?: boolean;
   }) {
     try {
-      await this.commentRepository.addCommentLike({
+      const { authorId } = await this.commentRepository.addCommentLike({
         userId,
+        commentId,
+      });
+      // 좋아요 추가 후 댓글 작성자에게 좋아요 알림 발행
+      this.notifyPublisher.commentLikeNotify(authorId, {
+        viewerId: userId,
         commentId,
       });
       return LikeStatus.PLUS;

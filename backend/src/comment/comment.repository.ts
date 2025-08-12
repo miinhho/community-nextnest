@@ -354,12 +354,14 @@ export class CommentRepository {
   async addCommentLike({ userId, commentId }: { userId: string; commentId: string }) {
     try {
       return this.prisma.$transaction(async (tx) => {
-        await tx.comment.findUniqueOrThrow({
+        const { authorId } = await tx.comment.findUniqueOrThrow({
           where: {
             id: commentId,
             ...getBlockFilter(userId),
           },
-          select: {},
+          select: {
+            authorId: true,
+          },
         });
         await tx.commentLikes.create({
           data: {
@@ -375,6 +377,7 @@ export class CommentRepository {
           },
           select: {},
         });
+        return { authorId };
       });
     } catch (err) {
       if (err.code === PrismaError.UniqueConstraintViolation) {
@@ -397,7 +400,7 @@ export class CommentRepository {
     Default: '댓글 좋아요 취소에 실패했습니다.',
   })
   async minusCommentLike({ userId, commentId }: { userId: string; commentId: string }) {
-    return this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx) => {
       await tx.commentLikes.delete({
         where: {
           userId_commentId: {
@@ -444,7 +447,7 @@ export class CommentRepository {
       ? { commentId, userId }
       : { commentId, ipAddress, userAgent };
     try {
-      return this.prisma.$transaction(async (tx) => {
+      await this.prisma.$transaction(async (tx) => {
         await tx.commentView.create({
           data: {
             ...uniqueKey,
