@@ -30,8 +30,6 @@ export class RefreshTokenService {
 
   /**
    * 특정 Refresh Token을 데이터베이스에서 삭제합니다.
-   *
-   * @param tokenId - 삭제할 토큰의 ID
    * @throws {NotFoundException} 토큰을 찾을 수 없는 경우
    * @throws {InternalServerErrorException} 토큰 삭제 실패 시
    */
@@ -48,8 +46,6 @@ export class RefreshTokenService {
 
   /**
    * 특정 사용자의 모든 Refresh Token을 데이터베이스에서 삭제합니다.
-   *
-   * @param userId - 토큰을 삭제할 사용자 ID
    * @throws {NotFoundException} 사용자의 토큰을 찾을 수 없는 경우
    * @throws {InternalServerErrorException} 토큰 삭제 실패 시
    */
@@ -65,8 +61,6 @@ export class RefreshTokenService {
 
   /**
    * 토큰 ID로 Refresh Token을 조회합니다.
-   *
-   * @param tokenId - 조회할 토큰의 ID
    * @throws {NotFoundException} 토큰을 찾을 수 없는 경우
    * @throws {InternalServerErrorException} 토큰 조회 실패 시
    */
