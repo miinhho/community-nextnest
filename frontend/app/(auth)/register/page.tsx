@@ -1,6 +1,6 @@
 'use client'
 
-import { useApiError } from '@/hooks/useApiError'
+import { handleApiError } from '@/lib/api-error'
 import { useAuthRegisterQuery } from '@/lib/query/auth.query'
 import { cn } from '@/lib/utils'
 import { registerData, type RegisterData } from '@/lib/validation/auth.validate'
@@ -18,7 +18,6 @@ export default function RegisterPage() {
   } = useForm<RegisterData>({
     resolver: zodResolver(registerData),
   })
-  const { handleApiError } = useApiError()
 
   const onSubmit: SubmitHandler<RegisterData> = async (data) => {
     registerMutation(data, {

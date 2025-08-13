@@ -1,6 +1,6 @@
 'use client'
 
-import { useApiError } from '@/hooks/useApiError'
+import { handleApiError } from '@/lib/api-error'
 import { useAuthLoginQuery } from '@/lib/query/auth.query'
 import { cn } from '@/lib/utils'
 import { type LoginData, loginData } from '@/lib/validation/auth.validate'
@@ -18,7 +18,6 @@ export default function LoginPage() {
   } = useForm<LoginData>({
     resolver: zodResolver(loginData),
   })
-  const { handleApiError } = useApiError()
 
   const onSubmit: SubmitHandler<LoginData> = async (data) => {
     loginMutation(data, {

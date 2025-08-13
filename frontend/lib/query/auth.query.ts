@@ -1,4 +1,4 @@
-import { apiPost } from '@/lib/axios'
+import { apiPost } from '@/lib/ky'
 import { Role } from '@/lib/types/role.types'
 import { useMutation } from '@tanstack/react-query'
 import { type ApiError } from 'next/dist/server/api-utils'

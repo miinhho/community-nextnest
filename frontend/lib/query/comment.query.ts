@@ -1,5 +1,5 @@
-import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/axios'
 import { INITIAL_PAGE } from '@/lib/constant'
+import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/ky'
 import { PageParams } from '@/lib/types/page.types'
 import { CommentSchema } from '@/lib/types/schema.types'
 import { LikeStatus } from '@/lib/types/status.types'

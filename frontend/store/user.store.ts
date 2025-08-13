@@ -1,5 +1,5 @@
-import { apiGet, apiPost } from '@/lib/axios'
-import { ApiError } from '@/lib/error/api-error'
+import { handleApiError } from '@/lib/api-error'
+import { apiGet, apiPost } from '@/lib/ky'
 import { UserData } from '@/lib/query/user.query'
 import { createStore } from 'zustand'
 import { persist } from 'zustand/middleware'
@@ -46,17 +46,13 @@ export const createUserStore = () => {
         logout: async () => {
           try {
             await apiPost('/api/auth/logout')
-          } catch {
-            throw new Error('로그아웃에 실패했습니다.')
           } finally {
             set(() => ({ ...initialState }))
           }
         },
         initializeUser: async () => {
-          const response = await apiGet<UserData>('/api/user/me')
-
-          if (response.success) {
-            const userData = response.data
+          try {
+            const { data: userData } = await apiGet<UserData>('/api/user/me')
             set(() => ({
               id: userData.id,
               name: userData.name,
@@ -64,13 +60,9 @@ export const createUserStore = () => {
               image: userData.image,
               isVerified: !!userData.emailVerified,
             }))
-          } else {
+          } catch (err) {
             set(() => ({ ...initialState }))
-            throw new ApiError(
-              response.status,
-              response.message || '유저 정보를 불러오지 못했습니다.',
-              response.data,
-            )
+            handleApiError(err)
           }
         },
       }),

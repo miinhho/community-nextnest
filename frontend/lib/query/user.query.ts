@@ -1,7 +1,8 @@
-import { apiGet, apiPatch } from '@/lib/axios'
 import { INITIAL_PAGE } from '@/lib/constant'
+import { apiGet, apiPatch } from '@/lib/ky'
 import { PageParams } from '@/lib/types/page.types'
 import { BaseTimestamp, CommentSchema, PostSchema, UserSchema } from '@/lib/types/schema.types'
+import { recursiveDateParse } from '@/lib/utils/parsing'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { type ApiError } from 'next/dist/server/api-utils'
 
@@ -22,7 +23,7 @@ export interface UserData extends UserSchema, BaseTimestamp {
 }
 export const userQueryFn = async (userId: string) => {
   const response = await apiGet<UserData>(`user/${userId}`)
-  return response.data
+  return recursiveDateParse(response.data)
 }
 export const useUserQuery = (userId: string) =>
   useQuery({

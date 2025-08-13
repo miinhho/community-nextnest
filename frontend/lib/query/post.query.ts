@@ -1,7 +1,8 @@
-import { apiDelete, apiGet, apiPost } from '@/lib/axios'
+import { apiDelete, apiGet, apiPost } from '@/lib/ky'
 import { PageParams } from '@/lib/types/page.types'
 import { CommentSchema, PostSchema } from '@/lib/types/schema.types'
 import { LikeStatus } from '@/lib/types/status.types'
+import { recursiveDateParse } from '@/lib/utils/parsing'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { type ApiError } from 'next/dist/server/api-utils'
 
@@ -16,7 +17,7 @@ interface PostListData {
 export const postListQueryFn = async ({ page = 0, size = 10 }: PageParams) => {
   const response = await apiGet<PostListData>(`post?page=${page}&size=${size}`)
   return {
-    posts: response.data.posts,
+    posts: recursiveDateParse(response.data.posts),
     meta: response.meta!,
   }
 }
@@ -29,7 +30,7 @@ export const usePostListQuery = (params: PageParams) =>
 // Post Get Query
 export const postQueryFn = async (postId: string) => {
   const response = await apiGet<PostSchema>(`post/${postId}`)
-  return response.data
+  return recursiveDateParse(response.data)
 }
 export const usePostQuery = (postId: string) =>
   useQuery({
@@ -113,7 +114,7 @@ interface PostCommentData {
 export const postCommentQueryFn = async (postId: string, { page = 0, size = 10 }: PageParams) => {
   const response = await apiGet<PostCommentData>(`post/${postId}/comment?page=${page}&size=${size}`)
   return {
-    comments: response.data.comments,
+    comments: recursiveDateParse(response.data.comments),
     meta: response.meta!,
   }
 }

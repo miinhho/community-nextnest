@@ -1,4 +1,4 @@
-import { apiDelete, apiPost } from '@/lib/axios'
+import { apiDelete, apiPost } from '@/lib/ky'
 import { FollowStatus } from '@/lib/types/status.types'
 import { useMutation } from '@tanstack/react-query'
 import { type ApiError } from 'next/dist/server/api-utils'
