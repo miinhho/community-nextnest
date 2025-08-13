@@ -8,6 +8,7 @@ import { ApiAuthTags } from '@/common/swagger/tags.swagger';
 import { UserData } from '@/common/user';
 import app from '@/config/app.config';
 import jwt from '@/config/jwt.config';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import {
   Body,
   Controller,
@@ -17,6 +18,7 @@ import {
   Req,
   Res,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { CookieOptions, Request, Response } from 'express';
@@ -73,8 +75,8 @@ export class AuthController {
 
   @Public()
   @UseGuards(LocalAuthGuard)
-  @ApiLogin()
   @Post('login')
+  @ApiLogin()
   async login(@User() user: UserData, @Res({ passthrough: true }) res: Response) {
     const { refreshToken, accessToken, user: userData } = await this.authService.login(user);
     this.setRefreshTokenCookie(res, refreshToken);
@@ -102,6 +104,8 @@ export class AuthController {
     return { success: true };
   }
 
+  @CacheTTL(60)
+  @UseInterceptors(CacheInterceptor)
   @Post('refresh')
   @ApiRefresh()
   async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {

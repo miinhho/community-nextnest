@@ -5,6 +5,7 @@ import { TokenService } from '@/auth/token/token.service';
 import { PrismaModule } from '@/prisma/prisma.module';
 import { PrismaService } from '@/prisma/prisma.service';
 import { UserModule } from '@/user/user.module';
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -22,6 +23,7 @@ import { AuthService } from './auth.service';
         signOptions: { expiresIn: config.get<number>('jwt.accessExpiration') },
       }),
     }),
+    CacheModule.register(),
     UserModule,
     PrismaModule,
   ],
