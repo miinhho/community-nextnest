@@ -125,12 +125,6 @@ export const ApiRefresh = () =>
         type: 'object',
         properties: {
           success: { type: 'boolean' },
-          data: {
-            type: 'object',
-            properties: {
-              accessToken: { type: 'string' },
-            },
-          },
         },
       },
     }),

@@ -1,22 +1,25 @@
 import { HttpStatus } from '@/lib/status'
 import { HTTPError } from 'ky'
-import { redirect } from 'next/navigation'
 
 export const handleApiError = (error: unknown) => {
   if (error instanceof HTTPError) {
     switch (error.response.status) {
       case HttpStatus.Unauthorized:
-        redirect('/login')
+        window.location.href = '/login'
+        break
       case HttpStatus.Forbidden:
-        redirect('/error?code=403')
+        window.location.href = '/error?code=403'
+        break
       case HttpStatus.NotFound:
-        redirect('/error?code=404')
+        window.location.href = '/error?code=404'
+        break
       case HttpStatus.InternalServerError:
-        redirect('/error?code=500')
+        window.location.href = '/error?code=500'
+        break
       default:
-        redirect('/error?code=unknown')
+        window.location.href = '/error?code=unknown'
     }
   } else {
-    redirect('/error?code=unknown')
+    window.location.href = '/error?code=unknown'
   }
 }

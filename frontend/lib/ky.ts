@@ -1,5 +1,4 @@
-'use client'
-
+import { HttpStatus } from '@/lib/status'
 import { PageParams } from '@/lib/types/page.types'
 import ky, { type Options } from 'ky'
 
@@ -15,17 +14,26 @@ const fetcher = ky.create({
   prefixUrl: '/api',
   headers: {
     'Content-Type': 'application/json',
-    Accept: 'application/json',
   },
   timeout: 5000,
   credentials: 'include',
+  retry: {
+    limit: 3,
+    statusCodes: [HttpStatus.Unauthorized],
+    methods: ['get', 'post', 'put', 'delete', 'patch'],
+  },
   hooks: {
-    afterResponse: [
-      async (request, _options, response) => {
-        if (response.status === 403) {
-          await ky('/auth/refresh')
-          return ky(request)
-        }
+    beforeRetry: [
+      // 재시도 전 Refresh Token 갱신
+      async () => {
+        await ky
+          .post('/api/auth/refresh', {
+            credentials: 'include',
+            retry: { limit: 0 },
+          })
+          .catch(() => {
+            window.location.href = '/login'
+          })
       },
     ],
   },
