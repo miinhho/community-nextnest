@@ -53,6 +53,7 @@ export class CommentService {
       replyId,
       commentId: props.commentId,
     });
+    return replyId;
   }
 
   /**

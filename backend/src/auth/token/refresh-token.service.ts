@@ -1,10 +1,9 @@
 import { PrismaErrorHandler } from '@/prisma/prisma-error.interceptor';
 import { PrismaService } from '@/prisma/prisma.service';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class RefreshTokenService {
-  private readonly logger = new Logger(RefreshTokenService.name);
   constructor(private readonly prisma: PrismaService) {}
 
   /**

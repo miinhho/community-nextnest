@@ -1,12 +1,11 @@
 import { AuthService } from '@/auth/auth.service';
 import { RefreshTokenService } from '@/auth/token/refresh-token.service';
 import { TokenService } from '@/auth/token/token.service';
+import { allMock } from '@/common/test-utils/mock';
+import { pipeFn } from '@/common/test-utils/utils.spec';
 import { UserService } from '@/user/user.service';
 import { MockFactory } from '@nestjs/testing';
 import { Role } from '@prisma/client';
-import { MockMetadata, ModuleMocker } from 'jest-mock';
-
-const moduleMocker = new ModuleMocker(global);
 
 export const MockData = {
   user: {
@@ -29,13 +28,16 @@ export const MockData = {
   },
 };
 
-export const authMockFactory: MockFactory = (token) => {
+const userServiceMock: MockFactory = (token) => {
   if (token === UserService) {
     return {
       findUserByEmail: jest.fn().mockResolvedValue({ ...MockData.user }),
       createUser: jest.fn().mockResolvedValue({ ...MockData.user }),
     };
   }
+};
+
+const authServiceMock: MockFactory = (token) => {
   if (token === AuthService) {
     return {
       validateUser: jest.fn().mockResolvedValue({
@@ -49,6 +51,9 @@ export const authMockFactory: MockFactory = (token) => {
       logout: jest.fn(),
     };
   }
+};
+
+const tokenServiceMock: MockFactory = (token) => {
   if (token === TokenService) {
     return {
       generateAccessToken: jest.fn().mockResolvedValue(MockData.token.accessToken),
@@ -60,6 +65,9 @@ export const authMockFactory: MockFactory = (token) => {
       verifyRefreshToken: jest.fn(),
     };
   }
+};
+
+const refreshTokenServiceMock: MockFactory = (token) => {
   if (token === RefreshTokenService) {
     return {
       createRefreshToken: jest.fn(),
@@ -67,9 +75,12 @@ export const authMockFactory: MockFactory = (token) => {
       revokeRefreshToken: jest.fn(),
     };
   }
-  if (typeof token === 'function') {
-    const mockMetadata = moduleMocker.getMetadata(token) as MockMetadata<any, any>;
-    const Mock = moduleMocker.generateFromMetadata(mockMetadata) as ObjectConstructor;
-    return new Mock();
-  }
 };
+
+export const authMockFactory: MockFactory = pipeFn(
+  userServiceMock,
+  authServiceMock,
+  tokenServiceMock,
+  refreshTokenServiceMock,
+  allMock,
+);

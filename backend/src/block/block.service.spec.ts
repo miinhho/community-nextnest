@@ -2,8 +2,6 @@ import { BlockRepository } from '@/block/block.repository';
 import { BlockService } from '@/block/block.service';
 import { BlockedError } from '@/block/error/blocked.error';
 import { UserBlockedError } from '@/block/error/user-blocked.error';
-import { PrismaModule } from '@/prisma/prisma.module';
-import { PrismaService } from '@/prisma/prisma.service';
 import { Test, TestingModule } from '@nestjs/testing';
 
 describe('BlockService', () => {
@@ -12,16 +10,11 @@ describe('BlockService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [PrismaModule],
       providers: [BlockService, BlockRepository],
     })
-      .useMocker((token) => {
-        if (token === PrismaService) {
-          return {
-            $connect: jest.fn(),
-            $disconnect: jest.fn(),
-          };
-        }
+      .overrideProvider(BlockRepository)
+      .useValue({
+        isUserBlocked: jest.fn(),
       })
       .compile();
 
@@ -49,6 +42,7 @@ describe('BlockService', () => {
       userBlocked: false,
       targetBlocked: true,
     });
+
     await expect(
       service.isUserBlocked({ userId: 'user1', targetId: 'user2' }, true),
     ).rejects.toBeInstanceOf(BlockedError);

@@ -3,7 +3,7 @@ import { AuthService } from '@/auth/auth.service';
 import { RegisterUserDto } from '@/auth/dto/register.dto';
 import { JwtStrategy } from '@/auth/strategy/jwt.strategy';
 import { LocalStrategy } from '@/auth/strategy/local.strategy';
-import { authMockFactory, MockData } from '@/auth/tests/auth.mock';
+import { authMockFactory, MockData } from '@/auth/test/auth.mock';
 import { RefreshTokenService } from '@/auth/token/refresh-token.service';
 import { TokenService } from '@/auth/token/token.service';
 import { UserData } from '@/common/user';

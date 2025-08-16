@@ -2,6 +2,7 @@ Backend:
   - [ ] Unit 테스트 추가
     - [x] auth controller 테스트
     - [x] block service 테스트
+    - [x] comment service 테스트
     - [ ] follow controller 테스트
     - [ ] notify controller 테스트
     - [ ] post controller 테스트
