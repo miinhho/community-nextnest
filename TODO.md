@@ -3,12 +3,14 @@ Backend:
     - [x] auth controller 테스트
     - [x] block service 테스트
     - [x] comment service 테스트
-    - [ ] follow controller 테스트
-    - [ ] notify controller 테스트
-    - [ ] post controller 테스트
-    - [ ] private controller 테스트
+    - [ ] follow service 테스트
+    - [ ] notify service 테스트
+    - [ ] notify event 테스트
+    - [ ] notify sse controller 테스트
+    - [ ] post service 테스트
     - [ ] post-recommend service 테스트
-    - [ ] user controller 테스트
+    - [ ] private service 테스트
+    - [ ] user service 테스트
   - [ ] Web push 를 이용한 백그라운드 알림
   - [ ] AWS S3 나 Cloudflare CDN 을 활용한 이미지 파일 저장
   - [ ] WebSocket 을 사용한 채팅
