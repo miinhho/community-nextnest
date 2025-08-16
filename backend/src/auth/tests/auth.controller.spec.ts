@@ -175,7 +175,7 @@ describe('AuthController', () => {
     expect(result).toEqual({ success: true });
   });
 
-  it('refresh: refresh token 이 없다면 NotFoundException 을 반환해야 합니다', async () => {
+  it('refresh: refresh token 이 없다면 NotFoundException 을 던져야 합니다', async () => {
     const req = { cookies: {} } as unknown as Request;
     const res = { cookie: jest.fn() } as unknown as Response;
 
