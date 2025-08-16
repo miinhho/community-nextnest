@@ -1,8 +1,6 @@
 Backend:
-  - [ ] Unit 테스트 및 E2E 테스트 추가
-    - [ ] prisma seed 추가
-    - [ ] auth service 테스트
-    - [ ] auth controller 테스트
+  - [ ] Unit 테스트 추가
+    - [x] auth controller 테스트
     - [ ] block controller 테스트
     - [ ] follow controller 테스트
     - [ ] notify controller 테스트
@@ -10,11 +8,11 @@ Backend:
     - [ ] private controller 테스트
     - [ ] post-recommend service 테스트
     - [ ] user controller 테스트
-  - [x] Sentry 모니터링 추가
   - [ ] Web push 를 이용한 백그라운드 알림
   - [ ] AWS S3 나 Cloudflare CDN 을 활용한 이미지 파일 저장
   - [ ] WebSocket 을 사용한 채팅
   - [ ] @nestjs/bullmq 를 이용한 채팅 캐싱
+  - [ ] E2E 테스트 추가
   - [ ] 개인화된 추천 시스템 추가
 
 Frontend:
