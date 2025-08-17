@@ -4,7 +4,6 @@ import { OptionalAuth } from '@/common/decorator/optional-auth.decorator';
 import { PageQuery } from '@/common/decorator/page-query.decorator';
 import { Public } from '@/common/decorator/public.decorator';
 import { User } from '@/common/decorator/user.decorator';
-import { LikeStatus } from '@/common/status';
 import { UserData } from '@/common/user';
 import { PageQueryType } from '@/common/utils/page';
 import { PostOwner } from '@/post/guard/post-owner.guard';
@@ -116,24 +115,13 @@ export class PostController {
       postId,
     });
 
-    switch (status) {
-      case LikeStatus.MINUS:
-        return {
-          success: true,
-          data: {
-            status: LikeStatus.MINUS,
-            id: postId,
-          },
-        };
-      case LikeStatus.PLUS:
-        return {
-          success: true,
-          data: {
-            status: LikeStatus.PLUS,
-            id: postId,
-          },
-        };
-    }
+    return {
+      success: true,
+      data: {
+        status,
+        id: postId,
+      },
+    };
   }
 
   @OptionalAuth()

@@ -12,6 +12,7 @@ import { PrivateAuthError } from '@/private/error/private-auth.error';
 import { PrivateService } from '@/private/private.service';
 import { Injectable } from '@nestjs/common';
 import { Role } from '@prisma/client';
+import { omit } from 'es-toolkit';
 
 @Injectable()
 export class PostService {
@@ -95,9 +96,7 @@ export class PostService {
       );
       return {
         data: cachedPosts,
-        meta: {
-          ...pageParams,
-        },
+        meta: pageParams,
       };
     }
 
@@ -105,15 +104,11 @@ export class PostService {
     // 캐시된 핫 게시글 업데이트
     await this.postCacheService.setHotPost(posts.data);
     // hotScore 필드 제거
-    const filteredPosts: PagedPost[] = posts.data.map(({ hotScore, ...post }) => ({
-      ...post,
-    }));
+    const filteredPosts: PagedPost[] = posts.data.map((p) => omit(p, ['hotScore']));
 
     return {
       data: filteredPosts,
-      meta: {
-        ...posts.meta,
-      },
+      meta: posts.meta,
     };
   }
 

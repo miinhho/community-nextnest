@@ -1,6 +1,7 @@
 import { PagedPost, PagedPostHotScore } from '@/post/post.types';
 import { RedisService } from '@liaoliaots/nestjs-redis';
 import { Injectable } from '@nestjs/common';
+import { compact } from 'es-toolkit';
 import Redis from 'ioredis';
 
 /**
@@ -72,7 +73,7 @@ export class PostCacheService {
   async getHotPosts(start: number, end: number): Promise<Omit<PagedPost, 'hotScore'>[]> {
     const postsId = await this.redis.zrevrange(REDIS_KEY_HOT_POSTS, start, end);
     const posts = await Promise.all(postsId.map((id) => this.getPost(id)));
-    return posts.filter((post): post is Omit<PagedPost, 'hotScore'> => post !== null);
+    return compact(posts);
   }
 
   /**
