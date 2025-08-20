@@ -7,8 +7,7 @@ import { TailWindClasses } from '@/lib/types/component-util.types'
 import { cn } from '@/lib/utils'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface MainSidebarProps extends TailWindClasses {
-}
+interface MainSidebarProps extends TailWindClasses { }
 
 export const MainSidebar = ({ className }: MainSidebarProps) => {
   const { image, name } = useUserInfo()

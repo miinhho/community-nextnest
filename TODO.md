@@ -1,8 +1,5 @@
 Backend:
   - [ ] Unit 테스트 추가
-    - [x] auth controller 테스트
-    - [x] block service 테스트
-    - [x] comment service 테스트
     - [ ] follow service 테스트
     - [ ] notify service 테스트
     - [ ] notify event 테스트
@@ -11,12 +8,13 @@ Backend:
     - [ ] post-recommend service 테스트
     - [ ] private service 테스트
     - [ ] user service 테스트
-  - [ ] Web push 를 이용한 백그라운드 알림
-  - [ ] AWS S3 나 Cloudflare CDN 을 활용한 이미지 파일 저장
+  - [ ] Multer 를 사용한 이미지 파일 저장
+  - [ ] AWS S3 나 Cloudflare CDN 을 활용한 외부 이미지 파일 저장
   - [ ] WebSocket 을 사용한 채팅
   - [ ] @nestjs/bullmq 를 이용한 채팅 캐싱
   - [ ] E2E 테스트 추가
   - [ ] 개인화된 추천 시스템 추가
+  - [ ] Web push 를 이용한 백그라운드 알림
 
 Frontend:
   - [ ] LexicalViewer 컴포넌트 처리
