@@ -1,8 +1,8 @@
 import { AuthService } from '@/auth/auth.service';
 import { RefreshTokenService } from '@/auth/token/refresh-token.service';
 import { TokenService } from '@/auth/token/token.service';
-import { allMock } from '@/common/test-utils/mock';
-import { pipeFn } from '@/common/test-utils/utils.spec';
+import { allMock } from '@/common/mocks/mock';
+import { pipeFn } from '@/common/utils/fn';
 import { UserService } from '@/user/user.service';
 import { MockFactory } from '@nestjs/testing';
 import { Role } from '@prisma/client';
