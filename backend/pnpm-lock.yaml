@@ -123,6 +123,9 @@ importers:
       '@eslint/js':
         specifier: ^9.33.0
         version: 9.33.0
+      '@golevelup/ts-jest':
+        specifier: ^0.7.0
+        version: 0.7.0
       '@nestjs/cli':
         specifier: ^11.0.10
         version: 11.0.10(@swc/cli@0.6.0(@swc/core@1.11.31)(chokidar@4.0.3))(@swc/core@1.11.31)(@types/node@22.17.1)
@@ -174,9 +177,6 @@ importers:
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@22.17.1)(ts-node@10.9.2(@swc/core@1.11.31)(@types/node@22.17.1)(typescript@5.9.2))
-      jest-mock:
-        specifier: ^30.0.5
-        version: 30.0.5
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
@@ -442,6 +442,9 @@ packages:
   '@eslint/plugin-kit@0.3.5':
     resolution: {integrity: sha512-Z5kJ+wU3oA7MMIqVR9tyZRtjYPr4OC004Q4Rw7pgOKUOKkJfZ3O24nz3WYfGRpMDNmcOi3TwQOmgm7B7Tpii0w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@golevelup/ts-jest@0.7.0':
+    resolution: {integrity: sha512-b5Kf+NiEfWuMGUD5bl/Gm/RqojS4Sr/4Q0ySXN4xn3xlkhgPYG6nGLBeNjk3MiM2I3ztVVFfI7SB8ajqDy6Idw==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -3119,10 +3122,6 @@ packages:
     resolution: {integrity: sha512-ITOMZn+UkYS4ZFh83xYAOzWStloNzJFO2s8DWrE4lhtGD+AorgnbkiKERe4wQVBydIGPx059g6riW5Btp6Llnw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
 
-  jest-mock@30.0.5:
-    resolution: {integrity: sha512-Od7TyasAAQX/6S+QCbN6vZoWOMwlTtzzGuxJku1GhGanAjz9y+QsQkpScDmETvdc9aSXyJ/Op4rhpMYBWW91wQ==}
-    engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
-
   jest-pnp-resolver@1.2.3:
     resolution: {integrity: sha512-+3NpwQEnRoIBtx4fyhblQDPgJI0H1IEIkX7ShLUjPGA7TtUTvI1oiKi3SR4oBR0hQhQR80l4WAe5RrXBwWMA8w==}
     engines: {node: '>=6'}
@@ -4825,6 +4824,8 @@ snapshots:
       '@eslint/core': 0.15.2
       levn: 0.4.1
 
+  '@golevelup/ts-jest@0.7.0': {}
+
   '@humanfs/core@0.19.1': {}
 
   '@humanfs/node@0.16.6':
@@ -5086,6 +5087,7 @@ snapshots:
     dependencies:
       '@types/node': 22.17.1
       jest-regex-util: 30.0.1
+    optional: true
 
   '@jest/reporters@29.7.0':
     dependencies:
@@ -5123,6 +5125,7 @@ snapshots:
   '@jest/schemas@30.0.5':
     dependencies:
       '@sinclair/typebox': 0.34.39
+    optional: true
 
   '@jest/source-map@29.6.3':
     dependencies:
@@ -5182,6 +5185,7 @@ snapshots:
       '@types/node': 22.17.1
       '@types/yargs': 17.0.33
       chalk: 4.1.2
+    optional: true
 
   '@jridgewell/gen-mapping@0.3.12':
     dependencies:
@@ -5977,7 +5981,8 @@ snapshots:
 
   '@sinclair/typebox@0.27.8': {}
 
-  '@sinclair/typebox@0.34.39': {}
+  '@sinclair/typebox@0.34.39':
+    optional: true
 
   '@sindresorhus/is@5.6.0':
     optional: true
@@ -6906,7 +6911,8 @@ snapshots:
 
   ci-info@3.9.0: {}
 
-  ci-info@4.3.0: {}
+  ci-info@4.3.0:
+    optional: true
 
   citty@0.1.6:
     dependencies:
@@ -7987,19 +7993,14 @@ snapshots:
       '@types/node': 22.17.1
       jest-util: 29.7.0
 
-  jest-mock@30.0.5:
-    dependencies:
-      '@jest/types': 30.0.5
-      '@types/node': 22.17.1
-      jest-util: 30.0.5
-
   jest-pnp-resolver@1.2.3(jest-resolve@29.7.0):
     optionalDependencies:
       jest-resolve: 29.7.0
 
   jest-regex-util@29.6.3: {}
 
-  jest-regex-util@30.0.1: {}
+  jest-regex-util@30.0.1:
+    optional: true
 
   jest-resolve-dependencies@29.7.0:
     dependencies:
@@ -8115,6 +8116,7 @@ snapshots:
       ci-info: 4.3.0
       graceful-fs: 4.2.11
       picomatch: 4.0.2
+    optional: true
 
   jest-validate@29.7.0:
     dependencies:

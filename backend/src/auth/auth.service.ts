@@ -6,6 +6,7 @@ import jwt from '@/config/jwt.config';
 import { UserService } from '@/user/user.service';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
+import { JsonWebTokenError, TokenExpiredError } from '@nestjs/jwt';
 import { compare, genSalt, hash } from 'bcrypt';
 
 const SALT_ROUND = 12;
@@ -102,30 +103,35 @@ export class AuthService {
    * @throws {NotFoundException} 토큰을 찾을 수 없는 경우
    */
   async refreshTokens(refreshToken: string) {
-    const payload = this.tokenService.verifyRefreshToken(refreshToken);
-    const userId = payload.sub;
-
-    const storedToken = await this.refreshTokenService.findRefreshTokenByToken(refreshToken);
-
-    if (new Date(storedToken.expiresAt) < new Date()) {
+    try {
+      const storedToken = await this.refreshTokenService.findRefreshTokenByToken(refreshToken);
       await this.refreshTokenService.revokeRefreshToken(storedToken.id);
-      throw new UnauthorizedException('토큰이 만료되었습니다');
+
+      const payload = this.tokenService.verifyRefreshToken(refreshToken);
+      const userId = payload.sub;
+
+      const newAccessToken = await this.tokenService.generateAccessToken(userId);
+      const newRefreshToken = this.tokenService.generateRefreshToken(userId);
+
+      await this.refreshTokenService.createRefreshToken(
+        userId,
+        newRefreshToken,
+        this.jwtConfig.refreshExpiration,
+      );
+
+      return {
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+      };
+    } catch (err) {
+      if (err instanceof JsonWebTokenError) {
+        throw new UnauthorizedException('유효하지 않은 토큰입니다');
+      }
+      if (err instanceof TokenExpiredError) {
+        throw new UnauthorizedException('토큰이 만료되었습니다');
+      }
+      throw err;
     }
-
-    const newAccessToken = await this.tokenService.generateAccessToken(userId);
-    const newRefreshToken = this.tokenService.generateRefreshToken(userId);
-
-    await this.refreshTokenService.revokeRefreshToken(storedToken.id);
-    await this.refreshTokenService.createRefreshToken(
-      userId,
-      newRefreshToken,
-      this.jwtConfig.refreshExpiration,
-    );
-
-    return {
-      accessToken: newAccessToken,
-      refreshToken: newRefreshToken,
-    };
   }
 
   /**
