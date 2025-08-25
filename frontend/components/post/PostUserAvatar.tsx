@@ -7,21 +7,21 @@ interface UserAvatarProps extends TailWindClasses {
 }
 
 const PostUserAvatar = ({ author, className }: UserAvatarProps) => {
+  const authorName = author.name ?? ''
+  const fallbackAuthorName = authorName.split(' ').map((name) => name[0]).join('')
+
   return (
     <div className={className}>
       <Avatar>
-        <AvatarImage src={author.image || ''} alt={author.name || ''} />
+        <AvatarImage src={author.image || ''} alt={authorName} />
         <AvatarFallback>
-          {author.name
-            .split(' ')
-            .map((n) => n[0])
-            .join('')}
+          {fallbackAuthorName}
         </AvatarFallback>
       </Avatar>
       <>
-        <p className="font-semibold text-neutral-900">{author.name}</p>
+        <p className="font-semibold text-neutral-900">{authorName}</p>
         <div className="text-xs text-neutral-500 flex gap-1">
-          <span>@{author.name}</span>
+          <span>@{authorName}</span>
           <span>.</span>
         </div>
       </>

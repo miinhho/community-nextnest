@@ -8,7 +8,6 @@ import PostUserAvator from '@/components/post/PostUserAvatar'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { usePostLikeQuery, usePostQuery } from '@/lib/query/post.query'
 import { Separator } from '@radix-ui/react-separator'
-import { useCallback } from 'react'
 import { toast } from 'sonner'
 
 interface PreviewPostProps {
@@ -21,22 +20,29 @@ const PreviewPost = ({ postId, onComment }: PreviewPostProps) => {
   const { author, content } = data!
   const { mutate: postLikeMutation } = usePostLikeQuery()
 
-  const handleLike = useCallback(() => {
+  const handleLike = () => {
     postLikeMutation(postId, {
       onError: () => {
         toast.error('좋아요 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.')
       },
     })
-  }, [postId, postLikeMutation])
+  }
 
   // TODO : 댓글 에디터 표시
-  const handleComment = () => { }
+  const displayCommentEditor = () => {
 
-  const handleShare = useCallback(async () => {
+  }
+
+  const handleComment = () => {
+    displayCommentEditor()
+    onComment?.()
+  }
+
+  const handleShare = async () => {
     const postUrl = `${process.env.URL}/post/${postId}`
     await navigator.clipboard.writeText(postUrl)
     toast.success('링크가 성공적으로 복사되었습니다!')
-  }, [postId])
+  }
 
   return (
     <Card className="max-w-xl mx-auto my-6 shadow-sm border">
@@ -51,7 +57,7 @@ const PreviewPost = ({ postId, onComment }: PreviewPostProps) => {
       <Separator />
 
       <div className="flex items-center gap-4 px-6 py-2 text-neutral-500">
-        <CommentButton onClick={onComment || handleComment} />
+        <CommentButton onClick={handleComment} />
         <LikeButton onClick={handleLike} />
         <ShareButton onClick={handleShare} />
       </div>
