@@ -1,24 +1,24 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { SizeProps, TailWindClasses } from '@/lib/types/component-util.types'
+import { TailWindClasses } from '@/lib/types/component-util.types'
 import { cn } from '@/lib/utils'
 import { Share } from 'lucide-react'
 
-interface ShareButtonProps extends TailWindClasses, SizeProps {
+interface ShareButtonProps extends TailWindClasses {
   onClick: () => void
 }
 
-const ShareButton = ({ onClick, className, size }: ShareButtonProps) => {
+const ShareButton = ({ onClick, className }: ShareButtonProps) => {
   return (
     <Button
       variant="ghost"
-      size={size || 'sm'}
-      className={cn('flex items-center gap-1', className)}
+      size='icon'
+      className={cn('flex items-center', className)}
       onClick={onClick}
+      aria-label='공유 버튼'
     >
-      <Share className="w-4 h-4" />
-      <span className="sr-only">공유</span>
+      <Share className="icon" />
     </Button>
   )
 }

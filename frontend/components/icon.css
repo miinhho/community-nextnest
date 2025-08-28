@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+@layer components {
+  .small-icon {
+    @apply h-[1.2rem] w-[1.2rem];
+  }
+
+  .icon {
+    @apply h-12 w-12;
+  }
+}

@@ -48,3 +48,5 @@ prisma/migrations
 
 # public assets
 /public/default-avatar.webp
+*storybook.log
+storybook-static
