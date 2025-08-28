@@ -20,6 +20,7 @@ import {
   AlignLeft,
   AlignRight,
   Bold,
+  Italic,
   Redo,
   Strikethrough,
   Underline,
@@ -31,7 +32,7 @@ import { INSERT_YOUTUBE_COMMAND } from '../YouTubePlugin'
 import './ToolbarPlugin.css'
 
 const Divider = () => {
-  return <div className="w-0.5 bg-neutral-300 mr-1" />
+  return <div className="w-0.5 bg-neutral-300 dark:bg-neutral-600 mr-1" />
 }
 
 /**
@@ -83,7 +84,7 @@ export function ToolbarPlugin() {
   }, [editor, $updateToolbar])
 
   return (
-    <div className="flex mb-0.5 bg-white p-1 rounded-tl-xl rounded-tr-xl align-middle">
+    <div className="flex bg-white dark:bg-neutral-700 p-1 rounded-tl-lg rounded-tr-lg align-middle">
       <button
         disabled={!canUndo}
         onClick={() => {
@@ -111,7 +112,7 @@ export function ToolbarPlugin() {
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')
         }}
-        className={cn('toolbar-item mr-0.5', `${isBold ? 'bg-neutral-300' : ''}`)}
+        className={cn('toolbar-item mr-0.5', `${isBold ? 'toolbar-item-active' : ''}`)}
         aria-label="굵게"
         title="굵게"
       >
@@ -121,17 +122,17 @@ export function ToolbarPlugin() {
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')
         }}
-        className={cn('toolbar-item mr-0.5', `${isItalic ? 'bg-neutral-300' : ''}`)}
+        className={cn('toolbar-item mr-0.5', `${isItalic ? 'toolbar-item-active' : ''}`)}
         aria-label="기울이기"
         title="기울이기"
       >
-        <Bold />
+        <Italic />
       </button>
       <button
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline')
         }}
-        className={cn('toolbar-item mr-0.5', `${isUnderline ? 'bg-neutral-300' : ''}`)}
+        className={cn('toolbar-item mr-0.5', `${isUnderline ? 'toolbar-item-active' : ''}`)}
         aria-label="밑줄"
         title="밑줄"
       >
@@ -141,7 +142,7 @@ export function ToolbarPlugin() {
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough')
         }}
-        className={cn('toolbar-item mr-0.5', `${isStrikethrough ? 'bg-neutral-300' : ''}`)}
+        className={cn('toolbar-item mr-0.5', `${isStrikethrough ? 'toolbar-item-active' : ''}`)}
         aria-label="취소선"
         title="취소선"
       >

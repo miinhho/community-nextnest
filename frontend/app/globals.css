@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @reference "../components/icon.css";
+@reference "./utility.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -120,15 +121,4 @@
   body {
     @apply bg-background text-foreground;
   }
-}
-
-@theme {
-  --tab-size-1: 1;
-  --tab-size-2: 2;
-  --tab-size-4: 4;
-  --tab-size-8: 8;
-}
-
-@utility tab-* {
-  tab-size: --value(--tab-size-*);
 }

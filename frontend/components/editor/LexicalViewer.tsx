@@ -6,13 +6,13 @@ import { LexicalComposer } from '@lexical/react/LexicalComposer'
 import { ContentEditable } from '@lexical/react/LexicalContentEditable'
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary'
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
-import { JsonImportPlugin } from './plugins/JsonImportPlugin'
+import './lexical-editor.css'
+import { JsonLoadPlugin } from './plugins/JsonLoadPlugin'
 
 interface LexicalViewerProps {
   json: string
 }
 
-// TODO : comment, post 별로 LexicalViewer 컴포넌트 분리
 /**
  * @param json - 에디터에 불러올 json 데이터
  */
@@ -22,25 +22,23 @@ const LexicalViewer = ({ json }: LexicalViewerProps) => {
       <div
         className={cn(
           'relative min-w-md mt-5 mb-5 mr-auto ml-auto',
-          'rounded-2xl',
-          'border-neutral-300 border-2',
+          'rounded-2xl border-2 dark:border-0 border-neutral-300 dark:border-neutral-800',
           'font-normal text-left',
         )}
       >
-        <div className="relative rounded-2xl bg-neutral-100 pl-4">
+        <div className="relative rounded-xl bg-neutral-100 dark:bg-neutral-800 pl-4">
           <RichTextPlugin
             contentEditable={
               <ContentEditable
                 className={cn(
-                  'relative min-h-20 pt-3.5 pb-2.5 resize-none',
-                  'text-base tab-size-1 text-neutral-700',
-                  'outline-0',
+                  'editor-content-editable min-h-20',
+                  'text-neutral-700 dark:text-neutral-200',
                 )}
               />
             }
             ErrorBoundary={LexicalErrorBoundary}
           />
-          <JsonImportPlugin json={json} />
+          <JsonLoadPlugin json={json} />
         </div>
       </div>
     </LexicalComposer>

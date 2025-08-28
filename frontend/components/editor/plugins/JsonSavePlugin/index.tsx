@@ -1,39 +1,46 @@
 'use client'
 
-import { usePostCreateQuery } from '@/lib/query/post.query'
-import { cn } from '@/lib/utils'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
+import { UseMutateFunction } from '@tanstack/react-query'
+import type { JSX } from 'react'
 
-export function JsonSavePlugin() {
+/**
+ * Lexical 에디터 JSON 저장 플러그인 훅
+ * 
+ * @param mutateFn - 에디터의 JSON 데이터를 저장하는 함수 (React Query의 useMutation에서 반환된 함수)
+ * @returns JSON 저장 핸들러 함수
+ */
+
+interface JsonSavePluginProps {
+  mutateFn: UseMutateFunction<any, unknown, string, unknown>
+  saveButton: JSX.Element
+}
+
+export function JsonSavePlugin({ mutateFn, saveButton }: JsonSavePluginProps) {
   const [editor] = useLexicalComposerContext()
-  const { mutate: postSaveMutation } = usePostCreateQuery()
 
-  // TODO : Use modal to show success or error message
-  const handlePost = async () => {
-    const lexicalJson = JSON.stringify(editor.toJSON)
-
-    postSaveMutation(lexicalJson, {
-      onSuccess: () => {
-        alert('게시글이 성공적으로 저장되었습니다!')
-      },
-      onError: (error) => {
-        console.error('게시글 저장 중 오류 발생:', error)
-        alert('게시글 저장 중 오류가 발생했습니다. 다시 시도해주세요.')
+  const handleJsonSave = async () => {
+    const lexicalJson = JSON.stringify(editor.toJSON())
+    mutateFn(lexicalJson, {
+      onError: () => {
+        throw new JsonSaveError("에디터 내용을 저장하는데 실패했습니다.");
       },
     })
   }
 
   return (
-    <div
-      className={cn(
-        'flex mt-15 -mb-23 justify-self-center -mr-4',
-        'rounded-2xl border-2 px-20 py-2.5',
-        'bg-white hover:bg-neutral-200/70',
-      )}
-    >
-      <button onClick={handlePost} aria-label="게시하기" className="font-sans text-lg">
-        게시하기
-      </button>
-    </div>
+    <button onClick={handleJsonSave} data-testid="editor-save-button">
+      {saveButton}
+    </button>
   )
+}
+
+/**
+ * Lexical 에디터 JSON 저장 오류 클래스
+ */
+export class JsonSaveError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "JsonSaveError";
+  }
 }
