@@ -1,10 +1,10 @@
-import { TailWindClasses } from '@/lib/types/component-util.types'
 import { cn } from '@/lib/utils'
+import { TailWindClasses } from '@/types/component-util.types'
 import { BellIcon, HomeIcon } from 'lucide-react'
 import Link from 'next/link'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface MainNavbarProps extends TailWindClasses {}
+interface MainNavbarProps extends TailWindClasses { }
 
 export const MainNavbar = ({ className }: MainNavbarProps) => {
   return (

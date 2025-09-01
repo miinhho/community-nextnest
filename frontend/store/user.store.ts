@@ -1,6 +1,4 @@
-import { handleApiError } from '@/lib/api-error'
-import { apiGet, apiPost } from '@/lib/ky'
-import { UserData } from '@/lib/query/user.query'
+import { fetcher } from '@/lib/client'
 import { createStore } from 'zustand'
 import { persist } from 'zustand/middleware'
 
@@ -8,7 +6,7 @@ export type UserState = {
   id: string
   name: string
   email: string
-  image?: string
+  image: string | null
   isVerified: boolean
   accessToken?: string
 }
@@ -26,7 +24,7 @@ const initialState: UserState = {
   id: '',
   name: '',
   email: '',
-  image: undefined,
+  image: null,
   isVerified: false,
 }
 
@@ -45,14 +43,19 @@ export const createUserStore = () => {
         updateUserData: (data) => set((state) => ({ ...state, ...data })),
         logout: async () => {
           try {
-            await apiPost('/api/auth/logout')
+            await fetcher.POST('/auth/logout')
           } finally {
             set(() => ({ ...initialState }))
           }
         },
         initializeUser: async () => {
           try {
-            const { data: userData } = await apiGet<UserData>('/api/user/me')
+            const { data } = await fetcher.GET('/user/me')
+            if (!data?.data) {
+              throw new Error('Service Unavailable')
+            }
+
+            const { data: userData } = data
             set(() => ({
               id: userData.id,
               name: userData.name,
@@ -62,7 +65,6 @@ export const createUserStore = () => {
             }))
           } catch (err) {
             set(() => ({ ...initialState }))
-            handleApiError(err)
           }
         },
       }),

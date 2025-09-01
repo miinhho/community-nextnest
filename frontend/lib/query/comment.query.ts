@@ -1,23 +1,18 @@
+import { fetcher } from '@/lib/client'
 import { INITIAL_PAGE } from '@/lib/constant'
-import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/ky'
-import { PageParams } from '@/lib/types/page.types'
-import { CommentSchema } from '@/lib/types/schema.types'
-import { LikeStatus } from '@/lib/types/status.types'
+import { recursiveDateParse } from '@/lib/utils/parsing'
+import { PageParams } from '@/types/page.types'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { ApiError } from 'next/dist/server/api-utils'
 
 export const COMMENT_KEY = 'comment'
 export const REPLIES_KEY = 'replies'
 
 // Commment Get Query
-interface CommentData extends CommentSchema {
-  postId: string
-  replies: CommentSchema[]
-  parent?: CommentSchema
-}
 export const commentQueryFn = async (commentId: string) => {
-  const response = await apiGet<CommentData>(`comment/${commentId}`)
-  return response.data
+  const { data } = await fetcher.GET('/comment/{id}', {
+    params: { path: { id: commentId } },
+  })
+  return recursiveDateParse(data?.data)
 }
 export const useCommentQuery = (commentId: string) =>
   useQuery({
@@ -27,19 +22,24 @@ export const useCommentQuery = (commentId: string) =>
   })
 
 // Replies Get Query
-interface RepliesData {
-  replies: CommentSchema[]
-}
 export const repliesQueryFn = async (
   commentId: string,
   { page, size }: PageParams = INITIAL_PAGE,
 ) => {
-  const response = await apiGet<RepliesData>(
-    `comment/${commentId}/replies?page=${page}&size=${size}`,
-  )
+  const { data } = await fetcher.GET('/comment/{id}/replies', {
+    params: {
+      path: {
+        id: commentId,
+      },
+      query: {
+        page,
+        size,
+      },
+    },
+  })
   return {
-    replies: response.data.replies,
-    meta: response.meta!,
+    replies: recursiveDateParse(data?.data?.replies),
+    meta: data?.meta,
   }
 }
 export const useRepliesQuery = (commentId: string, params: PageParams) =>
@@ -54,18 +54,15 @@ interface CommentCreateBody {
   postId: string
   content: string
 }
-interface CommentCreateData {
-  commentId: string
-  postId: string
-  authorId: string
-}
 export const commentCreateQueryFn = async (params: CommentCreateBody) => {
-  const response = await apiPost<CommentCreateData>('comment', params)
-  return response.data
+  const { data } = await fetcher.POST('/comment', {
+    body: params,
+  })
+  return data?.data
 }
 export const useCommentCreateQuery = () =>
-  useMutation<CommentCreateData, ApiError, CommentCreateBody, unknown>({
-    mutationFn: (params) => commentCreateQueryFn(params),
+  useMutation({
+    mutationFn: (params: CommentCreateBody) => commentCreateQueryFn(params),
   })
 
 // Reply Create Query
@@ -74,67 +71,53 @@ interface ReplyCreateBody {
   content: string
   commentId: string
 }
-interface ReplyCreateData {
-  replyId: string
-  postId: string
-  authorId: string
-}
 export const replyCreateQueryFn = async (params: ReplyCreateBody) => {
-  const response = await apiPost<ReplyCreateData>('reply', params)
-  return response.data
+  const { data } = await fetcher.POST('/reply', {
+    body: params,
+  })
+  return data?.data
 }
 export const useReplyCreateQuery = () =>
-  useMutation<ReplyCreateData, ApiError, ReplyCreateBody, unknown>({
-    mutationFn: (params) => replyCreateQueryFn(params),
+  useMutation({
+    mutationFn: (params: ReplyCreateBody) => replyCreateQueryFn(params),
   })
 
 // Comment Update Query
-interface CommentPutParams {
-  commentId: string
-}
 interface CommentPutBody {
+  commentId: string
   content: string
 }
-interface CommentPutData {
-  commentId: string
-}
-export const commentPutQueryFn = async ({
-  commentId,
-  content,
-}: CommentPutParams & CommentPutBody) => {
-  const response = await apiPut<CommentPutData>(`comment/${commentId}`, { content })
-  return response.data
+export const commentPutQueryFn = async (params: CommentPutBody) => {
+  const { data } = await fetcher.PUT('/comment', {
+    body: params,
+  })
+  return data?.data
 }
 export const useCommentPutQuery = () =>
-  useMutation<CommentPutData, ApiError, CommentPutParams & CommentPutBody, unknown>({
-    mutationFn: (params: CommentPutParams & CommentPutBody) => commentPutQueryFn(params),
+  useMutation({
+    mutationFn: (params: CommentPutBody) => commentPutQueryFn(params),
   })
 
 // Comment Delete Query
-interface CommentDeleteData {
-  postId: string
-  content: string
-  authorId: string
-}
 export const commentDeleteQueryFn = async (commentId: string) => {
-  const response = await apiDelete<CommentDeleteData>(`comment/${commentId}`)
-  return response.data
+  const { data } = await fetcher.DELETE('/comment/{id}', {
+    params: { path: { id: commentId } },
+  })
+  return data?.data
 }
 export const useCommentDeleteQuery = () =>
-  useMutation<CommentDeleteData, ApiError, string, unknown>({
+  useMutation({
     mutationFn: (commentId: string) => commentDeleteQueryFn(commentId),
   })
 
 // Comment Like Query
-interface CommentLikeData {
-  id: string
-  status: LikeStatus
-}
 export const commentLikeQueryFn = async (commentId: string) => {
-  const response = await apiPost<CommentLikeData>(`comment/${commentId}/like`)
-  return response.data
+  const { data } = await fetcher.POST('/comment/{id}/like', {
+    params: { path: { id: commentId } },
+  })
+  return data?.data
 }
 export const useCommentLikeQuery = () =>
-  useMutation<CommentLikeData, ApiError, string, unknown>({
+  useMutation({
     mutationFn: (commentId: string) => commentLikeQueryFn(commentId),
   })

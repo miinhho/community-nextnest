@@ -1,6 +1,6 @@
 'use client'
 
-import { handleApiError } from '@/lib/api-error'
+import { handleApiError } from '@/lib/client-middleware'
 import { useAuthRegisterQuery } from '@/lib/query/auth.query'
 import { cn } from '@/lib/utils'
 import { registerData, type RegisterData } from '@/lib/validation/auth.validate'

@@ -1,4 +1,4 @@
-import { PageParams } from '@/lib/types/page.types'
+import { PageParams } from '@/types/page.types'
 
 /**
  * 게시글 내용의 길이 제한을 정의하는 상수 객체

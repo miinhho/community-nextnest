@@ -1,7 +1,5 @@
-import { apiPost } from '@/lib/ky'
-import { Role } from '@/lib/types/role.types'
+import { fetcher } from '@/lib/client'
 import { useMutation } from '@tanstack/react-query'
-import { type ApiError } from 'next/dist/server/api-utils'
 
 // Auth Register Query
 export interface AuthRegisterBody {
@@ -9,18 +7,15 @@ export interface AuthRegisterBody {
   password: string
   name: string
 }
-export interface AuthRegisterData {
-  id: string
-  role: Role
-  accessToken: string
-}
 export const authRegisterQueryFn = async (params: AuthRegisterBody) => {
-  const response = await apiPost<AuthRegisterData>('auth/register', params)
-  return response.data
+  const { data } = await fetcher.POST('/auth/register', {
+    body: params,
+  })
+  return data?.data
 }
 export const useAuthRegisterQuery = () =>
-  useMutation<AuthRegisterData, ApiError, AuthRegisterBody, unknown>({
-    mutationFn: (params) => authRegisterQueryFn(params),
+  useMutation({
+    mutationFn: (params: AuthRegisterBody) => authRegisterQueryFn(params),
   })
 
 // Auth Login Query
@@ -28,23 +23,20 @@ export interface AuthLoginBody {
   email: string
   password: string
 }
-export interface AuthLoginData {
-  id: string
-  role: Role
-  accessToken: string
-}
 export const authLoginQueryFn = async (params: AuthLoginBody) => {
-  const response = await apiPost<AuthLoginData>('auth/login', params)
-  return response.data
+  const { data } = await fetcher.POST('/auth/login', {
+    body: params,
+  })
+  return data?.data
 }
 export const useAuthLoginQuery = () =>
-  useMutation<AuthLoginData, ApiError, AuthLoginBody, unknown>({
-    mutationFn: (params) => authLoginQueryFn(params),
+  useMutation({
+    mutationFn: (params: AuthLoginBody) => authLoginQueryFn(params),
   })
 
 // Auth Logout Query
 export const authLogoutQueryFn = async () => {
-  await apiPost('auth/logout')
+  await fetcher.POST('/auth/logout')
 }
 export const useAuthLogoutQuery = () =>
   useMutation({
@@ -52,14 +44,10 @@ export const useAuthLogoutQuery = () =>
   })
 
 // Auth token refresh Query
-interface AuthRefreshData {
-  accessToken: string
-}
 export const authRefreshQueryFn = async () => {
-  const response = await apiPost<AuthRefreshData>('auth/refresh')
-  return response.data
+  await fetcher.POST('/auth/refresh')
 }
 export const useAuthRefreshQuery = () =>
-  useMutation<AuthRefreshData, ApiError, void, unknown>({
+  useMutation({
     mutationFn: () => authRefreshQueryFn(),
   })

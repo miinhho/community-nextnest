@@ -1,10 +1,8 @@
+import { fetcher } from '@/lib/client'
 import { INITIAL_PAGE } from '@/lib/constant'
-import { apiGet, apiPatch } from '@/lib/ky'
-import { PageParams } from '@/lib/types/page.types'
-import { BaseTimestamp, CommentSchema, PostSchema, UserSchema } from '@/lib/types/schema.types'
 import { recursiveDateParse } from '@/lib/utils/parsing'
+import { PageParams } from '@/types/page.types'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { type ApiError } from 'next/dist/server/api-utils'
 
 export const USER_KEY = 'user'
 export const USER_POSTS_KEY = 'userPosts'
@@ -13,17 +11,11 @@ export const FOLLOWER_KEY = 'followers'
 export const FOLLOWING_KEY = 'following'
 
 // User Get Query
-export interface UserData extends UserSchema, BaseTimestamp {
-  followersCount: number
-  followingCount: number
-  postCount: number
-  role: string
-  email: string
-  emailVerified: Date | null
-}
 export const userQueryFn = async (userId: string) => {
-  const response = await apiGet<UserData>(`user/${userId}`)
-  return recursiveDateParse(response.data)
+  const { data } = await fetcher.GET('/user/{id}', {
+    params: { path: { id: userId } },
+  })
+  return recursiveDateParse(data?.data)
 }
 export const useUserQuery = (userId: string) =>
   useQuery({
@@ -32,19 +24,22 @@ export const useUserQuery = (userId: string) =>
   })
 
 // User Followers Get Query
-interface UserFollowersData {
-  followers: UserSchema[]
-}
 export const userFollowersQueryFn = async (
   userId: string,
   { page, size }: PageParams = INITIAL_PAGE,
 ) => {
-  const response = await apiGet<UserFollowersData>(
-    `user/${userId}/followers?page=${page}&size=${size}`,
-  )
+  const { data } = await fetcher.GET('/user/{id}/followers', {
+    params: {
+      path: { id: userId },
+      query: {
+        page,
+        size,
+      },
+    },
+  })
   return {
-    followers: response.data.followers,
-    meta: response.meta!,
+    followers: data?.data?.followers,
+    meta: data?.meta!,
   }
 }
 export const useUserFollowersQuery = (userId: string, params: PageParams) =>
@@ -54,19 +49,22 @@ export const useUserFollowersQuery = (userId: string, params: PageParams) =>
   })
 
 // User Following Get Query
-interface UserFollowingData {
-  following: UserSchema[]
-}
 export const userFollowingQueryFn = async (
   userId: string,
   { page, size }: PageParams = INITIAL_PAGE,
 ) => {
-  const response = await apiGet<UserFollowingData>(
-    `user/${userId}/following?page=${page}&size=${size}`,
-  )
+  const { data } = await fetcher.GET('/user/{id}/following', {
+    params: {
+      path: { id: userId },
+      query: {
+        page,
+        size,
+      },
+    },
+  })
   return {
-    following: response.data.following,
-    meta: response.meta!,
+    following: data?.data?.following,
+    meta: data?.meta!,
   }
 }
 export const useUserFollowingQuery = (userId: string, params: PageParams) =>
@@ -76,17 +74,22 @@ export const useUserFollowingQuery = (userId: string, params: PageParams) =>
   })
 
 // User Post Get Query
-interface UserPostData {
-  posts: Omit<PostSchema, 'author'>[]
-}
 export const userPostQueryFn = async (
   userId: string,
   { page, size }: PageParams = INITIAL_PAGE,
 ) => {
-  const response = await apiGet<UserPostData>(`user/${userId}/posts?page=${page}&size=${size}`)
+  const { data } = await fetcher.GET('/user/{id}/posts', {
+    params: {
+      path: { id: userId },
+      query: {
+        page,
+        size,
+      },
+    },
+  })
   return {
-    posts: response.data.posts,
-    meta: response.meta!,
+    posts: recursiveDateParse(data?.data?.posts),
+    meta: data?.meta!,
   }
 }
 export const useUserPostQuery = (userId: string, params: PageParams) =>
@@ -96,19 +99,22 @@ export const useUserPostQuery = (userId: string, params: PageParams) =>
   })
 
 // User Comment Get Query
-interface UserCommentData {
-  comments: CommentSchema & { post: Omit<PostSchema, 'author'> }[]
-}
 export const userCommentQueryFn = async (
   userId: string,
   { page, size }: PageParams = INITIAL_PAGE,
 ) => {
-  const response = await apiGet<UserCommentData>(
-    `user/${userId}/comments?page=${page}&size=${size}`,
-  )
+  const { data } = await fetcher.GET('/user/{id}/comments', {
+    params: {
+      path: { id: userId },
+      query: {
+        page,
+        size,
+      },
+    },
+  })
   return {
-    comments: response.data.comments,
-    meta: response.meta!,
+    comments: recursiveDateParse(data?.data?.comments),
+    meta: data?.meta!,
   }
 }
 export const useUserCommentQuery = (userId: string, params: PageParams) =>
@@ -124,29 +130,24 @@ interface UserPatchParams {
   image: string
 }
 export const userPatchQueryFn = async ({ userId, name, image }: UserPatchParams) => {
-  const response = await apiPatch<UserData>(`user/${userId}`, {
-    image,
-    name,
+  await fetcher.PATCH('/user/{id}', {
+    params: { path: { id: userId } },
+    body: { name, image },
   })
-  return response.data
 }
 export const useUserPatchQuery = () =>
-  useMutation<UserData, ApiError, UserPatchParams, unknown>({
-    mutationFn: (params) => userPatchQueryFn(params),
+  useMutation({
+    mutationFn: (params: UserPatchParams) => userPatchQueryFn(params),
   })
 
 // User Delete Query
-interface UserDeleteData {
-  id: string
-  name: string
-  image: string | null
-  email: string
-}
 export const userDeleteQueryFn = async (userId: string) => {
-  const response = await apiGet<UserDeleteData>(`user/${userId}/delete`)
-  return response.data
+  const { data } = await fetcher.DELETE('/user/{id}', {
+    params: { path: { id: userId } },
+  })
+  return data?.data
 }
 export const useUserDeleteQuery = () =>
-  useMutation<UserDeleteData, ApiError, string, unknown>({
-    mutationFn: (userId) => userDeleteQueryFn(userId),
+  useMutation({
+    mutationFn: (userId: string) => userDeleteQueryFn(userId),
   })

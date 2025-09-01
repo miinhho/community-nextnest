@@ -22,7 +22,10 @@ export const setUpSwagger = (app: INestApplication<any>) => {
     SwaggerModule.createDocument(app, swaggerDocument, {
       autoTagControllers: false,
     });
-  SwaggerModule.setup('api', app, documentFactory());
+  SwaggerModule.setup('api', app, documentFactory(), {
+    yamlDocumentUrl: '/swagger/yaml',
+    jsonDocumentUrl: '/swagger/json',
+  });
 };
 
 /**

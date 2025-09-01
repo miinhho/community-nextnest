@@ -43,7 +43,7 @@ export const ApiPageQuery = () =>
       example: 1,
     }),
     ApiQuery({
-      name: 'limit',
+      name: 'size',
       required: false,
       description: '페이지당 수 (기본값: 10)',
       type: 'integer',

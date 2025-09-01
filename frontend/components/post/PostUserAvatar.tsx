@@ -1,5 +1,5 @@
-import { TailWindClasses } from '@/lib/types/component-util.types'
-import { UserSchema } from '@/lib/types/schema.types'
+import { TailWindClasses } from '@/types/component-util.types'
+import { UserSchema } from '@/types/schema.types'
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar'
 
 interface UserAvatarProps extends TailWindClasses {

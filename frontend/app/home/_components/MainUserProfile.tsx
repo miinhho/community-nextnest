@@ -1,10 +1,10 @@
-import { TailWindClasses } from '@/lib/types/component-util.types'
 import { cn } from '@/lib/utils'
+import { TailWindClasses } from '@/types/component-util.types'
 import Image from 'next/image'
 
 interface MainUserProfileProps extends TailWindClasses {
-  image?: string
-  name?: string
+  image: string | null
+  name: string | null
 }
 
 export const MainUserProfile = ({ image, name, className }: MainUserProfileProps) => {

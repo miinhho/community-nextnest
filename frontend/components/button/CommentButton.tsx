@@ -1,8 +1,8 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { TailWindClasses } from '@/lib/types/component-util.types'
 import { cn } from '@/lib/utils'
+import { TailWindClasses } from '@/types/component-util.types'
 import { MessageCircle } from 'lucide-react'
 
 interface CommentButtonProps extends TailWindClasses {

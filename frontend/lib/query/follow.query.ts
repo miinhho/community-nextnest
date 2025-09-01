@@ -1,44 +1,40 @@
-import { apiDelete, apiPost } from '@/lib/ky'
-import { FollowStatus } from '@/lib/types/status.types'
+import { fetcher } from '@/lib/client'
 import { useMutation } from '@tanstack/react-query'
-import { type ApiError } from 'next/dist/server/api-utils'
 
 // Follow Toggle Query
-interface FollowData {
-  status: FollowStatus
-  targetId: string
-}
 export const followQueryFn = async (targetId: string) => {
-  const response = await apiPost<FollowData>(`user/${targetId}/follow`)
-  return response.data
+  const { data } = await fetcher.POST('/user/{id}/follow', {
+    params: {
+      path: { id: targetId },
+    },
+  })
+  return data?.data
 }
 export const useFollowQuery = () =>
-  useMutation<FollowData, ApiError, string, unknown>({
+  useMutation({
     mutationFn: (targetId: string) => followQueryFn(targetId),
   })
 
 // Follow Request Send Query
-interface FollowRequestData {
-  targetId: string
-}
 export const followRequestQueryFn = async (targetId: string) => {
-  const response = await apiPost<FollowRequestData>(`user/${targetId}/follow/request`)
-  return response.data
+  const { data } = await fetcher.POST('/user/{id}/follow/request', {
+    params: { path: { id: targetId } },
+  })
+  return data?.data
 }
 export const useFollowRequestQuery = () =>
-  useMutation<FollowRequestData, ApiError, string, unknown>({
+  useMutation({
     mutationFn: (targetId: string) => followRequestQueryFn(targetId),
   })
 
 // Follow Request Reject Query
-interface FollowRequestRejectData {
-  targetId: string
-}
 export const followRequestRejectQueryFn = async (targetId: string) => {
-  const response = await apiDelete<FollowRequestRejectData>(`user/${targetId}/follow/request`)
-  return response.data
+  const { data } = await fetcher.DELETE('/user/{id}/follow/request', {
+    params: { path: { id: targetId } },
+  })
+  return data?.data
 }
 export const useFollowRequestRejectQuery = () =>
-  useMutation<FollowRequestRejectData, ApiError, string, unknown>({
+  useMutation({
     mutationFn: (targetId: string) => followRequestRejectQueryFn(targetId),
   })

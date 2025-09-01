@@ -3,8 +3,8 @@
 import { MainNavbar } from '@/app/home/_components/MainNavbar'
 import { MainUserProfile } from '@/app/home/_components/MainUserProfile'
 import { useUserInfo } from '@/hooks/useUserInfo'
-import { TailWindClasses } from '@/lib/types/component-util.types'
 import { cn } from '@/lib/utils'
+import { TailWindClasses } from '@/types/component-util.types'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface MainSidebarProps extends TailWindClasses { }

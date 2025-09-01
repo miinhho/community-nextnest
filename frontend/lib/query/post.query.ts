@@ -1,24 +1,25 @@
-import { apiDelete, apiGet, apiPost } from '@/lib/ky'
-import { PageParams } from '@/lib/types/page.types'
-import { CommentSchema, PostSchema } from '@/lib/types/schema.types'
-import { LikeStatus } from '@/lib/types/status.types'
+import { fetcher } from '@/lib/client'
 import { recursiveDateParse } from '@/lib/utils/parsing'
+import { PageParams } from '@/types/page.types'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { type ApiError } from 'next/dist/server/api-utils'
 
 export const POST_LIST_KEY = 'postList'
 export const POST_KEY = 'post'
 export const POST_COMMENT_KEY = 'postComment'
 
 // Post Get Paging Query
-interface PostListData {
-  posts: PostSchema[]
-}
 export const postListQueryFn = async ({ page = 0, size = 10 }: PageParams) => {
-  const response = await apiGet<PostListData>(`post?page=${page}&size=${size}`)
+  const { data } = await fetcher.GET('/post', {
+    params: {
+      query: {
+        page,
+        size,
+      },
+    },
+  })
   return {
-    posts: recursiveDateParse(response.data.posts),
-    meta: response.meta!,
+    posts: recursiveDateParse(data?.data?.posts),
+    meta: data?.meta!,
   }
 }
 export const usePostListQuery = (params: PageParams) =>
@@ -29,8 +30,10 @@ export const usePostListQuery = (params: PageParams) =>
 
 // Post Get Query
 export const postQueryFn = async (postId: string) => {
-  const response = await apiGet<PostSchema>(`post/${postId}`)
-  return recursiveDateParse(response.data)
+  const { data } = await fetcher.GET('/post/{id}', {
+    params: { path: { id: postId } },
+  })
+  return recursiveDateParse(data?.data)
 }
 export const usePostQuery = (postId: string) =>
   useQuery({
@@ -39,11 +42,6 @@ export const usePostQuery = (postId: string) =>
   })
 
 // Post Update Query
-interface PostPutData {
-  id: string
-  authorId: string
-  content: string
-}
 interface PostPutParams {
   postId: string
 }
@@ -51,71 +49,67 @@ interface PostPutBody {
   content: string
 }
 export const postPutQueryFn = async ({ postId, content }: PostPutParams & PostPutBody) => {
-  const response = await apiPost<PostPutData>(`post/${postId}`, {
-    content,
+  const { data } = await fetcher.PUT('/post/{id}', {
+    params: { path: { id: postId } },
+    body: { content },
   })
-  return response.data
+  return data?.data
 }
 export const usePostPutQuery = () =>
-  useMutation<PostPutData, ApiError, PostPutParams & PostPutBody, unknown>({
-    mutationFn: (params) => postPutQueryFn(params),
+  useMutation({
+    mutationFn: (params: PostPutParams & PostPutBody) => postPutQueryFn(params),
   })
 
 // Post Create Query
-interface PostCreateData {
-  postId: string
-  authorId: string
-}
 export const postCreateQueryFn = async (content: string) => {
-  const response = await apiPost<PostCreateData>('post', {
-    content,
+  const { data } = await fetcher.POST('/post', {
+    body: { content },
   })
-  return response.data
+  return data?.data
 }
 export const usePostCreateQuery = () =>
-  useMutation<PostCreateData, ApiError, string, unknown>({
-    mutationFn: (content) => postCreateQueryFn(content),
+  useMutation({
+    mutationFn: (content: string) => postCreateQueryFn(content),
   })
 
 // Post Like Query
-interface PostLikeData {
-  id: string
-  status: LikeStatus
-}
 export const postLikeQueryFn = async (postId: string) => {
-  const response = await apiPost<PostLikeData>(`post/${postId}/like`)
-  return response.data
+  const { data } = await fetcher.POST('/post/{id}/like', {
+    params: { path: { id: postId } },
+  })
+  return data?.data
 }
 export const usePostLikeQuery = () =>
-  useMutation<PostLikeData, ApiError, string, unknown>({
+  useMutation({
     mutationFn: (postId: string) => postLikeQueryFn(postId),
   })
 
 // Post Delete Query
-interface PostDeleteData {
-  id: string
-  authorId: string
-  content: string
-}
 export const postDeleteQueryFn = async (postId: string) => {
-  const response = await apiDelete<PostDeleteData>(`post/${postId}`)
-  return response.data
+  const { data } = await fetcher.DELETE('/post/{id}', {
+    params: { path: { id: postId } },
+  })
+  return data?.data
 }
 export const usePostDeleteQuery = () =>
-  useMutation<PostDeleteData, ApiError, string, unknown>({
-    mutationFn: (postId) => postDeleteQueryFn(postId),
+  useMutation({
+    mutationFn: (postId: string) => postDeleteQueryFn(postId),
   })
 
 // Post Comment Get Paging Query
-interface PostCommentData {
-  postId: string
-  comments: CommentSchema[]
-}
 export const postCommentQueryFn = async (postId: string, { page = 0, size = 10 }: PageParams) => {
-  const response = await apiGet<PostCommentData>(`post/${postId}/comment?page=${page}&size=${size}`)
+  const { data } = await fetcher.GET('/post/{id}/comments', {
+    params: {
+      path: { id: postId },
+      query: {
+        page,
+        size,
+      },
+    },
+  })
   return {
-    comments: recursiveDateParse(response.data.comments),
-    meta: response.meta!,
+    comments: recursiveDateParse(data?.data?.comments),
+    meta: data?.meta!,
   }
 }
 export const usePostCommentQuery = (postId: string, params: PageParams) =>
