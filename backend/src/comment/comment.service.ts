@@ -22,7 +22,11 @@ export class CommentService {
    * @throws {NotFoundException} 게시글을 찾을 수 없는 경우
    * @throws {InternalServerErrorException} 댓글 작성 실패 시
    */
-  async createComment(props: { postId: string; authorId: string; content: string }) {
+  async createComment(props: {
+    postId: string;
+    authorId: string;
+    content: string;
+  }): Promise<string> {
     const { id: commentId } = await this.commentRepository.createComment(props);
     // 댓글 작성 후 게시글 작성자에게 댓글 알림 발행
     this.notifyPublisher.commentNofify(props.authorId, {
@@ -46,7 +50,7 @@ export class CommentService {
     postId: string;
     commentId: string;
     content: string;
-  }) {
+  }): Promise<string> {
     const { id: replyId } = await this.commentRepository.createCommentReply(props);
     // 답글 작성 후 부모 댓글 작성자에게 답글 알림 발행
     this.notifyPublisher.commentReplyNotify(props.authorId, {
@@ -121,7 +125,7 @@ export class CommentService {
     userId: string;
     commentId: string;
     toggle?: boolean;
-  }) {
+  }): Promise<LikeStatus> {
     try {
       const { authorId } = await this.commentRepository.addCommentLike({
         userId,
@@ -153,7 +157,7 @@ export class CommentService {
    * @throws {NotFoundException} 댓글을 찾을 수 없는 경우
    * @throws {InternalServerErrorException} 좋아요 취소 실패 시
    */
-  async minusCommentLikes(props: { userId: string; commentId: string }) {
+  async minusCommentLikes(props: { userId: string; commentId: string }): Promise<LikeStatus> {
     await this.commentRepository.minusCommentLike(props);
     return LikeStatus.MINUS;
   }

@@ -8,7 +8,7 @@ export const followQueryFn = async (targetId: string) => {
       path: { id: targetId },
     },
   })
-  return data?.data
+  return data
 }
 export const useFollowQuery = () =>
   useMutation({
@@ -20,7 +20,7 @@ export const followRequestQueryFn = async (targetId: string) => {
   const { data } = await fetcher.POST('/user/{id}/follow/request', {
     params: { path: { id: targetId } },
   })
-  return data?.data
+  return data
 }
 export const useFollowRequestQuery = () =>
   useMutation({
@@ -32,7 +32,7 @@ export const followRequestRejectQueryFn = async (targetId: string) => {
   const { data } = await fetcher.DELETE('/user/{id}/follow/request', {
     params: { path: { id: targetId } },
   })
-  return data?.data
+  return data
 }
 export const useFollowRequestRejectQuery = () =>
   useMutation({

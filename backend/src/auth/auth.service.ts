@@ -1,6 +1,7 @@
 import { RegisterUserDto } from '@/auth/dto/register.dto';
 import { RefreshTokenService } from '@/auth/token/refresh-token.service';
 import { TokenService } from '@/auth/token/token.service';
+import { TokenPair } from '@/auth/token/token.types';
 import { UserData } from '@/common/user';
 import jwt from '@/config/jwt.config';
 import { UserService } from '@/user/user.service';
@@ -33,7 +34,7 @@ export class AuthService {
    * @throws {UnauthorizedException} 비밀번호가 일치하지 않는 경우
    * @throws {InternalServerErrorException} 인증 과정에서 오류 발생 시
    */
-  async validateUser(email: string, password: string) {
+  async validateUser(email: string, password: string): Promise<UserData> {
     const user = await this.userService.findUserByEmail(email, true);
     await this.comparePassword(password, user.password);
 
@@ -50,7 +51,7 @@ export class AuthService {
    * @returns 로그인 결과 (Access Token, Refresh Token, 사용자 정보)
    * @throws {InternalServerErrorException} 토큰 생성 실패 시
    */
-  async login(user: UserData) {
+  async login(user: UserData): Promise<TokenPair & { user: UserData }> {
     const accessToken = await this.tokenService.generateAccessToken(user.id);
     const refreshToken = this.tokenService.generateRefreshToken(user.id);
 
@@ -102,7 +103,7 @@ export class AuthService {
    * @throws {UnauthorizedException} 토큰이 유효하지 않거나 만료된 경우
    * @throws {NotFoundException} 토큰을 찾을 수 없는 경우
    */
-  async refreshTokens(refreshToken: string) {
+  async refreshTokens(refreshToken: string): Promise<TokenPair> {
     try {
       const storedToken = await this.refreshTokenService.findRefreshTokenByToken(refreshToken);
       await this.refreshTokenService.revokeRefreshToken(storedToken.id);
@@ -143,7 +144,7 @@ export class AuthService {
    * @throws {NotFoundException} 토큰을 찾을 수 없는 경우
    * @throws {InternalServerErrorException} 토큰 삭제 실패 시
    */
-  async logout(refreshToken: string) {
+  async logout(refreshToken: string): Promise<void> {
     const token = await this.refreshTokenService.findRefreshTokenByToken(refreshToken);
     if (token) {
       await this.refreshTokenService.revokeRefreshToken(token.id);
@@ -159,7 +160,7 @@ export class AuthService {
    * @returns 해시화된 비밀번호
    * @private
    */
-  private async hashPassword(plain: string) {
+  private async hashPassword(plain: string): Promise<string> {
     const salt = await genSalt(SALT_ROUND);
     return hash(plain, salt);
   }
@@ -172,7 +173,7 @@ export class AuthService {
    * @throws {UnauthorizedException} 비밀번호가 일치하지 않는 경우
    * @private
    */
-  private async comparePassword(plain: string, hashed: string) {
+  private async comparePassword(plain: string, hashed: string): Promise<void> {
     const isValid = await compare(plain, hashed);
     if (!isValid) {
       throw new UnauthorizedException('비밀번호가 일치하지 않습니다');

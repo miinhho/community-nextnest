@@ -14,7 +14,6 @@ export const ApiCheck = () =>
         properties: {
           status: {
             type: 'string',
-            example: 'ok',
             description: '전체 상태',
           },
           info: {
@@ -25,7 +24,6 @@ export const ApiCheck = () =>
                 properties: {
                   status: {
                     type: 'string',
-                    example: 'up',
                   },
                 },
               },
@@ -34,7 +32,6 @@ export const ApiCheck = () =>
                 properties: {
                   status: {
                     type: 'string',
-                    example: 'up',
                   },
                 },
               },
@@ -52,7 +49,6 @@ export const ApiCheck = () =>
                 properties: {
                   status: {
                     type: 'string',
-                    example: 'up',
                   },
                 },
               },
@@ -61,7 +57,6 @@ export const ApiCheck = () =>
                 properties: {
                   status: {
                     type: 'string',
-                    example: 'up',
                   },
                 },
               },
@@ -77,11 +72,9 @@ export const ApiCheck = () =>
         properties: {
           status: {
             type: 'string',
-            example: 'error',
           },
           info: {
             type: 'object',
-            example: {},
           },
           error: {
             type: 'object',
@@ -91,7 +84,6 @@ export const ApiCheck = () =>
                 properties: {
                   status: {
                     type: 'string',
-                    example: 'down',
                   },
                 },
               },
@@ -105,7 +97,6 @@ export const ApiCheck = () =>
                 properties: {
                   status: {
                     type: 'string',
-                    example: 'down',
                   },
                 },
               },
@@ -114,7 +105,6 @@ export const ApiCheck = () =>
                 properties: {
                   status: {
                     type: 'string',
-                    example: 'down',
                   },
                 },
               },

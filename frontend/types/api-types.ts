@@ -13,13 +13,13 @@ export interface paths {
         };
         /**
          * 게시글 목록 조회
-         * @description 모든 게시글 목록을 페이지네이션으로 조회합니다. 비공개 게시글은 작성자와 팔로워만 조회할 수 있습니다.
+         * @description 페이지네이션으로 게시글 목록을 조회합니다.
          */
         get: operations["PostController_findPosts"];
         put?: never;
         /**
          * 게시글 생성
-         * @description 새로운 게시글을 작성합니다.
+         * @description 새 게시글을 생성합니다.
          */
         post: operations["PostController_createPost"];
         delete?: never;
@@ -36,13 +36,13 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 게시글 조회
-         * @description ID로 특정 게시글의 상세 정보를 조회합니다. 게시글이 비공개인 경우, 해당 게시글의 작성자와 팔로워인 사용자만 조회할 수 있습니다.
+         * 게시글 상세 조회
+         * @description ID로 특정 게시글을 조회합니다.
          */
         get: operations["PostController_findPostById"];
         /**
          * 게시글 수정
-         * @description 기존 게시글의 내용을 수정합니다.
+         * @description 게시글의 내용을 수정합니다.
          */
         put: operations["PostController_updatePost"];
         post?: never;
@@ -67,7 +67,7 @@ export interface paths {
         put?: never;
         /**
          * 게시글 좋아요 토글
-         * @description 게시글의 좋아요 상태를 토글합니다. 비공개 게시글은 작성자와 팔로워만 좋아요를 토글할 수 있습니다.
+         * @description 게시글에 좋아요를 추가하거나 취소합니다.
          */
         post: operations["PostController_toggleLike"];
         delete?: never;
@@ -85,7 +85,7 @@ export interface paths {
         };
         /**
          * 사용자 게시글 목록 조회
-         * @description 특정 사용자가 작성한 게시글 목록을 페이지네이션으로 조회합니다. 비공개 사용자인 경우, 해당 사용자의 팔로워만 조회할 수 있습니다.
+         * @description 특정 사용자의 게시글 목록을 페이지네이션으로 조회합니다.
          */
         get: operations["PostController_getUserPosts"];
         put?: never;
@@ -180,14 +180,14 @@ export interface paths {
         post?: never;
         /**
          * 사용자 삭제
-         * @description 사용자 계정을 삭제합니다.
+         * @description ID로 특정 사용자를 삭제합니다. 본인과 관리자만 삭제할 수 있습니다.
          */
         delete: operations["UserController_deleteUser"];
         options?: never;
         head?: never;
         /**
          * 사용자 정보 수정
-         * @description 사용자의 프로필 정보를 수정합니다.
+         * @description 사용자의 프로필 정보를 수정합니다. 본인과 관리자만 수정할 수 있습니다.
          */
         patch: operations["UserController_updateUser"];
         trace?: never;
@@ -230,10 +230,7 @@ export interface paths {
         get: operations["CommentController_getCommentById"];
         put?: never;
         post?: never;
-        /**
-         * 댓글 삭제
-         * @description 댓글을 삭제합니다.
-         */
+        /** 댓글 삭제 */
         delete: operations["CommentController_deleteComment"];
         options?: never;
         head?: never;
@@ -513,10 +510,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /**
-         * 로그아웃
-         * @description 현재 세션을 종료하고 로그아웃합니다.
-         */
+        /** 로그아웃 */
         post: operations["AuthController_logout"];
         delete?: never;
         options?: never;
@@ -533,10 +527,6 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /**
-         * 토큰 갱신
-         * @description 만료된 액세스 토큰을 갱신합니다.
-         */
         post: operations["AuthController_refresh"];
         delete?: never;
         options?: never;
@@ -578,8 +568,8 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * 사용자 알람 목록 조회
-         * @description 특정 사용자의 알람 목록을 조회합니다.
+         * 사용자 알람 전체 읽음 처리
+         * @description 특정 사용자의 모든 알람을 읽음 처리합니다.
          */
         patch: operations["NotifyController_readAllNotifiesByUserId"];
         trace?: never;
@@ -638,8 +628,8 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * 알람 상세 조회
-         * @description 특정 알람의 상세 정보를 조회합니다.
+         * 알람 읽음 처리
+         * @description 특정 알람을 읽음 처리합니다.
          */
         patch: operations["NotifyController_readNotifyById"];
         trace?: never;
@@ -672,6 +662,167 @@ export interface components {
             /** @description 댓글 내용 */
             content: string;
         };
+        CreatePostResponseDto: {
+            /** @description 생성한 게시물의 ID (UUID) */
+            postId: string;
+            /** @description 글쓴이의 ID (UUID) */
+            authorId: string;
+        };
+        PageMetaResponseDto: {
+            /** @description 현재 페이지 */
+            page: number;
+            /** @description 페이지당 항목 수 */
+            size: number;
+        };
+        FindPostsResponseDto: {
+            /** @description 게시글 목록 */
+            posts: unknown[][];
+            /** @description 페이지네이션 정보 */
+            meta: components["schemas"]["PageMetaResponseDto"];
+        };
+        UserPrivateResponseDto: {
+            /** @description 유저 이름 */
+            name: string;
+            /** @description 유저 ID (UUID) */
+            id: string;
+            /** @description 유저 프로필 이미지 URL */
+            image: string | null;
+            /** @description 유저 비공개 여부 */
+            isPrivate: boolean;
+        };
+        FindPostByIdResponseDto: {
+            /**
+             * Format: date-time
+             * @description 생성일
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description 수정일
+             */
+            updatedAt: string;
+            /** @description 게시글 ID (UUID) */
+            id: string;
+            /** @description 게시글 내용 */
+            content: string;
+            /** @description 게시글 좋아요 수 */
+            likeCount: number;
+            /** @description 댓글 수 */
+            commentCount: number;
+            /** @description 게시글 작성자 정보 */
+            author: components["schemas"]["UserPrivateResponseDto"];
+        };
+        UpdatePostResponseDto: {
+            /** @description 수정된 게시물의 ID (UUID) */
+            id: string;
+            /** @description 수정된 게시물 글쓴이의 ID (UUID) */
+            authorId: string;
+        };
+        DeletePostResponseDto: {
+            /** @description 삭제된 게시물의 ID (UUID) */
+            id: string;
+            /** @description 삭제된 게시물 글쓴이의 ID (UUID) */
+            authorId: string;
+            /** @description 삭제된 게시물의 내용 */
+            content: string;
+        };
+        ToggleLikeResponseDto: {
+            /** @description 게시물 ID (UUID) */
+            id: string;
+            /**
+             * @description 게시물 좋아요 상태
+             * @enum {string}
+             */
+            status: "PLUS" | "MINUS";
+        };
+        GetUserPostsResponseDto: {
+            /** @description 사용자 게시글 목록 */
+            posts: unknown[][];
+            /** @description 페이지네이션 정보 */
+            meta: components["schemas"]["PageMetaResponseDto"];
+        };
+        UpdatePrivateBodyDto: {
+            /** @description 사용자의 공개 여부 (true: 비공개, false: 공개) */
+            isPrivate: boolean;
+        };
+        GetPrivateResponseDto: {
+            /** @description 사용자의 공개 여부 (true: 비공개, false: 공개) */
+            isPrivate: boolean;
+        };
+        BlockUserDto: {
+            /** @description 차단할 사용자 ID */
+            targetId: string;
+        };
+        UnBlockUserDto: {
+            /** @description 차단 해제할 사용자 ID */
+            targetId: string;
+        };
+        GetMyInfoResponseDto: {
+            /** @description 유저 이름 */
+            name: string;
+            /** @description 유저 ID (UUID) */
+            id: string;
+            /** @description 유저 프로필 이미지 URL */
+            image: string | null;
+            /** @description 유저 이메일 */
+            email: string;
+            /** @description 이메일 인증 날짜 */
+            emailVerified: Record<string, never> | null;
+            /** @description 팔로잉 수 */
+            followingCount: number;
+            /** @description 팔로워 수 */
+            followerCount: number;
+            /** @description 게시글 수 */
+            postCount: number;
+            /**
+             * @description 유저 역할
+             * @enum {string}
+             */
+            role: "ADMIN" | "USER";
+            /**
+             * Format: date-time
+             * @description 생성일
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description 수정일
+             */
+            updatedAt: string;
+        };
+        GetUserByIdResponseDto: {
+            /** @description 유저 이름 */
+            name: string;
+            /** @description 유저 ID (UUID) */
+            id: string;
+            /** @description 유저 프로필 이미지 URL */
+            image: string | null;
+            /** @description 유저 이메일 */
+            email: string;
+            /** @description 이메일 인증 날짜 */
+            emailVerified: Record<string, never> | null;
+            /** @description 팔로잉 수 */
+            followingCount: number;
+            /** @description 팔로워 수 */
+            followerCount: number;
+            /** @description 게시글 수 */
+            postCount: number;
+            /**
+             * @description 유저 역할
+             * @enum {string}
+             */
+            role: "ADMIN" | "USER";
+            /**
+             * Format: date-time
+             * @description 생성일
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description 수정일
+             */
+            updatedAt: string;
+        };
         UpdateUserDto: {
             /** @description 사용자 이름 */
             name?: string;
@@ -681,37 +832,169 @@ export interface components {
              */
             image?: string | null;
         };
+        DeleteUserResponseDto: {
+            /** @description 유저 이름 */
+            name: string;
+            /** @description 유저 ID (UUID) */
+            id: string;
+            /** @description 유저 프로필 이미지 URL */
+            image: string | null;
+            /** @description 삭제된 사용자 이메일 */
+            email: string;
+        };
         CreateCommentDto: {
-            /**
-             * @description 댓글이 달릴 게시글의 ID
-             * @example 123e4567-e89b-12d3-a456-426614174000
-             */
+            /** @description 댓글이 달릴 게시글의 ID */
             postId: string;
             /** @description 댓글 내용 */
             content: string;
+        };
+        CreateCommentResponseDto: {
+            /** @description 생성된 댓글의 ID (UUID) */
+            commentId: string;
+            /** @description 댓글이 달린 게시글의 ID (UUID) */
+            postId: string;
+            /** @description 댓글 작성자의 ID (UUID) */
+            authorId: string;
         };
         UpdateCommentDto: {
-            /**
-             * @description 수정할 댓글의 ID
-             * @example 123e4567-e89b-12d3-a456-426614174000
-             */
+            /** @description 수정할 댓글의 ID (UUID) */
             commentId: string;
             /** @description 댓글 내용 */
             content: string;
         };
-        ReplyContentDto: {
+        UserResponseDto: {
+            /** @description 유저 이름 */
+            name: string;
+            /** @description 유저 ID (UUID) */
+            id: string;
+            /** @description 유저 프로필 이미지 URL */
+            image: string | null;
+        };
+        CommentWithAuthorDto: {
             /**
-             * @description 답글이 달릴 게시글의 ID
-             * @example 123e4567-e89b-12d3-a456-426614174000
+             * Format: date-time
+             * @description 생성일
              */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description 수정일
+             */
+            updatedAt: string;
+            /** @description 댓글 ID (UUID) */
+            id: string;
+            /** @description 댓글 내용 */
+            content: string;
+            /** @description 댓글 좋아요 수 */
+            likesCount: number;
+            /** @description 댓글 작성자 정보 */
+            author: components["schemas"]["UserResponseDto"];
+        };
+        GetCommentResponseDto: {
+            /**
+             * Format: date-time
+             * @description 생성일
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description 수정일
+             */
+            updatedAt: string;
+            /** @description 댓글 ID (UUID) */
+            id: string;
+            /** @description 댓글 내용 */
+            content: string;
+            /** @description 댓글 좋아요 수 */
+            likesCount: number;
+            /** @description 댓글 작성자 정보 */
+            author: components["schemas"]["UserResponseDto"];
+            /** @description 게시글 ID (UUID) */
             postId: string;
+            /** @description 부모 댓글 정보 (대댓글인 경우에만 존재) */
+            parent: components["schemas"]["CommentWithAuthorDto"] | null;
+        };
+        DeleteCommentResponseDto: {
+            /** @description 삭제된 댓글의 내용 */
+            content: string;
+            /** @description 댓글이 달린 게시글의 ID (UUID) */
+            postId: string;
+            /** @description 댓글 작성자의 ID (UUID) */
+            authorId: string;
+        };
+        GetRepliesResponseDto: {
+            /** @description 댓글 답글 목록 */
+            replies: unknown[][];
+            /** @description 페이지네이션 정보 */
+            meta: components["schemas"]["PageMetaResponseDto"];
+        };
+        ToggleCommentLikeResponseDto: {
             /**
-             * @description 답글이 달릴 댓글의 ID
-             * @example 123e4567-e89b-12d3-a456-426614174000
+             * @description 댓글 좋아요 상태
+             * @enum {string}
              */
+            status: "PLUS" | "MINUS";
+            /** @description 좋아요/싫어요를 토글한 댓글의 ID */
+            commentId: string;
+        };
+        CreateReplyDto: {
+            /** @description 답글이 달릴 게시글의 ID */
+            postId: string;
+            /** @description 답글이 달릴 댓글의 ID */
             commentId: string;
             /** @description 댓글 내용 */
             content: string;
+        };
+        CreateReplyResponseDto: {
+            /** @description 생성된 답글의 ID (UUID) */
+            replyId: string;
+            /** @description 답글이 달린 게시글의 ID (UUID) */
+            postId: string;
+            /** @description 답글 작성자의 ID (UUID) */
+            authorId: string;
+        };
+        GetCommentsByPostIdResponseDto: {
+            /** @description 게시물 ID (UUID) */
+            postId: string;
+            /** @description 댓글 목록 */
+            comments: unknown[][];
+            /** @description 페이지네이션 정보 */
+            meta: components["schemas"]["PageMetaResponseDto"];
+        };
+        GetCommentsByUserIdResponseDto: {
+            /** @description 댓글 목록 */
+            comments: unknown[][];
+            /** @description 페이지네이션 정보 */
+            meta: components["schemas"]["PageMetaResponseDto"];
+        };
+        ToggleFollowResponseDto: {
+            /** @description 팔로우 대상 사용자 ID */
+            targetId: string;
+            /**
+             * @description 팔로우 상태
+             * @enum {string}
+             */
+            status: "FOLLOW" | "UNFOLLOW";
+        };
+        GetFollowingCountResponseDto: {
+            /** @description 팔로잉 수 */
+            followingCount: number;
+        };
+        GetFollowersCountResponseDto: {
+            /** @description 팔로워 수 */
+            followersCount: number;
+        };
+        GetFollowersResponseDto: {
+            /** @description 팔로워 목록 */
+            followers: unknown[][];
+            /** @description 페이지네이션 메타데이터 */
+            meta: components["schemas"]["PageMetaResponseDto"];
+        };
+        GetFollowingResponseDto: {
+            /** @description 팔로잉 목록 */
+            following: unknown[][];
+            /** @description 페이지네이션 메타데이터 */
+            meta: components["schemas"]["PageMetaResponseDto"];
         };
         RegisterUserDto: {
             /** @description 사용자 이메일 */
@@ -721,11 +1004,75 @@ export interface components {
             /** @description 사용자 이름 */
             name: string;
         };
+        RegisterResponseDto: {
+            /** @description 유저 ID (UUID) */
+            id: string;
+            /**
+             * @description 유저 역할
+             * @enum {string}
+             */
+            role: "ADMIN" | "USER";
+        };
         LoginUserDto: {
             /** @description 사용자 이메일 */
             email: string;
             /** @description 사용자 비밀번호 */
             password: string;
+        };
+        LoginResponseDto: {
+            /** @description 유저 ID (UUID) */
+            id: string;
+            /**
+             * @description 유저 역할
+             * @enum {string}
+             */
+            role: "ADMIN" | "USER";
+        };
+        GetNotifiesByUserIdResponseDto: {
+            /** @description 알람 목록 */
+            notifies: unknown[][];
+            /** @description 페이지네이션 메타데이터 */
+            meta: components["schemas"]["PageMetaResponseDto"];
+        };
+        GetNotifyByIdResponseDto: {
+            /** @description 알람 ID */
+            id: string;
+            /**
+             * @description 알람 타입
+             * @enum {string}
+             */
+            type: "COMMENT_LIKE" | "COMMENT_REPLY" | "FOLLOW" | "MESSAGE" | "POST_COMMENT" | "POST_LIKE" | "SYSTEM";
+            /** @description 알람 이미지 */
+            image: Record<string, never> | null;
+            /** @description 알람 제목 */
+            title: string;
+            /** @description 알람 내용 */
+            content: Record<string, never> | null;
+            /** @description 알람 읽음 여부 */
+            isRead: boolean;
+            /**
+             * Format: date-time
+             * @description 생성일
+             */
+            createdAt: string;
+            /** @description 알람 관련 사용자 */
+            user: {
+                /** @description 사용자 ID */
+                id?: string;
+                /** @description 사용자 이름 */
+                name?: string;
+            };
+            /** @description 게시글 ID */
+            postId: Record<string, never> | null;
+            /** @description 댓글 ID */
+            commentId: Record<string, never> | null;
+            /** @description 팔로워 정보 */
+            follower: {
+                /** @description 팔로워 ID */
+                id?: string;
+                /** @description 팔로워 이름 */
+                name?: string;
+            } | null;
         };
     };
     responses: never;
@@ -750,43 +1097,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 게시글 목록 조회 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            posts?: {
-                                id?: string;
-                                content?: string;
-                                likeCount?: number;
-                                createdAt?: string;
-                                updatedAt?: string;
-                                commentCount?: number;
-                                author?: {
-                                    id?: string;
-                                    name?: string;
-                                    image?: string | null;
-                                };
-                            }[];
-                        };
-                        meta?: {
-                            /** @description 전체 항목 수 */
-                            totalCount: number;
-                            /** @description 전체 페이지 수 */
-                            pageCount: number;
-                            /** @description 현재 페이지 */
-                            currentPage: number;
-                            /** @description 페이지당 항목 수 */
-                            pageSize: number;
-                        };
-                    };
+                    "application/json": components["schemas"]["FindPostsResponseDto"];
                 };
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -802,27 +1120,25 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        /** @description 게시글 생성 요청 데이터 */
         requestBody: {
             content: {
                 "application/json": components["schemas"]["PostContentDto"];
             };
         };
         responses: {
-            /** @description 게시글 생성 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            postId?: string;
-                            authorId?: string;
-                        };
-                    };
+                    "application/json": components["schemas"]["CreatePostResponseDto"];
                 };
+            };
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -838,45 +1154,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 게시글 조회 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            id?: string;
-                            content?: string;
-                            likeCount?: number;
-                            createdAt?: string;
-                            updatedAt?: string;
-                            author?: {
-                                id?: string;
-                                name?: string;
-                                image?: string | null;
-                            };
-                            commentCount?: number;
-                        };
-                    };
+                    "application/json": components["schemas"]["FindPostByIdResponseDto"];
                 };
             };
-            /** @description 인증되지 않은 사용자 */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description 존재하지 않는 게시글 */
+            /** @description 게시글을 찾을 수 없음 */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -890,49 +1182,32 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description 게시글 ID */
+                /** @description 수정할 게시글 ID */
                 id: string;
             };
             cookie?: never;
         };
-        /** @description 게시글 생성 요청 데이터 */
         requestBody: {
             content: {
                 "application/json": components["schemas"]["PostContentDto"];
             };
         };
         responses: {
-            /** @description 게시글 수정 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            id?: string;
-                            authorId?: string;
-                            content?: string;
-                        };
-                    };
+                    "application/json": components["schemas"]["UpdatePostResponseDto"];
                 };
             };
-            /** @description 인증되지 않은 사용자 */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description 존재하지 않는 게시글 */
+            /** @description 게시글을 찾을 수 없음 */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -946,44 +1221,28 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description 게시글 ID */
+                /** @description 삭제할 게시글 ID */
                 id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description 게시글 삭제 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            id?: string;
-                            authorId?: string;
-                            content?: string;
-                        };
-                    };
+                    "application/json": components["schemas"]["DeletePostResponseDto"];
                 };
             };
-            /** @description 인증되지 않은 사용자 */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description 존재하지 않는 게시글 */
+            /** @description 게시글을 찾을 수 없음 */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -997,45 +1256,28 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description 게시글 ID */
+                /** @description 좋아요할 게시글 ID */
                 id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description 게시글 좋아요 토글 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        message?: string;
-                        data?: {
-                            /** @enum {string} */
-                            status?: "PLUS" | "MINUS";
-                            id?: string;
-                        };
-                    };
+                    "application/json": components["schemas"]["ToggleLikeResponseDto"];
                 };
             };
-            /** @description 인증되지 않은 사용자 */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description 존재하지 않는 게시글 */
+            /** @description 게시글을 찾을 수 없음 */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -1061,59 +1303,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 사용자의 게시글 목록 조회 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            posts?: {
-                                id?: string;
-                                content?: string;
-                                likeCount?: number;
-                                createdAt?: string;
-                                updatedAt?: string;
-                                commentCount?: number;
-                            }[];
-                        };
-                        meta?: {
-                            /** @description 전체 항목 수 */
-                            totalCount: number;
-                            /** @description 전체 페이지 수 */
-                            pageCount: number;
-                            /** @description 현재 페이지 */
-                            currentPage: number;
-                            /** @description 페이지당 항목 수 */
-                            pageSize: number;
-                        };
-                    };
+                    "application/json": components["schemas"]["GetUserPostsResponseDto"];
                 };
             };
-            /** @description 비공개 사용자의 게시글에 접근하기 위해 인증이 필요함 */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description 비공개 사용자의 게시글에 접근할 수 없음 */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description 존재하지 않는 사용자 */
+            /** @description 사용자를 찾을 수 없음 */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -1134,28 +1338,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 사용자 공개 여부 조회 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            isPrivate?: boolean;
-                        };
-                    };
+                    "application/json": components["schemas"]["GetPrivateResponseDto"];
                 };
             };
-            /** @description 존재하지 않는 사용자 */
+            /** @description 사용자를 찾을 수 없음 */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -1174,24 +1371,12 @@ export interface operations {
             };
             cookie?: never;
         };
-        /** @description 사용자 공개 여부 수정 정보 */
         requestBody: {
             content: {
-                "application/json": components["schemas"];
+                "application/json": components["schemas"]["UpdatePrivateBodyDto"];
             };
         };
         responses: {
-            /** @description 사용자 공개 여부 수정 성공 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success?: boolean;
-                    };
-                };
-            };
             /** @description 인증되지 않은 사용자 */
             401: {
                 headers: {
@@ -1206,7 +1391,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -1225,24 +1409,10 @@ export interface operations {
         /** @description 차단할 사용자 ID */
         requestBody: {
             content: {
-                "application/json": {
-                    /** @description 차단할 사용자 ID */
-                    targetId?: string;
-                };
+                "application/json": components["schemas"]["BlockUserDto"];
             };
         };
         responses: {
-            /** @description 사용자 차단 성공 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success?: boolean;
-                    };
-                };
-            };
             /** @description 이미 차단된 사용자 */
             409: {
                 headers: {
@@ -1250,7 +1420,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -1269,24 +1438,10 @@ export interface operations {
         /** @description 차단 해제할 사용자 ID */
         requestBody: {
             content: {
-                "application/json": {
-                    /** @description 차단 해제할 사용자 ID */
-                    targetId?: string;
-                };
+                "application/json": components["schemas"]["UnBlockUserDto"];
             };
         };
         responses: {
-            /** @description 사용자 차단 해제 성공 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success?: boolean;
-                    };
-                };
-            };
             /** @description 차단되지 않은 사용자 */
             400: {
                 headers: {
@@ -1294,7 +1449,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -1312,34 +1466,20 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 사용자 조회 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            id?: string;
-                            name?: string;
-                            image?: string | null;
-                            /** Format: email */
-                            email?: string;
-                            /** Format: date-time */
-                            emailVerified?: string | null;
-                            followingCount?: number;
-                            followerCount?: number;
-                            postCount?: number;
-                            /** @enum {string} */
-                            role?: "ADMIN" | "USER";
-                            /** Format: date-time */
-                            createdAt?: string;
-                            /** Format: date-time */
-                            updatedAt?: string;
-                        };
-                    };
+                    "application/json": components["schemas"]["GetMyInfoResponseDto"];
                 };
+            };
+            /** @description 인증되지 않은 사용자 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description 사용자를 찾을 수 없음 */
             404: {
@@ -1348,7 +1488,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -1369,33 +1508,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 사용자 조회 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            id?: string;
-                            name?: string;
-                            image?: string | null;
-                            /** Format: email */
-                            email?: string;
-                            /** Format: date-time */
-                            emailVerified?: string | null;
-                            followingCount?: number;
-                            followerCount?: number;
-                            postCount?: number;
-                            /** @enum {string} */
-                            role?: "ADMIN" | "USER";
-                            /** Format: date-time */
-                            createdAt?: string;
-                            /** Format: date-time */
-                            updatedAt?: string;
-                        };
-                    };
+                    "application/json": components["schemas"]["GetUserByIdResponseDto"];
                 };
             };
             /** @description 비공개 사용자 조회는 인증이 요구됨 */
@@ -1419,7 +1537,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -1440,22 +1557,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 사용자 삭제 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            id?: string;
-                            name?: string;
-                            image?: string | null;
-                            /** Format: email */
-                            email?: string;
-                        };
-                    };
+                    "application/json": components["schemas"]["DeleteUserResponseDto"];
                 };
             };
             /** @description 인증되지 않은 사용자 */
@@ -1472,7 +1579,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -1491,24 +1597,12 @@ export interface operations {
             };
             cookie?: never;
         };
-        /** @description 사용자 수정 정보 */
         requestBody: {
             content: {
                 "application/json": components["schemas"]["UpdateUserDto"];
             };
         };
         responses: {
-            /** @description 사용자 수정 성공 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success?: boolean;
-                    };
-                };
-            };
             /** @description 인증되지 않은 사용자 */
             401: {
                 headers: {
@@ -1523,7 +1617,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -1539,29 +1632,12 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        /** @description 댓글 수정 요청 데이터 */
         requestBody: {
             content: {
                 "application/json": components["schemas"]["UpdateCommentDto"];
             };
         };
         responses: {
-            /** @description 댓글 수정 성공 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            commentId?: string;
-                        };
-                        /** @example 댓글이 성공적으로 수정되었습니다. */
-                        message?: string;
-                    };
-                };
-            };
             /** @description 잘못된 요청 형식입니다. */
             400: {
                 headers: {
@@ -1576,7 +1652,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -1592,27 +1667,18 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        /** @description 댓글 생성 요청 데이터 */
         requestBody: {
             content: {
                 "application/json": components["schemas"]["CreateCommentDto"];
             };
         };
         responses: {
-            /** @description 댓글 생성 성공 */
-            200: {
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            commentId?: string;
-                            postId?: string;
-                            authorId?: string;
-                        };
-                    };
+                    "application/json": components["schemas"]["CreateCommentResponseDto"];
                 };
             };
             /** @description 잘못된 요청 형식입니다. */
@@ -1629,7 +1695,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -1650,44 +1715,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 댓글 조회 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            id?: string;
-                            content?: string;
-                            likesCount?: number;
-                            /** Format: date-time */
-                            createdAt?: string;
-                            /** Format: date-time */
-                            updatedAt?: string;
-                            postId?: string;
-                            author?: {
-                                id?: string;
-                                name?: string;
-                                image?: string | null;
-                            };
-                            parent?: {
-                                id?: string;
-                                content?: string;
-                                likesCount?: number;
-                                /** Format: date-time */
-                                createdAt?: string;
-                                /** Format: date-time */
-                                updatedAt?: string;
-                                author?: {
-                                    id?: string;
-                                    name?: string;
-                                    image?: string | null;
-                                };
-                            } | null;
-                        };
-                    };
+                    "application/json": components["schemas"]["GetCommentResponseDto"];
                 };
             };
             /** @description 존재하지 않는 댓글입니다. */
@@ -1697,7 +1730,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -1718,20 +1750,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 댓글 삭제 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            content?: string;
-                            postId?: string;
-                            authorId?: string;
-                        };
-                    };
+                    "application/json": components["schemas"]["DeleteCommentResponseDto"];
                 };
             };
             /** @description 존재하지 않는 댓글입니다. */
@@ -1741,7 +1765,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -1767,44 +1790,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 댓글 답글 조회 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            replies?: {
-                                id?: string;
-                                content?: string;
-                                likesCount?: number;
-                                /** Format: date-time */
-                                createdAt?: string;
-                                /** Format: date-time */
-                                updatedAt?: string;
-                                author?: {
-                                    id?: string;
-                                    name?: string;
-                                    image?: string | null;
-                                };
-                            }[];
-                        };
-                        meta?: {
-                            /** @description 전체 항목 수 */
-                            totalCount: number;
-                            /** @description 전체 페이지 수 */
-                            pageCount: number;
-                            /** @description 현재 페이지 */
-                            currentPage: number;
-                            /** @description 페이지당 항목 수 */
-                            pageSize: number;
-                        };
-                    };
+                    "application/json": components["schemas"]["GetRepliesResponseDto"];
                 };
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -1825,24 +1818,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 댓글 좋아요/싫어요 토글 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        message?: string;
-                        data?: {
-                            /** @enum {string} */
-                            status?: "PLUS" | "MINUS";
-                            commentId?: string;
-                        };
-                    };
+                    "application/json": components["schemas"]["ToggleCommentLikeResponseDto"];
                 };
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -1861,24 +1844,16 @@ export interface operations {
         /** @description 답글 생성 요청 데이터 */
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ReplyContentDto"];
+                "application/json": components["schemas"]["CreateReplyDto"];
             };
         };
         responses: {
-            /** @description 답글 생성 성공 */
-            200: {
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            replyId?: string;
-                            postId?: string;
-                            authorId?: string;
-                        };
-                    };
+                    "application/json": components["schemas"]["CreateReplyResponseDto"];
                 };
             };
             /** @description 잘못된 요청 형식입니다. */
@@ -1895,7 +1870,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -1914,52 +1888,21 @@ export interface operations {
             };
             header?: never;
             path: {
-                /** @description 댓글을 조회할 게시물의 ID */
+                /** @description 댓글을 조회할 게시글의 ID */
                 id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description 댓글 조회 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            postId?: string;
-                            comments?: {
-                                id?: string;
-                                content?: string;
-                                likesCount?: number;
-                                author?: {
-                                    id?: string;
-                                    name?: string;
-                                    image?: string | null;
-                                };
-                                /** Format: date-time */
-                                createdAt?: string;
-                                /** Format: date-time */
-                                updatedAt?: string;
-                            }[];
-                        };
-                        meta?: {
-                            /** @description 전체 항목 수 */
-                            totalCount: number;
-                            /** @description 전체 페이지 수 */
-                            pageCount: number;
-                            /** @description 현재 페이지 */
-                            currentPage: number;
-                            /** @description 페이지당 항목 수 */
-                            pageSize: number;
-                        };
-                    };
+                    "application/json": components["schemas"]["GetCommentsByPostIdResponseDto"];
                 };
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -1985,48 +1928,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 사용자의 댓글 조회 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            comments?: {
-                                id?: string;
-                                content?: string;
-                                likesCount?: number;
-                                /** Format: date-time */
-                                createdAt?: string;
-                                /** Format: date-time */
-                                updatedAt?: string;
-                                post?: {
-                                    id?: string;
-                                    content?: string;
-                                    likeCount?: number;
-                                    /** Format: date-time */
-                                    createdAt?: string;
-                                    /** Format: date-time */
-                                    updatedAt?: string;
-                                };
-                            }[];
-                        };
-                        meta?: {
-                            /** @description 전체 항목 수 */
-                            totalCount: number;
-                            /** @description 전체 페이지 수 */
-                            pageCount: number;
-                            /** @description 현재 페이지 */
-                            currentPage: number;
-                            /** @description 페이지당 항목 수 */
-                            pageSize: number;
-                        };
-                    };
+                    "application/json": components["schemas"]["GetCommentsByUserIdResponseDto"];
                 };
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -2047,20 +1956,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 팔로우/언팔로우 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            targetId?: string;
-                            /** @enum {string} */
-                            status?: "FOLLOW" | "UNFOLLOW";
-                        };
-                    };
+                    "application/json": components["schemas"]["ToggleFollowResponseDto"];
                 };
             };
             /** @description 사용자를 찾을 수 없음 */
@@ -2070,7 +1971,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -2091,20 +1991,6 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 팔로우 요청 성공 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            targetId?: string;
-                        };
-                    };
-                };
-            };
             /** @description 사용자를 찾을 수 없음 */
             404: {
                 headers: {
@@ -2112,7 +1998,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -2133,20 +2018,6 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 팔로우 요청 거절 성공 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            targetId?: string;
-                        };
-                    };
-                };
-            };
             /** @description 사용자를 찾을 수 없음 */
             404: {
                 headers: {
@@ -2154,7 +2025,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -2175,18 +2045,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 사용자의 팔로잉 수 조회 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            followingCount?: number;
-                        };
-                    };
+                    "application/json": components["schemas"]["GetFollowingCountResponseDto"];
                 };
             };
             /** @description 사용자를 찾을 수 없음 */
@@ -2196,7 +2060,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -2217,18 +2080,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 사용자의 팔로워 수 조회 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            followersCount?: number;
-                        };
-                    };
+                    "application/json": components["schemas"]["GetFollowersCountResponseDto"];
                 };
             };
             /** @description 사용자를 찾을 수 없음 */
@@ -2238,7 +2095,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -2264,32 +2120,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 사용자의 팔로워 목록 조회 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            followers?: {
-                                id?: string;
-                                name?: string;
-                                image?: string | null;
-                            }[];
-                        };
-                        meta?: {
-                            /** @description 전체 항목 수 */
-                            totalCount: number;
-                            /** @description 전체 페이지 수 */
-                            pageCount: number;
-                            /** @description 현재 페이지 */
-                            currentPage: number;
-                            /** @description 페이지당 항목 수 */
-                            pageSize: number;
-                        };
-                    };
+                    "application/json": components["schemas"]["GetFollowersResponseDto"];
                 };
             };
             /** @description 사용자를 찾을 수 없음 */
@@ -2299,7 +2135,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -2325,32 +2160,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 사용자의 팔로잉 목록 조회 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            following?: {
-                                id?: string;
-                                name?: string;
-                                image?: string | null;
-                            }[];
-                        };
-                        meta?: {
-                            /** @description 전체 항목 수 */
-                            totalCount: number;
-                            /** @description 전체 페이지 수 */
-                            pageCount: number;
-                            /** @description 현재 페이지 */
-                            currentPage: number;
-                            /** @description 페이지당 항목 수 */
-                            pageSize: number;
-                        };
-                    };
+                    "application/json": components["schemas"]["GetFollowingResponseDto"];
                 };
             };
             /** @description 사용자를 찾을 수 없음 */
@@ -2360,7 +2175,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -2383,21 +2197,12 @@ export interface operations {
             };
         };
         responses: {
-            /** @description 회원가입 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            id?: string;
-                            /** @enum {enum} */
-                            role?: "USER" | "ADMIN";
-                            accessToken?: string;
-                        };
-                    };
+                    "application/json": components["schemas"]["RegisterResponseDto"];
                 };
             };
             /** @description 이미 사용 중인 이메일입니다 */
@@ -2407,7 +2212,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -2430,21 +2234,12 @@ export interface operations {
             };
         };
         responses: {
-            /** @description 로그인 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            id?: string;
-                            /** @enum {enum} */
-                            role?: "USER" | "ADMIN";
-                            accessToken?: string;
-                        };
-                    };
+                    "application/json": components["schemas"]["LoginResponseDto"];
                 };
             };
             /** @description 잘못된 비밀번호입니다 */
@@ -2461,7 +2256,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -2479,17 +2273,6 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 로그아웃 성공 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success?: boolean;
-                    };
-                };
-            };
             /** @description 토큰이 유효하지 않습니다 */
             401: {
                 headers: {
@@ -2504,7 +2287,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -2522,17 +2304,6 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 토큰 갱신 성공 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success?: boolean;
-                    };
-                };
-            };
             /** @description 토큰이 유효하지 않습니다 */
             401: {
                 headers: {
@@ -2547,7 +2318,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -2666,80 +2436,13 @@ export interface operations {
     };
     NotifyController_readAllNotifiesByUserId: {
         parameters: {
-            query?: {
-                /** @description 페이지 번호 (기본값: 1) */
-                page?: number;
-                /** @description 페이지당 수 (기본값: 10) */
-                size?: number;
-            };
+            query?: never;
             header?: never;
-            path: {
-                /** @description 사용자 ID */
-                id: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description 사용자 알람 목록 조회 성공 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            notifies?: {
-                                id?: string;
-                                /** @enum {string} */
-                                type?: "COMMENT_LIKE" | "COMMENT_REPLY" | "FOLLOW" | "MESSAGE" | "POST_COMMENT" | "POST_LIKE" | "SYSTEM";
-                                image?: string | null;
-                                title?: string;
-                                content?: string;
-                                isRead?: boolean;
-                                /** Format: date-time */
-                                createdAt?: string;
-                                user?: {
-                                    id?: string;
-                                    name?: string;
-                                };
-                                postId?: string | null;
-                                commentId?: string | null;
-                                follower?: {
-                                    id?: string;
-                                    name?: string;
-                                };
-                            }[];
-                            meta?: {
-                                /** @description 전체 항목 수 */
-                                totalCount: number;
-                                /** @description 전체 페이지 수 */
-                                pageCount: number;
-                                /** @description 현재 페이지 */
-                                currentPage: number;
-                                /** @description 페이지당 항목 수 */
-                                pageSize: number;
-                            };
-                        };
-                    };
-                };
-            };
-            /** @description 다른 사용자의 알람을 조회할 수 없음 */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description 사용자를 찾을 수 없음 */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -2765,48 +2468,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 사용자 알람 목록 조회 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            notifies?: {
-                                id?: string;
-                                /** @enum {string} */
-                                type?: "COMMENT_LIKE" | "COMMENT_REPLY" | "FOLLOW" | "MESSAGE" | "POST_COMMENT" | "POST_LIKE" | "SYSTEM";
-                                image?: string | null;
-                                title?: string;
-                                content?: string;
-                                isRead?: boolean;
-                                /** Format: date-time */
-                                createdAt?: string;
-                                user?: {
-                                    id?: string;
-                                    name?: string;
-                                };
-                                postId?: string | null;
-                                commentId?: string | null;
-                                follower?: {
-                                    id?: string;
-                                    name?: string;
-                                };
-                            }[];
-                            meta?: {
-                                /** @description 전체 항목 수 */
-                                totalCount: number;
-                                /** @description 전체 페이지 수 */
-                                pageCount: number;
-                                /** @description 현재 페이지 */
-                                currentPage: number;
-                                /** @description 페이지당 항목 수 */
-                                pageSize: number;
-                            };
-                        };
-                    };
+                    "application/json": components["schemas"]["GetNotifiesByUserIdResponseDto"];
                 };
             };
             /** @description 다른 사용자의 알람을 조회할 수 없음 */
@@ -2823,7 +2490,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -2844,32 +2510,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 알람 상세 정보 조회 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            /** @enum {string} */
-                            type?: "COMMENT_LIKE" | "COMMENT_REPLY" | "FOLLOW" | "MESSAGE" | "POST_COMMENT" | "POST_LIKE" | "SYSTEM";
-                            image?: string | null;
-                            title?: string;
-                            content?: string;
-                            isRead?: boolean;
-                            /** Format: date-time */
-                            createdAt?: string;
-                            user?: {
-                                id?: string;
-                                name?: string;
-                            };
-                            postId?: string | null;
-                            commentId?: string | null;
-                            followerId?: string | null;
-                        };
-                    };
+                    "application/json": components["schemas"]["GetNotifyByIdResponseDto"];
                 };
             };
             /** @description 알람을 찾을 수 없음 */
@@ -2879,7 +2525,6 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description 서버 오류 */
             500: {
                 headers: {
                     [name: string]: unknown;
@@ -2900,34 +2545,6 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 알람 상세 정보 조회 성공 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success?: boolean;
-                        data?: {
-                            /** @enum {string} */
-                            type?: "COMMENT_LIKE" | "COMMENT_REPLY" | "FOLLOW" | "MESSAGE" | "POST_COMMENT" | "POST_LIKE" | "SYSTEM";
-                            image?: string | null;
-                            title?: string;
-                            content?: string;
-                            isRead?: boolean;
-                            /** Format: date-time */
-                            createdAt?: string;
-                            user?: {
-                                id?: string;
-                                name?: string;
-                            };
-                            postId?: string | null;
-                            commentId?: string | null;
-                            followerId?: string | null;
-                        };
-                    };
-                };
-            };
             /** @description 알람을 찾을 수 없음 */
             404: {
                 headers: {

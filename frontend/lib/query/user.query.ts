@@ -15,7 +15,7 @@ export const userQueryFn = async (userId: string) => {
   const { data } = await fetcher.GET('/user/{id}', {
     params: { path: { id: userId } },
   })
-  return recursiveDateParse(data?.data)
+  return recursiveDateParse(data)
 }
 export const useUserQuery = (userId: string) =>
   useQuery({
@@ -38,7 +38,7 @@ export const userFollowersQueryFn = async (
     },
   })
   return {
-    followers: data?.data?.followers,
+    followers: data?.followers,
     meta: data?.meta!,
   }
 }
@@ -63,7 +63,7 @@ export const userFollowingQueryFn = async (
     },
   })
   return {
-    following: data?.data?.following,
+    following: data?.following,
     meta: data?.meta!,
   }
 }
@@ -88,7 +88,7 @@ export const userPostQueryFn = async (
     },
   })
   return {
-    posts: recursiveDateParse(data?.data?.posts),
+    posts: recursiveDateParse(data?.posts),
     meta: data?.meta!,
   }
 }
@@ -113,7 +113,7 @@ export const userCommentQueryFn = async (
     },
   })
   return {
-    comments: recursiveDateParse(data?.data?.comments),
+    comments: recursiveDateParse(data?.comments),
     meta: data?.meta!,
   }
 }
@@ -145,7 +145,7 @@ export const userDeleteQueryFn = async (userId: string) => {
   const { data } = await fetcher.DELETE('/user/{id}', {
     params: { path: { id: userId } },
   })
-  return data?.data
+  return data
 }
 export const useUserDeleteQuery = () =>
   useMutation({

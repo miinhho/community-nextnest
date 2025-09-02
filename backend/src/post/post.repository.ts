@@ -69,6 +69,7 @@ export class PostRepository {
         ...getBlockFilter(viewerId),
       },
       select: {
+        id: true,
         content: true,
         createdAt: true,
         updatedAt: true,
@@ -152,6 +153,11 @@ export class PostRepository {
       select: {
         ...postSelections,
         commentCount: true,
+        author: {
+          select: {
+            ...userSelections,
+          },
+        },
       },
       skip: page * size,
       take: size,

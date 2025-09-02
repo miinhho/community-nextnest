@@ -5,6 +5,7 @@ import { INITIAL_PAGE, PageQueryType, toPageData } from '@/common/utils/page';
 import { PrismaErrorHandler } from '@/prisma/prisma-error.interceptor';
 import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
+import { flatMap } from 'es-toolkit';
 import { PrismaError } from 'prisma-error-enum';
 
 @Injectable()
@@ -140,7 +141,6 @@ export class CommentRepository {
       author: {
         select: {
           ...userSelections,
-          isPrivate: true,
         },
       },
     };
@@ -281,8 +281,8 @@ export class CommentRepository {
       take: size,
     });
 
-    return toPageData<typeof replies>({
-      data: replies,
+    return toPageData({
+      data: flatMap(replies, (r) => r.replies),
       page,
       size,
     });

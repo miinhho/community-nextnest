@@ -35,6 +35,7 @@ export class NotifyRepository {
     const notify = await this.prisma.notification.findUniqueOrThrow({
       where: { id },
       select: {
+        id: true,
         type: true,
         image: true,
         title: true,
@@ -59,6 +60,7 @@ export class NotifyRepository {
     });
 
     const defaultNotifyData = {
+      id: notify.id,
       type: notify.type,
       image: notify.image,
       title: notify.title,

@@ -1,9 +1,9 @@
 import { alphabetNumbericRegex, specialCharRegex } from '@/common/utils/regex';
 import { ApiProperty } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 import { IsEmail, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
 export class LoginUserDto {
-  @IsString()
   @IsEmail(
     {},
     {
@@ -37,4 +37,17 @@ export class LoginUserDto {
     pattern: alphabetNumbericRegex.source + '|' + specialCharRegex.source,
   })
   password: string;
+}
+
+export class LoginResponseDto {
+  @ApiProperty({
+    description: '유저 ID (UUID)',
+  })
+  id: string;
+
+  @ApiProperty({
+    description: '유저 역할',
+    enum: [Role.ADMIN, Role.USER],
+  })
+  role: Role;
 }

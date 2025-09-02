@@ -29,7 +29,7 @@ export class PostCacheService {
    *
    * 핫 스코어와 게시글 ID 는 별도로 Redis Sorted Set 에 저장됩니다.
    */
-  private async setPost(post: PagedPostHotScore) {
+  private async setPost(post: PagedPostHotScore): Promise<void> {
     const { id, hotScore, ...postData } = post;
     const postKey = getRedisPostKey(post.id);
     const postDataJson = JSON.stringify(postData);
@@ -54,7 +54,7 @@ export class PostCacheService {
    *
    * 게시글의 핫 스코어와 ID 를 저장합니다.
    */
-  async setHotPost(posts: PagedPostHotScore[]) {
+  async setHotPost(posts: PagedPostHotScore[]): Promise<void> {
     const args: (string | number)[] = [];
     for (const post of posts) {
       const { hotScore, id } = post;
@@ -81,7 +81,7 @@ export class PostCacheService {
    *
    * 핫 게시글의 개수를 반환합니다.
    */
-  async getHotPostSize() {
+  async getHotPostSize(): Promise<number> {
     return this.redis.zcard(REDIS_KEY_HOT_POSTS);
   }
 }

@@ -11,7 +11,7 @@ export const authRegisterQueryFn = async (params: AuthRegisterBody) => {
   const { data } = await fetcher.POST('/auth/register', {
     body: params,
   })
-  return data?.data
+  return data
 }
 export const useAuthRegisterQuery = () =>
   useMutation({
@@ -27,7 +27,7 @@ export const authLoginQueryFn = async (params: AuthLoginBody) => {
   const { data } = await fetcher.POST('/auth/login', {
     body: params,
   })
-  return data?.data
+  return data
 }
 export const useAuthLoginQuery = () =>
   useMutation({

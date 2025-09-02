@@ -3,24 +3,13 @@ import { COMMENT_LEN } from '@/common/utils/content';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsUUID } from 'class-validator';
 
-export class ReplyContentDto {
-  @IsUUID(4, {
-    message: '유효하지 않은 게시글 ID입니다.',
-  })
-  @ApiProperty({
-    type: String,
-    description: '답글이 달릴 게시글의 ID',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-  })
-  postId: string;
-
+export class UpdateCommentDto {
   @IsUUID(4, {
     message: '유효하지 않은 댓글 ID입니다.',
   })
   @ApiProperty({
     type: String,
-    description: '답글이 달릴 댓글의 ID',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    description: '수정할 댓글의 ID (UUID)',
   })
   commentId: string;
 

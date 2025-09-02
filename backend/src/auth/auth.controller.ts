@@ -1,9 +1,10 @@
 import { AuthService } from '@/auth/auth.service';
-import { ApiLogin, ApiLogout, ApiRefresh, ApiRegister } from '@/auth/auth.swagger';
-import { RegisterUserDto } from '@/auth/dto/register.dto';
+import { LoginResponseDto, LoginUserDto } from '@/auth/dto/login.dto';
+import { RegisterResponseDto, RegisterUserDto } from '@/auth/dto/register.dto';
 import { LocalAuthGuard } from '@/auth/guard/local.guard';
 import { Public } from '@/common/decorator/public.decorator';
 import { User } from '@/common/decorator/user.decorator';
+import { ApiJwtAuth } from '@/common/swagger/auth-info.swagger';
 import { ApiAuthTags } from '@/common/swagger/tags.swagger';
 import { UserData } from '@/common/user';
 import app from '@/config/app.config';
@@ -12,6 +13,8 @@ import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import {
   Body,
   Controller,
+  HttpCode,
+  HttpStatus,
   Inject,
   NotFoundException,
   Post,
@@ -21,6 +24,15 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
+import {
+  ApiBody,
+  ApiConflictResponse,
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { CookieOptions, Request, Response } from 'express';
 
 @ApiAuthTags()
@@ -53,47 +65,85 @@ export class AuthController {
     };
   }
 
-  @Public()
+  @ApiOperation({
+    summary: '회원가입',
+    description: '새로운 사용자 계정을 생성합니다.',
+  })
   @Post('register')
-  @ApiRegister()
+  @Public()
+  @ApiBody({
+    description: '회원가입 정보',
+    type: RegisterUserDto,
+  })
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    type: RegisterResponseDto,
+  })
+  @ApiConflictResponse({
+    description: '이미 사용 중인 이메일입니다',
+  })
+  @ApiInternalServerErrorResponse()
   async register(
     @Body() registerUserDto: RegisterUserDto,
     @Res({ passthrough: true }) res: Response,
-  ) {
+  ): Promise<RegisterResponseDto> {
     const { user, accessToken, refreshToken } = await this.authService.register(registerUserDto);
 
     this.setRefreshTokenCookie(res, refreshToken);
     this.setAccessTokenCookie(res, accessToken);
+
     return {
-      success: true,
-      data: {
-        id: user.id,
-        role: user.role,
-      },
+      id: user.id,
+      role: user.role,
     };
   }
 
+  @ApiOperation({
+    summary: '로그인',
+    description: '이메일과 비밀번호로 로그인합니다.',
+  })
+  @Post('login')
   @Public()
   @UseGuards(LocalAuthGuard)
-  @Post('login')
-  @ApiLogin()
-  async login(@User() user: UserData, @Res({ passthrough: true }) res: Response) {
+  @ApiBody({
+    description: '로그인 정보',
+    type: LoginUserDto,
+  })
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    type: LoginResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: '잘못된 이메일입니다',
+  })
+  @ApiUnauthorizedResponse({
+    description: '잘못된 비밀번호입니다',
+  })
+  @ApiInternalServerErrorResponse()
+  async login(
+    @User() user: UserData,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<LoginResponseDto> {
     const { refreshToken, accessToken, user: userData } = await this.authService.login(user);
     this.setRefreshTokenCookie(res, refreshToken);
     this.setAccessTokenCookie(res, accessToken);
 
     return {
-      success: true,
-      data: {
-        id: userData.id,
-        role: userData.role,
-      },
+      id: userData.id,
+      role: userData.role,
     };
   }
 
+  @ApiOperation({
+    summary: '로그아웃',
+  })
   @Post('logout')
-  @ApiLogout()
-  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  @ApiJwtAuth()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNotFoundResponse({ description: '토큰이 존재하지 않습니다' })
+  @ApiUnauthorizedResponse({ description: '토큰이 유효하지 않습니다' })
+  @ApiInternalServerErrorResponse()
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
     const refreshToken = req.cookies.refreshToken;
     if (refreshToken) {
       await this.authService.logout(refreshToken);
@@ -101,22 +151,22 @@ export class AuthController {
 
     res.clearCookie('accessToken');
     res.clearCookie('refreshToken');
-    return { success: true };
   }
 
+  @Post('refresh')
+  @ApiJwtAuth()
   @CacheTTL(60)
   @UseInterceptors(CacheInterceptor)
-  @Post('refresh')
-  @ApiRefresh()
-  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNotFoundResponse({ description: '토큰이 존재하지 않습니다' })
+  @ApiUnauthorizedResponse({ description: '토큰이 유효하지 않습니다' })
+  @ApiInternalServerErrorResponse()
+  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
     const oldRefreshToken = this.extractRefreshToken(req);
     const { refreshToken, accessToken } = await this.authService.refreshTokens(oldRefreshToken);
 
     this.setRefreshTokenCookie(res, refreshToken);
     this.setAccessTokenCookie(res, accessToken);
-    return {
-      success: true,
-    };
   }
 
   private extractRefreshToken(req: Request) {
@@ -127,11 +177,11 @@ export class AuthController {
     return refreshToken;
   }
 
-  private setRefreshTokenCookie(res: Response, refreshToken: string) {
+  private setRefreshTokenCookie(res: Response, refreshToken: string): void {
     res.cookie('refreshToken', refreshToken, this.REFRESH_COOKIE_OPTIONS);
   }
 
-  private setAccessTokenCookie(res: Response, accessToken: string) {
+  private setAccessTokenCookie(res: Response, accessToken: string): void {
     res.cookie('accessToken', accessToken, this.ACCESS_COOKIE_OPTIONS);
   }
 }

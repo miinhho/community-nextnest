@@ -5,6 +5,7 @@ import { AlreadyFollowError } from '@/follow/error/already-follow.error';
 import { PrismaErrorHandler } from '@/prisma/prisma-error.interceptor';
 import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
+import { flatMap } from 'es-toolkit';
 import { PrismaError } from 'prisma-error-enum';
 
 @Injectable()
@@ -239,8 +240,8 @@ export class FollowRepository {
       take: size,
     });
 
-    return toPageData<typeof followers>({
-      data: followers,
+    return toPageData({
+      data: flatMap(followers, (f) => f.follower),
       page,
       size,
     });
@@ -267,8 +268,8 @@ export class FollowRepository {
       take: size,
     });
 
-    return toPageData<typeof following>({
-      data: following,
+    return toPageData({
+      data: flatMap(following, (f) => f.following),
       page,
       size,
     });

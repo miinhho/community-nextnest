@@ -1,5 +1,6 @@
 import { LoginUserDto } from '@/auth/dto/login.dto';
 import { ApiProperty } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 import { IsString, MaxLength, MinLength } from 'class-validator';
 
 export class RegisterUserDto extends LoginUserDto {
@@ -17,4 +18,17 @@ export class RegisterUserDto extends LoginUserDto {
     minLength: 1,
   })
   name: string;
+}
+
+export class RegisterResponseDto {
+  @ApiProperty({
+    description: '유저 ID (UUID)',
+  })
+  id: string;
+
+  @ApiProperty({
+    description: '유저 역할',
+    enum: [Role.ADMIN, Role.USER],
+  })
+  role: Role;
 }

@@ -59,7 +59,7 @@ export class PostRecommendService {
     props: {
       action: PostAction;
     } & PostRecommendParams,
-  ) {
+  ): number {
     const { likeCount, viewCount, commentCount } = this.handleActionType(props);
     const createdAt = props.createdAt;
 

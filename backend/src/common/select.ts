@@ -1,3 +1,4 @@
+import { CommentResponseDto, PostResponseDto, UserResponseDto } from '@/common/dto/response.dto';
 import { Comment, Post, User } from '@prisma/client';
 
 /**
@@ -11,7 +12,7 @@ export const commentSelections = {
   likesCount: true,
   createdAt: true,
   updatedAt: true,
-};
+} satisfies Record<keyof CommentResponseDto, boolean>;
 
 export type CommonComment = {
   [K in keyof typeof commentSelections]: Comment[K];
@@ -28,7 +29,7 @@ export const postSelections = {
   likeCount: true,
   createdAt: true,
   updatedAt: true,
-};
+} satisfies Record<keyof PostResponseDto, boolean>;
 
 export type CommonPost = {
   [K in keyof typeof postSelections]: Post[K];
@@ -44,7 +45,7 @@ export const userSelections = {
   id: true,
   name: true,
   image: true,
-};
+} satisfies Record<keyof UserResponseDto, boolean>;
 
 export type CommonUser = {
   [K in keyof typeof userSelections]: User[K];

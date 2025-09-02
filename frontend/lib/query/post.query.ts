@@ -18,7 +18,7 @@ export const postListQueryFn = async ({ page = 0, size = 10 }: PageParams) => {
     },
   })
   return {
-    posts: recursiveDateParse(data?.data?.posts),
+    posts: recursiveDateParse(data?.posts),
     meta: data?.meta!,
   }
 }
@@ -33,7 +33,7 @@ export const postQueryFn = async (postId: string) => {
   const { data } = await fetcher.GET('/post/{id}', {
     params: { path: { id: postId } },
   })
-  return recursiveDateParse(data?.data)
+  return recursiveDateParse(data)
 }
 export const usePostQuery = (postId: string) =>
   useQuery({
@@ -53,7 +53,7 @@ export const postPutQueryFn = async ({ postId, content }: PostPutParams & PostPu
     params: { path: { id: postId } },
     body: { content },
   })
-  return data?.data
+  return data
 }
 export const usePostPutQuery = () =>
   useMutation({
@@ -65,7 +65,7 @@ export const postCreateQueryFn = async (content: string) => {
   const { data } = await fetcher.POST('/post', {
     body: { content },
   })
-  return data?.data
+  return data
 }
 export const usePostCreateQuery = () =>
   useMutation({
@@ -77,7 +77,7 @@ export const postLikeQueryFn = async (postId: string) => {
   const { data } = await fetcher.POST('/post/{id}/like', {
     params: { path: { id: postId } },
   })
-  return data?.data
+  return data
 }
 export const usePostLikeQuery = () =>
   useMutation({
@@ -89,7 +89,7 @@ export const postDeleteQueryFn = async (postId: string) => {
   const { data } = await fetcher.DELETE('/post/{id}', {
     params: { path: { id: postId } },
   })
-  return data?.data
+  return data
 }
 export const usePostDeleteQuery = () =>
   useMutation({
@@ -108,7 +108,7 @@ export const postCommentQueryFn = async (postId: string, { page = 0, size = 10 }
     },
   })
   return {
-    comments: recursiveDateParse(data?.data?.comments),
+    comments: recursiveDateParse(data?.comments),
     meta: data?.meta!,
   }
 }

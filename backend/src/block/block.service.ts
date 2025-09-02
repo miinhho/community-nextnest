@@ -20,7 +20,13 @@ export class BlockService {
    * @throws {NotFoundException} 존재하지 않는 사용자인 경우
    * @throws {InternalServerErrorException} 차단 여부 확인 중 오류 발생 시
    */
-  async isUserBlocked(props: { userId: string; targetId: string }, throwError = false) {
+  async isUserBlocked(
+    props: { userId: string; targetId: string },
+    throwError = false,
+  ): Promise<{
+    userBlocked: boolean;
+    targetBlocked: boolean;
+  }> {
     const { userBlocked, targetBlocked } = await this.blockRepository.isUserBlocked(props);
 
     if (throwError) {

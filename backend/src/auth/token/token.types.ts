@@ -9,3 +9,8 @@ export interface JwtPayload {
   /** 사용자 역할 */
   role: Role;
 }
+
+export interface TokenPair {
+  accessToken: string;
+  refreshToken: string;
+}

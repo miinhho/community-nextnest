@@ -12,7 +12,7 @@ export const commentQueryFn = async (commentId: string) => {
   const { data } = await fetcher.GET('/comment/{id}', {
     params: { path: { id: commentId } },
   })
-  return recursiveDateParse(data?.data)
+  return recursiveDateParse(data)
 }
 export const useCommentQuery = (commentId: string) =>
   useQuery({
@@ -38,7 +38,7 @@ export const repliesQueryFn = async (
     },
   })
   return {
-    replies: recursiveDateParse(data?.data?.replies),
+    replies: recursiveDateParse(data?.replies),
     meta: data?.meta,
   }
 }
@@ -58,7 +58,7 @@ export const commentCreateQueryFn = async (params: CommentCreateBody) => {
   const { data } = await fetcher.POST('/comment', {
     body: params,
   })
-  return data?.data
+  return data
 }
 export const useCommentCreateQuery = () =>
   useMutation({
@@ -75,7 +75,7 @@ export const replyCreateQueryFn = async (params: ReplyCreateBody) => {
   const { data } = await fetcher.POST('/reply', {
     body: params,
   })
-  return data?.data
+  return data
 }
 export const useReplyCreateQuery = () =>
   useMutation({
@@ -91,7 +91,7 @@ export const commentPutQueryFn = async (params: CommentPutBody) => {
   const { data } = await fetcher.PUT('/comment', {
     body: params,
   })
-  return data?.data
+  return data
 }
 export const useCommentPutQuery = () =>
   useMutation({
@@ -103,7 +103,7 @@ export const commentDeleteQueryFn = async (commentId: string) => {
   const { data } = await fetcher.DELETE('/comment/{id}', {
     params: { path: { id: commentId } },
   })
-  return data?.data
+  return data
 }
 export const useCommentDeleteQuery = () =>
   useMutation({
@@ -115,7 +115,7 @@ export const commentLikeQueryFn = async (commentId: string) => {
   const { data } = await fetcher.POST('/comment/{id}/like', {
     params: { path: { id: commentId } },
   })
-  return data?.data
+  return data
 }
 export const useCommentLikeQuery = () =>
   useMutation({

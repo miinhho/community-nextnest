@@ -40,7 +40,7 @@ export class FollowService {
     userId: string;
     targetId: string;
     toggle?: boolean;
-  }) {
+  }): Promise<FollowStatus> {
     try {
       // 사용자 차단 여부 확인
       await this.blockService.isUserBlocked(
@@ -91,7 +91,10 @@ export class FollowService {
    * @throws {NotFoundException} 팔로우 요청이 존재하지 않는 경우
    * @throws {InternalServerErrorException} 팔로우 요청 수락 실패 시
    */
-  async acceptFollowRequest(props: { userId: string; targetId: string }) {
+  async acceptFollowRequest(props: {
+    userId: string;
+    targetId: string;
+  }): Promise<FollowRequestStatus> {
     const isValidRequest = await this.followRepository.isFollowRequested({
       userId: props.targetId,
       targetId: props.userId,
@@ -117,7 +120,7 @@ export class FollowService {
    * @throws {BadRequestException} 이미 팔로우 요청이 존재하는 경우
    * @throws {InternalServerErrorException} 팔로우 요청 실패 시
    */
-  async sendFollowRequest(props: { userId: string; targetId: string }) {
+  async sendFollowRequest(props: { userId: string; targetId: string }): Promise<void> {
     await this.followRepository.createFollowRequest(props);
 
     // 팔로우 요청을 받은 사용자에게 알림 발행
@@ -137,7 +140,10 @@ export class FollowService {
    * @throws {NotFoundException} 팔로우 요청을 찾을 수 없을 시
    * @throws {InternalServerErrorException} 팔로우 요청 거절 실패 시
    */
-  async rejectFollowRequest(props: { userId: string; targetId: string }) {
+  async rejectFollowRequest(props: {
+    userId: string;
+    targetId: string;
+  }): Promise<FollowRequestStatus> {
     await this.followRepository.deleteFollowRequest(props);
     return FollowRequestStatus.REJECTED;
   }
@@ -150,7 +156,7 @@ export class FollowService {
    * @returns 팔로우 상태 (UNFOLLOW)
    * @throws {InternalServerErrorException} 존재하지 않는 사용자이거나 언팔로우 실패 시
    */
-  async unfollowUser(props: { userId: string; targetId: string }) {
+  async unfollowUser(props: { userId: string; targetId: string }): Promise<FollowStatus> {
     await this.followRepository.unfollowUser(props);
     return FollowStatus.UNFOLLOW;
   }
