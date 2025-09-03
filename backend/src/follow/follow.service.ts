@@ -81,12 +81,9 @@ export class FollowService {
 
   /**
    * 팔로우 요청을 수락합니다.
-   * @param props - 팔로우 요청 수락 파라미터
    * @param props.userId - 팔로우 요청을 수락하는 사용자 ID
    * @param props.targetId - 팔로우 요청을 보낸 대상 사용자 ID
-   *
    * @returns 팔로우 요청 상태 (ACCEPTED)
-   *
    * @throws {NotFoundException} 대상 사용자를 찾을 수 없는 경우
    * @throws {NotFoundException} 팔로우 요청이 존재하지 않는 경우
    * @throws {InternalServerErrorException} 팔로우 요청 수락 실패 시
@@ -113,10 +110,8 @@ export class FollowService {
 
   /**
    * 팔로우 요청을 보냅니다.
-   * @param props - 팔로우 요청 파라미터
    * @param props.userId - 팔로우 요청을 보내는 사용자 ID
    * @param props.targetId - 팔로우 요청을 받을 대상 사용자 ID
-   *
    * @throws {BadRequestException} 이미 팔로우 요청이 존재하는 경우
    * @throws {InternalServerErrorException} 팔로우 요청 실패 시
    */
@@ -131,12 +126,9 @@ export class FollowService {
 
   /**
    * 팔로우 요청을 거절합니다.
-   * @param props - 팔로우 요청 거절 파라미터
    * @param props.userId - 팔로우 요청을 거절하는 사용자 ID
    * @param props.targetId - 팔로우 요청을 보낸 대상 사용자 ID
-   *
    * @returns 팔로우 상태 (REJECTED)
-   *
    * @throws {NotFoundException} 팔로우 요청을 찾을 수 없을 시
    * @throws {InternalServerErrorException} 팔로우 요청 거절 실패 시
    */
@@ -150,7 +142,6 @@ export class FollowService {
 
   /**
    * 사용자 팔로우를 취소합니다.
-   * @param props - 언팔로우 파라미터
    * @param props.userId - 언팔로우를 요청하는 사용자 ID
    * @param props.targetId - 언팔로우할 대상 사용자 ID
    * @returns 팔로우 상태 (UNFOLLOW)
