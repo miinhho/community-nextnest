@@ -11,7 +11,6 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
 import { UseMutateFunction } from '@tanstack/react-query'
 import type { JSX } from 'react'
 import { editorConfig } from './editor-config'
-import './lexical-editor.css'
 import { LexicalAutoLinkPlugin as AutoLinkPlugin } from './plugins/AutoLinkPlugin'
 import { JsonLoadPlugin } from './plugins/JsonLoadPlugin'
 import { ToolbarPlugin } from './plugins/ToolbarPlugin'
@@ -70,7 +69,7 @@ const LexicalEditor = ({
             contentEditable={
               <ContentEditable
                 className={cn(
-                  'editor-content-editable outline-none min-h-36',
+                  'relative pt-3.5 pb-2.5 resize-none text-base tab-1 outline-none min-h-36',
                   'text-neutral-800 dark:text-neutral-100',
                 )}
                 aria-placeholder={placeholder}

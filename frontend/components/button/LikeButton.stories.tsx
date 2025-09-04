@@ -1,6 +1,6 @@
 import LikeButton from '@/components/button/LikeButton';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { expect, fireEvent, waitFor, within } from '@storybook/test';
+import { expect, fireEvent, waitFor, within } from 'storybook/test';
 
 const meta: Meta<typeof LikeButton> = {
   title: 'Button/LikeButton',
@@ -20,7 +20,7 @@ const meta: Meta<typeof LikeButton> = {
   tags: ['autodocs'],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const button = canvas.getByTestId('like-button');
+    const likeButton = canvas.getByTestId('like-button');
     const path = canvas.getByTestId('like-icon');
 
     // 초기 상태 확인: 좋아요가 눌리지 않은 상태
@@ -28,14 +28,14 @@ const meta: Meta<typeof LikeButton> = {
     expect(path).toHaveAttribute('stroke-width', '2');
 
     // 첫 번째 클릭: 좋아요 눌림
-    await fireEvent.click(button);
+    await fireEvent.click(likeButton);
     await waitFor(() => {
       expect(path).toHaveAttribute('fill', 'red');
       expect(path).toHaveAttribute('stroke-width', '0');
     });
 
     // 두 번째 클릭: 좋아요 해제
-    await fireEvent.click(button);
+    await fireEvent.click(likeButton);
     await waitFor(() => {
       expect(path).toHaveAttribute('fill', 'transparent');
       expect(path).toHaveAttribute('stroke-width', '2');

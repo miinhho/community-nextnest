@@ -1,8 +1,0 @@
-@import "tailwindcss";
-@reference "../../app/utility.css";
-
-@layer components {
-  .editor-content-editable {
-    @apply relative pt-3.5 pb-2.5 resize-none text-base tab-1;
-  }
-}

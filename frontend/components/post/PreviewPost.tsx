@@ -4,11 +4,31 @@ import CommentButton from '@/components/button/CommentButton'
 import LikeButton from '@/components/button/LikeButton'
 import ShareButton from '@/components/button/ShareButton'
 import LexicalViewer from '@/components/editor/LexicalViewer'
-import PostUserAvator from '@/components/post/PostUserAvatar'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import PostUserAvator from '@/components/post/PostUserAvator'
+import { Card, CardContent } from '@/components/ui/card'
 import { usePostLikeQuery, usePostQuery } from '@/lib/query/post.query'
-import { Separator } from '@radix-ui/react-separator'
 import { toast } from 'sonner'
+
+export const PreviewPostSkeleton = () => {
+  return (
+    <Card className="flex max-w-xl mx-auto shadow-sm border animate-pulse">
+      <CardContent>
+        <div className="inline-flex items-center justify-center align-middle gap-x-2">
+          <div className="w-12 h-12 bg-gray-300 rounded-full object-cover" />
+          <div className="h-6 w-20 bg-gray-300 rounded" />
+        </div>
+        <div className='relative min-w-md mr-auto ml-auto mt-3'>
+          <div className="relative resize-none text-base tab-1 min-h-10 h-auto bg-gray-300 rounded" />
+        </div>
+      </CardContent>
+      <div className="flex justify-start gap-x-5 px-6">
+        <div className="h-6 w-6 bg-gray-300 rounded-full" />
+        <div className="h-6 w-6 bg-gray-300 rounded-full" />
+        <div className="h-6 w-6 bg-gray-300 rounded-full" />
+      </div>
+    </Card>
+  )
+}
 
 interface PreviewPostProps {
   postId: string
@@ -16,9 +36,11 @@ interface PreviewPostProps {
 }
 
 const PreviewPost = ({ postId, onComment }: PreviewPostProps) => {
-  const { data } = usePostQuery(postId)
-  const { author, content } = data!
+  const { data, isLoading } = usePostQuery(postId)
   const { mutate: postLikeMutation } = usePostLikeQuery()
+
+  if (isLoading || !data) return <PreviewPostSkeleton />
+  const { author, content } = data
 
   const handleLike = () => {
     postLikeMutation(postId, {
@@ -39,26 +61,24 @@ const PreviewPost = ({ postId, onComment }: PreviewPostProps) => {
   }
 
   const handleShare = async () => {
-    const postUrl = `${process.env.URL}/post/${postId}`
+    const postUrl = window.location.href
     await navigator.clipboard.writeText(postUrl)
     toast.success('링크가 성공적으로 복사되었습니다!')
   }
 
   return (
-    <Card className="max-w-xl mx-auto my-6 shadow-sm border">
-      <CardHeader className="flex flex-row items-center gap-3 pb-2">
+    <Card className="flex max-w-xl mx-auto shadow-sm border">
+      <CardContent>
         <PostUserAvator author={author} />
-      </CardHeader>
-      <Separator />
-
-      <CardContent className="py-4">
-        <LexicalViewer json={content} />
+        <LexicalViewer
+          className='mt-3 rounded-2xl border-2 border-black'
+          json={content}
+        />
       </CardContent>
-      <Separator />
 
-      <div className="flex items-center gap-4 px-6 py-2 text-neutral-500">
-        <CommentButton onClick={handleComment} />
+      <div className="flex justify-start gap-x-3 px-6">
         <LikeButton onClick={handleLike} />
+        <CommentButton onClick={handleComment} />
         <ShareButton onClick={handleShare} />
       </div>
     </Card>
