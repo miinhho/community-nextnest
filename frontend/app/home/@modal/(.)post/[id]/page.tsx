@@ -1,4 +1,4 @@
-import { ContentModal } from "@/app/home/@modal/_components/ContentModal"
+import ContentModalPortal from "@/app/home/@modal/_components/ContentModal"
 import PostPage from "@/app/home/post/[id]/page"
 
 interface PostPageProps {
@@ -9,8 +9,8 @@ interface PostPageProps {
 
 export default async function PostModalPage(prop: PostPageProps) {
   return (
-    <ContentModal>
+    <ContentModalPortal>
       <PostPage {...prop} />
-    </ContentModal>
+    </ContentModalPortal>
   )
 }

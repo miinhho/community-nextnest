@@ -20,12 +20,12 @@ import { YouTubePlugin } from './plugins/YouTubePlugin'
 const LexicalEditorSaveButton = ({ title }: { title: string }) => (
   <div
     className={cn(
-      'flex mt-15 -mb-23 justify-self-center -mr-4',
-      'rounded-2xl border-2 px-20 py-2.5',
-      'bg-white dark:bg-neutral-800/70 hover:bg-neutral-200/70 dark:hover:bg-neutral-700/70',
+      'flex justify-self-center w-12 h-8 justify-center items-center',
+      'rounded-2xl border-2 border-neutral-200 dark:border-neutral-700',
+      'bg-white dark:bg-neutral-800/70',
     )}
   >
-    <span className="font-sans text-lg dark:text-white">
+    <span className="font-sans text-sm dark:text-white">
       {title}
     </span>
   </div>
@@ -52,7 +52,7 @@ const LexicalEditor = ({
   json,
   title,
   placeholder = defaultPlaceholder,
-  saveButton = <LexicalEditorSaveButton title={title ?? '게시하기'} />,
+  saveButton = <LexicalEditorSaveButton title={title ?? '게시'} />,
   mutateFn
 }: LexicalEditorProps) => {
   return (

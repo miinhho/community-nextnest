@@ -1,8 +1,10 @@
 'use client'
 
+import { cn } from '@/lib/utils'
+import { TailWindClasses } from '@/types/component-util.types'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { UseMutateFunction } from '@tanstack/react-query'
-import type { JSX } from 'react'
+import { useEffect, useState, type JSX } from 'react'
 
 /**
  * Lexical 에디터 JSON 저장 플러그인 훅
@@ -11,13 +13,20 @@ import type { JSX } from 'react'
  * @returns JSON 저장 핸들러 함수
  */
 
-interface JsonSavePluginProps {
+interface JsonSavePluginProps extends TailWindClasses {
   mutateFn: UseMutateFunction<any, unknown, string, unknown>
   saveButton: JSX.Element
 }
 
-export function JsonSavePlugin({ mutateFn, saveButton }: JsonSavePluginProps) {
+export function JsonSavePlugin({ mutateFn, saveButton, className }: JsonSavePluginProps) {
   const [editor] = useLexicalComposerContext()
+  const [isEmpty, setIsEmpty] = useState(true)
+
+  useEffect(() => {
+    return editor.registerUpdateListener(({ editorState }) => {
+      setIsEmpty(editorState.isEmpty())
+    })
+  }, [editor])
 
   const handleJsonSave = async () => {
     const lexicalJson = JSON.stringify(editor.toJSON())
@@ -29,7 +38,12 @@ export function JsonSavePlugin({ mutateFn, saveButton }: JsonSavePluginProps) {
   }
 
   return (
-    <button onClick={handleJsonSave} data-testid="editor-save-button">
+    <button
+      className={cn('flex disabled:opacity-50 disabled:cursor-not-allowed', className)}
+      disabled={isEmpty}
+      onClick={handleJsonSave}
+      data-testid="editor-save-button"
+    >
       {saveButton}
     </button>
   )

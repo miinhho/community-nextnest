@@ -1,5 +1,5 @@
 import CommentButton from '@/components/button/CommentButton'
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 const meta: Meta<typeof CommentButton> = {
   title: 'Button/CommentButton',

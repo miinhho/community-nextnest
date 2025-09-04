@@ -3,10 +3,7 @@ import { TailWindClasses } from '@/types/component-util.types'
 import { BellIcon, HomeIcon } from 'lucide-react'
 import Link from 'next/link'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface MainNavbarProps extends TailWindClasses { }
-
-export const MainNavbar = ({ className }: MainNavbarProps) => {
+export const MainNavbar = ({ className }: TailWindClasses) => {
   return (
     <nav className={cn('flex flex-col justify-center', className)}>
       <Link

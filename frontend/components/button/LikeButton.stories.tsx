@@ -1,5 +1,5 @@
 import LikeButton from '@/components/button/LikeButton';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, fireEvent, waitFor, within } from '@storybook/test';
 
 const meta: Meta<typeof LikeButton> = {

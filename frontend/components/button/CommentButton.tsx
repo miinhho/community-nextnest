@@ -14,11 +14,11 @@ const CommentButton = ({ onClick, className }: CommentButtonProps) => {
     <Button
       variant="ghost"
       size='icon'
-      className={cn('flex items-center', className)}
+      className={cn('flex items-center small-icon', className)}
       onClick={onClick}
       aria-label='댓글 버튼'
     >
-      <MessageCircle className='icon' />
+      <MessageCircle />
     </Button>
   )
 }

@@ -1,35 +1,42 @@
-import type { Preview } from '@storybook/nextjs-vite'
-import '../app/globals.css'
-import { ThemeProvider } from '../providers/ThemeProvider'
+import { withThemeByClassName } from "@storybook/addon-themes";
+import type { Preview } from '@storybook/nextjs-vite';
+import '../app/globals.css';
+import { ThemeProvider } from '../providers/ThemeProvider';
 
 const preview: Preview = {
   parameters: {
+    layout: 'centered',
     controls: {
       matchers: {
         color: /(background|color)$/i,
         date: /Date$/i,
       },
     },
-
+    nextjs: {
+      appDirectory: true,
+    },
     a11y: {
-      // 'todo' - show a11y violations in the test UI only
-      // 'error' - fail CI on a11y violations
-      // 'off' - skip a11y checks entirely
       test: 'todo',
     },
   },
   decorators: [
+    withThemeByClassName({
+      themes: {
+        light: 'light',
+        dark: 'dark',
+      },
+      defaultTheme: 'light',
+    }),
     (Story) => (
       <ThemeProvider
         attribute="class"
-        defaultTheme="system"
-        enableSystem
+        defaultTheme="light"
+        enableSystem={false}
         disableTransitionOnChange
       >
         <Story />
       </ThemeProvider>
-    )
-  ]
+    )]
 }
 
 export default preview

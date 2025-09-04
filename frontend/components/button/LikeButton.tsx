@@ -29,7 +29,6 @@ const LikeButton = ({ onClick, className }: LikeButtonProps) => {
       data-testid="like-button"
     >
       <Heart
-        className='icon'
         data-testid="like-icon"
         fill={liked ? 'red' : 'transparent'}
         strokeWidth={liked ? 0 : 2}

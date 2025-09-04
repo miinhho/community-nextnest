@@ -1,6 +1,5 @@
 'use client'
 
-import { handleApiError } from '@/lib/client-middleware'
 import { useAuthRegisterQuery } from '@/lib/query/auth.query'
 import { cn } from '@/lib/utils'
 import { registerData, type RegisterData } from '@/lib/validation/auth.validate'
@@ -23,9 +22,6 @@ export default function RegisterPage() {
     registerMutation(data, {
       onSuccess: () => {
         router.push('/main')
-      },
-      onError: (error) => {
-        handleApiError(error)
       }
     })
   }
