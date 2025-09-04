@@ -39,7 +39,7 @@ export const userFollowersQueryFn = async (
   })
   return {
     followers: data?.followers,
-    meta: data?.meta!,
+    meta: data?.meta,
   }
 }
 export const useUserFollowersQuery = (userId: string, params: PageParams) =>
@@ -64,7 +64,7 @@ export const userFollowingQueryFn = async (
   })
   return {
     following: data?.following,
-    meta: data?.meta!,
+    meta: data?.meta,
   }
 }
 export const useUserFollowingQuery = (userId: string, params: PageParams) =>
@@ -89,7 +89,7 @@ export const userPostQueryFn = async (
   })
   return {
     posts: recursiveDateParse(data?.posts),
-    meta: data?.meta!,
+    meta: data?.meta,
   }
 }
 export const useUserPostQuery = (userId: string, params: PageParams) =>
@@ -114,7 +114,7 @@ export const userCommentQueryFn = async (
   })
   return {
     comments: recursiveDateParse(data?.comments),
-    meta: data?.meta!,
+    meta: data?.meta,
   }
 }
 export const useUserCommentQuery = (userId: string, params: PageParams) =>

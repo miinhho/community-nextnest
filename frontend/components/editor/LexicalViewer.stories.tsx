@@ -1,5 +1,5 @@
 import LexicalViewer from "@/components/editor/LexicalViewer";
-import { Meta, StoryObj } from "@storybook/react";
+import { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 const meta: Meta<typeof LexicalViewer> = {
   title: "Editor/LexicalViewer",

@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils'
 import { TailWindClasses } from '@/types/component-util.types'
 import { Heart } from 'lucide-react'
 import { useState } from 'react'
-import "../icon.css"
 
 interface LikeButtonProps extends TailWindClasses {
   onClick: () => void

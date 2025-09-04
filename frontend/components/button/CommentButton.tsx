@@ -14,7 +14,7 @@ const CommentButton = ({ onClick, className }: CommentButtonProps) => {
     <Button
       variant="ghost"
       size='icon'
-      className={cn('flex items-center small-icon', className)}
+      className={cn('flex items-center', className)}
       onClick={onClick}
       aria-label='댓글 버튼'
     >

@@ -1,5 +1,5 @@
 import QueryProvider from '@/providers/QueryProvider';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import PreviewPost, { PreviewPostSkeleton } from './PreviewPost';
 
 const meta: Meta<typeof PreviewPost> = {

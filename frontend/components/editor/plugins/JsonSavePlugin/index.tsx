@@ -6,18 +6,17 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { UseMutateFunction } from '@tanstack/react-query'
 import { useEffect, useState, type JSX } from 'react'
 
+interface JsonSavePluginProps extends TailWindClasses {
+  mutateFn: UseMutateFunction<any, unknown, string, unknown>
+  saveButton: JSX.Element
+}
+
 /**
  * Lexical 에디터 JSON 저장 플러그인 훅
  * 
  * @param mutateFn - 에디터의 JSON 데이터를 저장하는 함수 (React Query의 useMutation에서 반환된 함수)
  * @returns JSON 저장 핸들러 함수
  */
-
-interface JsonSavePluginProps extends TailWindClasses {
-  mutateFn: UseMutateFunction<any, unknown, string, unknown>
-  saveButton: JSX.Element
-}
-
 export function JsonSavePlugin({ mutateFn, saveButton, className }: JsonSavePluginProps) {
   const [editor] = useLexicalComposerContext()
   const [isEmpty, setIsEmpty] = useState(true)

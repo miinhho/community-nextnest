@@ -51,17 +51,17 @@ export const createUserStore = () => {
         initializeUser: async () => {
           try {
             const { data } = await fetcher.GET('/user/me')
-            if (!data?.data) {
+            if (!data) {
               throw new Error('Service Unavailable')
             }
 
-            const { data: userData } = data
+            const { id, name, email, image, emailVerified } = data
             set(() => ({
-              id: userData.id,
-              name: userData.name,
-              email: userData.email,
-              image: userData.image,
-              isVerified: !!userData.emailVerified,
+              id,
+              name,
+              email,
+              image,
+              isVerified: !!emailVerified,
             }))
           } catch (err) {
             set(() => ({ ...initialState }))

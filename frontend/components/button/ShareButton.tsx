@@ -14,7 +14,7 @@ const ShareButton = ({ onClick, className }: ShareButtonProps) => {
     <Button
       variant="ghost"
       size='icon'
-      className={cn('flex items-center small-icon', className)}
+      className={cn('flex items-center', className)}
       onClick={onClick}
       aria-label='공유 버튼'
     >

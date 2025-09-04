@@ -19,7 +19,7 @@ export const postListQueryFn = async ({ page = 0, size = 10 }: PageParams) => {
   })
   return {
     posts: recursiveDateParse(data?.posts),
-    meta: data?.meta!,
+    meta: data?.meta,
   }
 }
 export const usePostListQuery = (params: PageParams) =>
@@ -109,7 +109,7 @@ export const postCommentQueryFn = async (postId: string, { page = 0, size = 10 }
   })
   return {
     comments: recursiveDateParse(data?.comments),
-    meta: data?.meta!,
+    meta: data?.meta,
   }
 }
 export const usePostCommentQuery = (postId: string, params: PageParams) =>

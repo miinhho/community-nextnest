@@ -27,7 +27,7 @@ import {
   Undo,
   Video,
 } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { INSERT_YOUTUBE_COMMAND } from '../YouTubePlugin'
 import './ToolbarPlugin.css'
 
@@ -47,7 +47,7 @@ export function ToolbarPlugin() {
   const [isUnderline, setIsUnderline] = useState(false)
   const [isStrikethrough, setIsStrikethrough] = useState(false)
 
-  const $updateToolbar = useCallback(() => {
+  const $updateToolbar = () => {
     const selection = $getSelection()
     if ($isRangeSelection(selection)) {
       setIsBold(selection.hasFormat('bold'))
@@ -55,7 +55,7 @@ export function ToolbarPlugin() {
       setIsUnderline(selection.hasFormat('underline'))
       setIsStrikethrough(selection.hasFormat('strikethrough'))
     }
-  }, [])
+  };
 
   useEffect(() => {
     return mergeRegister(
@@ -81,7 +81,7 @@ export function ToolbarPlugin() {
         COMMAND_PRIORITY_LOW,
       ),
     )
-  }, [editor, $updateToolbar])
+  }, [editor])
 
   return (
     <div className="flex bg-white dark:bg-neutral-700 p-1 rounded-tl-lg rounded-tr-lg align-middle">
