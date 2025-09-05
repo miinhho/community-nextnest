@@ -103,7 +103,7 @@ export class NotifyController {
   })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNotFoundResponse({ description: '알람을 찾을 수 없음' })
-  @ApiInternalServerErrorResponse({ description: '서버 오류' })
+  @ApiInternalServerErrorResponse()
   async readNotifyById(@IdParam() id: string, @User() user: UserData): Promise<void> {
     await this.notifyRepository.markAsRead(id, user.id);
   }
