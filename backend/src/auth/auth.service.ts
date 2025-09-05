@@ -3,7 +3,7 @@ import { RefreshTokenService } from '@/auth/token/refresh-token.service';
 import { TokenService } from '@/auth/token/token.service';
 import { TokenPair } from '@/auth/token/token.types';
 import { UserData } from '@/common/user';
-import jwt from '@/config/jwt.config';
+import jwtConfig from '@/config/jwt.config';
 import { UserService } from '@/user/user.service';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
@@ -15,8 +15,8 @@ const SALT_ROUND = 12;
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(jwt.KEY)
-    private readonly jwtConfig: ConfigType<typeof jwt>,
+    @Inject(jwtConfig.KEY)
+    private readonly config: ConfigType<typeof jwtConfig>,
     private readonly userService: UserService,
     private readonly tokenService: TokenService,
     private readonly refreshTokenService: RefreshTokenService,
@@ -58,7 +58,7 @@ export class AuthService {
     await this.refreshTokenService.createRefreshToken(
       user.id,
       refreshToken,
-      this.jwtConfig.refreshExpiration,
+      this.config.refreshExpiration,
     );
 
     return {
@@ -117,7 +117,7 @@ export class AuthService {
       await this.refreshTokenService.createRefreshToken(
         userId,
         newRefreshToken,
-        this.jwtConfig.refreshExpiration,
+        this.config.refreshExpiration,
       );
 
       return {

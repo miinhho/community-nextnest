@@ -38,7 +38,6 @@ import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
           readyLog: true,
           config: {
             url: configService.get<string>('redis.url'),
-            password: configService.get<string>('redis.password'),
           },
         };
       },
