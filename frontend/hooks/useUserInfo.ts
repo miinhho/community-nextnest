@@ -1,4 +1,4 @@
-import { useUserStore } from '@/hooks/useUserStore'
+import { useUserStore } from '@/providers/UserStoreProvider'
 
 /**
  * 사용자의 이름과 이미지를 가져오는 훅

@@ -8,7 +8,6 @@ export type UserState = {
   email: string
   image: string | null
   isVerified: boolean
-  accessToken?: string
 }
 
 export type UserActions = {

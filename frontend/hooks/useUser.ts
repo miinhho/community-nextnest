@@ -1,4 +1,4 @@
-import { useUserStore } from '@/hooks/useUserStore'
+import { useUserStore } from '@/providers/UserStoreProvider'
 
 /**
  * 사용자 정보를 가져오는 훅
