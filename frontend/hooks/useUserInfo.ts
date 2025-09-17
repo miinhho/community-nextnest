@@ -1,21 +1,24 @@
+'use client'
+
 import { useUserStore } from '@/providers/UserStoreProvider'
+import { useShallow } from 'zustand/shallow'
 
-/**
- * 사용자의 이름과 이미지를 가져오는 훅
- */
 export const useUserInfo = () => {
-  const { name, image, initializeUser } = useUserStore((state) => ({
-    name: state.name,
-    image: state.image,
-    initializeUser: state.initializeUser,
-  }))
+  const { id, name, image, initializeUser } = useUserStore(
+    useShallow((state) => ({
+      id: state.id,
+      name: state.name,
+      image: state.image,
+      initializeUser: state.initializeUser,
+    })),
+  )
 
-  if (!name) {
+  if (!id) {
     initializeUser()
   }
 
   return {
-    name,
-    image,
+    name: name,
+    image: image,
   }
 }

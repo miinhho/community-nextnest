@@ -27,8 +27,8 @@ const initialState: UserState = {
   isVerified: false,
 }
 
-export const createUserStore = () => {
-  return createStore<UserStore>()(
+export const createUserStore = () =>
+  createStore<UserStore>()(
     persist(
       (set) => ({
         ...initialState,
@@ -50,11 +50,8 @@ export const createUserStore = () => {
         initializeUser: async () => {
           try {
             const { data } = await fetcher.GET('/user/me')
-            if (!data) {
-              throw new Error('Service Unavailable')
-            }
+            const { id, name, email, image, emailVerified } = data!
 
-            const { id, name, email, image, emailVerified } = data
             set(() => ({
               id,
               name,
@@ -62,7 +59,7 @@ export const createUserStore = () => {
               image,
               isVerified: !!emailVerified,
             }))
-          } catch (err) {
+          } catch {
             set(() => ({ ...initialState }))
           }
         },
@@ -72,4 +69,3 @@ export const createUserStore = () => {
       },
     ),
   )
-}

@@ -9,6 +9,7 @@ const UserStoreContext = createContext<UserStoreApi | undefined>(undefined)
 
 export const UserStoreProvider = ({ children }: React.PropsWithChildren) => {
   const storeRef = useRef<UserStoreApi | null>(null)
+
   if (!storeRef.current) {
     storeRef.current = createUserStore()
   }
@@ -22,8 +23,10 @@ export const UserStoreProvider = ({ children }: React.PropsWithChildren) => {
 
 export const useUserStore = <T,>(selector: (store: UserStore) => T): T => {
   const ctx = useContext(UserStoreContext)
+
   if (!ctx) {
     throw new Error('useUserStore must be used within a UserStoreProvider')
   }
+
   return useStore(ctx, selector)
 }

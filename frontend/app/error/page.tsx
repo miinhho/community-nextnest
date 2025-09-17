@@ -1,15 +1,13 @@
+'use client'
+
 import { errorMessages } from '@/constants/error-page'
 import { cn } from '@/lib/utils'
-import { redirect } from 'next/navigation'
+import { redirect, useSearchParams } from 'next/navigation'
 
 type ErrorCode = '403' | '404' | '500' | 'unknown'
 
-interface ErrorPageProps {
-  searchParams: Promise<{ code?: string }>
-}
-
-export default async function ErrorPage({ searchParams }: ErrorPageProps) {
-  const { code } = await searchParams
+export default function ErrorPage() {
+  const code = useSearchParams().get('code')
   const errorInfo = errorMessages[code as ErrorCode || 'unknown']
 
   const handleHomeRedirect = () => {
