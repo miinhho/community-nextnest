@@ -1,4 +1,4 @@
-import { HttpStatus } from '@/lib/status'
+import { HttpStatus } from '@/lib/constants/http-status'
 import { Middleware } from 'openapi-fetch'
 
 export const tokenRefreshMiddleware: Middleware = {
