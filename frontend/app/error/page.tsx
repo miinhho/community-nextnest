@@ -1,6 +1,6 @@
 'use client'
 
-import { ERROR_MESSAGE, ErrorCode } from '@/constants/error-message'
+import { ERROR_MESSAGE, ErrorCode } from '@/lib/constants/error-message'
 import { cn } from '@/lib/utils/cn'
 import { redirect, useSearchParams } from 'next/navigation'
 

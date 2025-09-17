@@ -1,6 +1,6 @@
+import { UserStoreProvider } from "@/features/user/stores/provider"
 import { HomeSidebar } from "@/layouts/home/HomeSidebar"
-import { cn } from "@/lib/utils"
-import { UserStoreProvider } from "@/providers/UserStoreProvider"
+import { cn } from "@/lib/utils/cn"
 import { Toaster } from "sonner"
 
 export default function MainLayout({ children, modal }: {

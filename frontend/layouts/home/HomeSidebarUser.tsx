@@ -1,4 +1,4 @@
-import { DefaultAvatorImage } from '@/constants/images'
+import { DefaultAvatorImage } from '@/lib/constants/images'
 import { cn } from '@/lib/utils/cn'
 import { TailWindClasses } from '@/types/component-util.types'
 import Image from 'next/image'

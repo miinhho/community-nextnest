@@ -1,4 +1,4 @@
-import { DefaultAvatorImage } from '@/constants/images'
+import { DefaultAvatorImage } from '@/lib/constants/images'
 import { TailWindClasses } from '@/types/component-util.types'
 import { Avatar, AvatarImage } from '@radix-ui/react-avatar'
 

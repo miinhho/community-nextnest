@@ -3,7 +3,7 @@ import { postGetQueryFn } from '@/features/post/query/post'
 import { postCommentQueryFn } from '@/features/post/query/post-comment'
 import { POST_QUERY } from '@/features/post/query/post-key'
 import { INITIAL_PAGE } from '@/lib/constant'
-import { getQueryClient } from '@/providers/QueryProvider'
+import { getQueryClient } from '@/lib/providers/QueryProvider'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 
 interface PostPageProps {

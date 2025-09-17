@@ -1,4 +1,4 @@
-import QueryProvider from '@/providers/QueryProvider';
+import QueryProvider from '@/lib/providers/QueryProvider';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Toaster } from 'sonner';
 import PostContent, { PostContentSkeleton } from './PostContent';

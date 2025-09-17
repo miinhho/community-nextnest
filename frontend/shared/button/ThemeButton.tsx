@@ -1,6 +1,6 @@
 "use client"
 
-import { THEMES, ThemeType } from "@/constants/theme"
+import { THEMES, ThemeType } from "@/lib/constants/theme"
 import { Button } from "@/shared/ui/button"
 import {
   DropdownMenu,

@@ -1,4 +1,4 @@
-import { ALPHABET_NUMBERIC_REGEX, SPECIAL_CHAR_REGEX } from '@/constants/regex'
+import { ALPHABET_NUMBERIC_REGEX, SPECIAL_CHAR_REGEX } from '@/lib/constants/regex'
 import z from 'zod'
 
 export const loginData = z.object({
