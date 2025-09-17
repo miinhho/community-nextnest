@@ -1,21 +1,20 @@
 'use client';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/cn';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { ComponentRef, useRef } from 'react';
+import { ComponentRef, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { useMount } from 'react-use';
 
 export const ContentModal = ({ children }: React.PropsWithChildren) => {
   const router = useRouter();
   const dialogRef = useRef<ComponentRef<'dialog'>>(null);
 
-  useMount(() => {
+  useEffect(() => {
     if (!dialogRef.current?.open) {
       dialogRef.current?.showModal();
     }
-  });
+  }, []);
 
   const onDismiss = () => {
     router.back();

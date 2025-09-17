@@ -1,8 +1,8 @@
 'use client'
 
-import { useAuthRegisterQuery } from '@/lib/query/auth.query'
-import { cn } from '@/lib/utils'
-import { registerData, type RegisterData } from '@/lib/validation/auth.validate'
+import { useAuthRegisterQuery } from '@/features/auth/query/auth-register'
+import { RegisterData, registerData } from '@/features/auth/validation/auth-register'
+import { cn } from '@/lib/utils/cn'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { SubmitHandler, useForm } from 'react-hook-form'

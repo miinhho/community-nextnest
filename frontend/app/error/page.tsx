@@ -1,14 +1,12 @@
 'use client'
 
-import { errorMessages } from '@/constants/error-page'
-import { cn } from '@/lib/utils'
+import { ERROR_MESSAGE, ErrorCode } from '@/constants/error-message'
+import { cn } from '@/lib/utils/cn'
 import { redirect, useSearchParams } from 'next/navigation'
 
-type ErrorCode = '403' | '404' | '500' | 'unknown'
-
 export default function ErrorPage() {
-  const code = useSearchParams().get('code')
-  const errorInfo = errorMessages[code as ErrorCode || 'unknown']
+  const code = useSearchParams().get('code') as ErrorCode || 'unknown'
+  const errorInfo = ERROR_MESSAGE[code] || ERROR_MESSAGE['unknown']
 
   const handleHomeRedirect = () => {
     redirect('/')
