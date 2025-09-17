@@ -1,19 +1,14 @@
 'use client'
 
 import { useUserStore } from '@/providers/UserStoreProvider'
-import { useShallow } from 'zustand/shallow'
 
 export const useUser = () => {
-  const { id, name, image, setUser, updateUserData, initializeUser } = useUserStore(
-    useShallow((state) => ({
-      id: state.id,
-      name: state.name,
-      image: state.image,
-      setUser: state.setUser,
-      updateUserData: state.updateUserData,
-      initializeUser: state.initializeUser,
-    })),
-  )
+  const id = useUserStore((state) => state.id)
+  const name = useUserStore((state) => state.name)
+  const image = useUserStore((state) => state.image)
+  const setUser = useUserStore((state) => state.setUser)
+  const updateUserData = useUserStore((state) => state.updateUserData)
+  const initializeUser = useUserStore((state) => state.initializeUser)
 
   if (!id) {
     initializeUser()
