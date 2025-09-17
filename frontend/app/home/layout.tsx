@@ -19,7 +19,7 @@ export default function MainLayout({ children, modal }: {
           {children}
         </div>
       </div>
-      <Toaster />
+      <Toaster position='top-center' />
       {modal}
       <div id="modal-root" />
     </UserStoreProvider>

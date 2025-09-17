@@ -3,7 +3,6 @@
 import CommentButton from '@/components/button/CommentButton'
 import LikeButton from '@/components/button/LikeButton'
 import ShareButton from '@/components/button/ShareButton'
-import LexicalViewer from '@/components/editor/LexicalViewer'
 import PostUserAvator from '@/components/post/PostUserAvator'
 import { Card, CardContent } from '@/components/ui/card'
 import { usePostLikeQuery, usePostQuery } from '@/lib/query/post.query'
@@ -70,10 +69,6 @@ const PreviewPost = ({ postId, onComment }: PreviewPostProps) => {
     <Card className="flex max-w-xl mx-auto shadow-sm border">
       <CardContent>
         <PostUserAvator author={author} />
-        <LexicalViewer
-          className='mt-3 rounded-2xl border-2 border-black'
-          json={content}
-        />
       </CardContent>
 
       <div className="flex justify-start gap-x-3 px-6">

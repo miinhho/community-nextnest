@@ -1,9 +1,0 @@
-@import "tailwindcss";
-
-.toolbar-item {
-  @apply border-0 flex p-2 rounded-xl cursor-pointer align-middle disabled:cursor-not-allowed disabled:opacity-20;
-}
-
-.toolbar-item-active {
-  @apply bg-neutral-300 dark:bg-neutral-800;
-}
